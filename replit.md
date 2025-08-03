@@ -39,6 +39,7 @@ Preferred communication style: Simple, everyday language.
 - **Blog Platform**: Content management for guides, strategies, and news
 - **Newsletter**: Email subscription system for user engagement
 - **Admin Panel**: Complete content management system with forms for casinos, bonuses, games, blog posts, and detailed ratings
+- **Authentication**: Secure admin login system with JWT tokens protecting admin panel access
 - **Rating System**: 6-category casino rating system (bonuses, design, payouts, support, games, mobile)
 
 ### Development Features

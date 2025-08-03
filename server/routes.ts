@@ -1,10 +1,63 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import jwt from 'jsonwebtoken';
 import { insertNewsletterSubscriberSchema, insertComparisonSchema } from "@shared/schema";
 import { z } from "zod";
 
+// Simple admin credentials (in production use environment variables)
+const ADMIN_CREDENTIALS = {
+  username: 'admin',
+  password: 'getabonus2024!'
+};
+
+const JWT_SECRET = process.env.JWT_SECRET || 'getabonus-jwt-secret-key-2024';
+
 export async function registerRoutes(app: Express): Promise<Server> {
+  
+  // Authentication routes
+  app.post('/api/auth/login', (req, res) => {
+    const { username, password } = req.body;
+    
+    if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+      const token = jwt.sign(
+        { username, isAdmin: true },
+        JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+      
+      res.json({ 
+        success: true, 
+        token,
+        message: 'Uspješna prijava'
+      });
+    } else {
+      res.status(401).json({ 
+        success: false, 
+        message: 'Neispravni podaci za prijavu' 
+      });
+    }
+  });
+
+  app.get('/api/auth/verify', (req, res) => {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+      return res.status(401).json({ success: false, message: 'Token nije pronađen' });
+    }
+
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as any;
+      if (decoded.isAdmin) {
+        res.json({ success: true, user: decoded });
+      } else {
+        res.status(403).json({ success: false, message: 'Nemate admin privilegije' });
+      }
+    } catch (error) {
+      res.status(401).json({ success: false, message: 'Nevažeći token' });
+    }
+  });
   // Casino routes
   app.get("/api/casinos", async (req, res) => {
     try {

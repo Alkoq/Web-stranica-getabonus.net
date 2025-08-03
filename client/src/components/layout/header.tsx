@@ -15,7 +15,6 @@ export function Header() {
     { name: "Reviews", href: "/reviews" },
     { name: "Compare", href: "/compare" },
     { name: "Blog", href: "/blog" },
-    { name: "Admin", href: "/admin" },
   ];
 
   const isActive = (href: string) => location === href;

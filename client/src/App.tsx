@@ -14,7 +14,8 @@ import Bonuses from "@/pages/bonuses";
 import Reviews from "@/pages/reviews";
 import Compare from "@/pages/compare";
 import Blog from "@/pages/blog";
-import Admin from "@/pages/admin";
+import Login from "@/pages/login";
+import AdminPanel from "@/pages/admin-panel";
 import CasinoDetail from "@/pages/casino-detail";
 import NotFound from "@/pages/not-found";
 
@@ -31,7 +32,8 @@ function Router() {
           <Route path="/reviews" component={Reviews} />
           <Route path="/compare" component={Compare} />
           <Route path="/blog" component={Blog} />
-          <Route path="/admin" component={Admin} />
+          <Route path="/admin" component={Login} />
+          <Route path="/admin-panel" component={AdminPanel} />
           <Route component={NotFound} />
         </Switch>
       </main>
