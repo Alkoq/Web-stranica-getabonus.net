@@ -145,9 +145,148 @@ export class MemStorage implements IStorage {
       updatedAt: new Date(),
     };
 
+    // Add more casinos for better competition
+    const rollbitCasino: Casino = {
+      id: randomUUID(),
+      name: "Rollbit",
+      description: "Innovative crypto casino with NFT integration, sports betting, and provably fair games with high cashback rewards.",
+      logoUrl: "https://images.unsplash.com/photo-1634704784915-aacf363b021e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100&q=80",
+      websiteUrl: "https://rollbit.com",
+      affiliateUrl: "https://rollbit.com/r/GetABonus",
+      safetyIndex: "8.8",
+      userRating: "4.7",
+      totalReviews: 892,
+      establishedYear: 2020,
+      license: "Curacao eGaming",
+      paymentMethods: ["Bitcoin", "Ethereum", "USDT", "Solana"],
+      supportedCurrencies: ["BTC", "ETH", "USDT", "SOL", "BNB"],
+      gameProviders: ["Pragmatic Play", "Evolution", "Hacksaw Gaming", "Rollbit Originals"],
+      features: ["NFT Integration", "High Cashback", "Sports Betting", "Provably Fair"],
+      isFeatured: true,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const bitcasinoCasino: Casino = {
+      id: randomUUID(),
+      name: "Bitcasino",
+      description: "Pioneer in Bitcoin gaming since 2014, offering instant deposits, anonymous play, and exclusive Bitcoin bonuses.",
+      logoUrl: "https://images.unsplash.com/photo-1621761158633-eeab96aaeebc?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100&q=80",
+      websiteUrl: "https://bitcasino.io",
+      affiliateUrl: "https://bitcasino.io/ref/GetABonus",
+      safetyIndex: "9.0",
+      userRating: "4.6",
+      totalReviews: 2156,
+      establishedYear: 2014,
+      license: "Curacao eGaming",
+      paymentMethods: ["Bitcoin", "Ethereum", "Litecoin", "Tether"],
+      supportedCurrencies: ["BTC", "ETH", "LTC", "USDT", "EUR", "USD"],
+      gameProviders: ["Evolution", "Pragmatic Play", "NetEnt", "Microgaming"],
+      features: ["Anonymous Play", "Instant Deposits", "VIP Rewards", "Live Dealer"],
+      isFeatured: true,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const fortunejackCasino: Casino = {
+      id: randomUUID(),
+      name: "FortuneJack",
+      description: "Established crypto casino with extensive game library, competitive sports betting, and loyalty program rewards.",
+      logoUrl: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100&q=80",
+      websiteUrl: "https://fortunejack.com",
+      affiliateUrl: "https://fortunejack.com/?ref=GetABonus",
+      safetyIndex: "8.6",
+      userRating: "4.4",
+      totalReviews: 1789,
+      establishedYear: 2014,
+      license: "Curacao eGaming",
+      paymentMethods: ["Bitcoin", "Ethereum", "Dogecoin", "Monero"],
+      supportedCurrencies: ["BTC", "ETH", "DOGE", "XMR", "LTC"],
+      gameProviders: ["NetEnt", "Microgaming", "Betsoft", "Amatic"],
+      features: ["Loyalty Program", "Sports Betting", "Live Casino", "Jackpot Games"],
+      isFeatured: false,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const cloudBetCasino: Casino = {
+      id: randomUUID(),
+      name: "CloudBet",
+      description: "Premium crypto sportsbook and casino offering competitive odds, live betting, and comprehensive crypto support.",
+      logoUrl: "https://images.unsplash.com/photo-1640161704729-cbe966a08476?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100&q=80",
+      websiteUrl: "https://cloudbet.com",
+      affiliateUrl: "https://cloudbet.com/ref/GetABonus",
+      safetyIndex: "8.9",
+      userRating: "4.5",
+      totalReviews: 1432,
+      establishedYear: 2013,
+      license: "Curacao eGaming",
+      paymentMethods: ["Bitcoin", "Bitcoin Cash", "Ethereum", "Litecoin"],
+      supportedCurrencies: ["BTC", "BCH", "ETH", "LTC", "USDT"],
+      gameProviders: ["Evolution", "Pragmatic Play", "Red Tiger", "Yggdrasil"],
+      features: ["Live Betting", "Competitive Odds", "Mobile App", "Fast Withdrawals"],
+      isFeatured: false,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const bitStarzCasino: Casino = {
+      id: randomUUID(),
+      name: "BitStarz",
+      description: "Award-winning hybrid casino accepting both crypto and fiat, known for fast payouts and excellent customer service.",
+      logoUrl: "https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100&q=80",
+      websiteUrl: "https://bitstarz.com",
+      affiliateUrl: "https://bitstarz.com/ref/GetABonus",
+      safetyIndex: "9.1",
+      userRating: "4.7",
+      totalReviews: 3421,
+      establishedYear: 2014,
+      license: "Curacao eGaming",
+      paymentMethods: ["Bitcoin", "Ethereum", "Credit Card", "Bank Transfer"],
+      supportedCurrencies: ["BTC", "ETH", "EUR", "USD", "CAD", "AUD"],
+      gameProviders: ["NetEnt", "Microgaming", "Betsoft", "Evolution"],
+      features: ["Hybrid Casino", "Fast Payouts", "24/7 Support", "Mobile Optimized"],
+      isFeatured: false,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const duelbitsCasino: Casino = {
+      id: randomUUID(),
+      name: "Duelbits",
+      description: "Modern crypto casino with battles feature, extensive game selection, and generous bonuses for cryptocurrency players.",
+      logoUrl: "https://images.unsplash.com/photo-1634757439710-1da5d4be4c4b?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100&q=80",
+      websiteUrl: "https://duelbits.com",
+      affiliateUrl: "https://duelbits.com/ref/GetABonus",
+      safetyIndex: "8.5",
+      userRating: "4.3",
+      totalReviews: 756,
+      establishedYear: 2020,
+      license: "Curacao eGaming",
+      paymentMethods: ["Bitcoin", "Ethereum", "Litecoin", "Dogecoin"],
+      supportedCurrencies: ["BTC", "ETH", "LTC", "DOGE", "USDT"],
+      gameProviders: ["Pragmatic Play", "Hacksaw Gaming", "BGaming", "Relax Gaming"],
+      features: ["Battles Feature", "Crypto Focus", "Regular Promotions", "User-Friendly"],
+      isFeatured: false,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
     this.casinos.set(stakeCasino.id, stakeCasino);
     this.casinos.set(roobetCasino.id, roobetCasino);
     this.casinos.set(bcGameCasino.id, bcGameCasino);
+    this.casinos.set(rollbitCasino.id, rollbitCasino);
+    this.casinos.set(bitcasinoCasino.id, bitcasinoCasino);
+    this.casinos.set(fortunejackCasino.id, fortunejackCasino);
+    this.casinos.set(cloudBetCasino.id, cloudBetCasino);
+    this.casinos.set(bitStarzCasino.id, bitStarzCasino);
+    this.casinos.set(duelbitsCasino.id, duelbitsCasino);
 
     // Initialize bonuses
     const stakeBonus: Bonus = {
@@ -193,9 +332,101 @@ export class MemStorage implements IStorage {
       updatedAt: new Date(),
     };
 
+    // Add bonuses for new casinos
+    const rollbitBonus: Bonus = {
+      id: randomUUID(),
+      casinoId: rollbitCasino.id,
+      title: "100% Welcome Bonus + NFTs",
+      description: "Get bonus funds plus exclusive NFT rewards and high cashback rates",
+      type: "welcome",
+      amount: "100% + NFTs",
+      wageringRequirement: "30x",
+      terms: "New players only. 18+. T&Cs apply.",
+      isFeatured: true,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const bitcasinoBonus: Bonus = {
+      id: randomUUID(),
+      casinoId: bitcasinoCasino.id,
+      title: "Bitcoin Welcome Package",
+      description: "Exclusive Bitcoin bonuses with instant deposits and anonymous play",
+      type: "welcome",
+      amount: "BTC Welcome Package",
+      terms: "New players only. 18+. T&Cs apply.",
+      isFeatured: true,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const fortunejackBonus: Bonus = {
+      id: randomUUID(),
+      casinoId: fortunejackCasino.id,
+      title: "Loyalty Program Rewards",
+      description: "Earn points with every bet and unlock exclusive rewards",
+      type: "loyalty",
+      amount: "Loyalty Points",
+      terms: "Active players. 18+. T&Cs apply.",
+      isFeatured: false,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const cloudBetBonus: Bonus = {
+      id: randomUUID(),
+      casinoId: cloudBetCasino.id,
+      title: "Sports & Casino Combo",
+      description: "Bonus for both sportsbook and casino with competitive odds",
+      type: "welcome",
+      amount: "Combo Bonus",
+      terms: "New players only. 18+. T&Cs apply.",
+      isFeatured: false,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const bitStarzBonus: Bonus = {
+      id: randomUUID(),
+      casinoId: bitStarzCasino.id,
+      title: "Hybrid Casino Bonus",
+      description: "Bonus for both crypto and fiat deposits with fast payouts",
+      type: "welcome",
+      amount: "Hybrid Bonus",
+      terms: "New players only. 18+. T&Cs apply.",
+      isFeatured: false,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const duelbitsBonus: Bonus = {
+      id: randomUUID(),
+      casinoId: duelbitsCasino.id,
+      title: "Battle Bonus Package",
+      description: "Special bonus for battles feature and regular promotions",
+      type: "welcome",
+      amount: "Battle Package",
+      terms: "New players only. 18+. T&Cs apply.",
+      isFeatured: false,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
     this.bonuses.set(stakeBonus.id, stakeBonus);
     this.bonuses.set(roobetBonus.id, roobetBonus);
     this.bonuses.set(bcGameBonus.id, bcGameBonus);
+    this.bonuses.set(rollbitBonus.id, rollbitBonus);
+    this.bonuses.set(bitcasinoBonus.id, bitcasinoBonus);
+    this.bonuses.set(fortunejackBonus.id, fortunejackBonus);
+    this.bonuses.set(cloudBetBonus.id, cloudBetBonus);
+    this.bonuses.set(bitStarzBonus.id, bitStarzBonus);
+    this.bonuses.set(duelbitsBonus.id, duelbitsBonus);
 
     // Initialize blog posts based on web content
     const blogPost1: BlogPost = {
@@ -230,8 +461,59 @@ export class MemStorage implements IStorage {
       updatedAt: new Date(),
     };
 
+    const blogPost3: BlogPost = {
+      id: randomUUID(),
+      title: "Best Crypto Casinos 2025: Complete Guide to Bitcoin Gambling",
+      slug: "best-crypto-casinos-2025-bitcoin-gambling-guide",
+      excerpt: "Discover the top cryptocurrency casinos of 2025, featuring the best Bitcoin gambling sites with proven fairness, excellent bonuses, and secure transactions.",
+      content: "Complete crypto casino guide content...",
+      featuredImage: "https://images.unsplash.com/photo-1621761191319-c6fb62004040?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80",
+      category: "Guide",
+      tags: ["Crypto Casino", "Bitcoin", "Gambling", "2025"],
+      readTime: 12,
+      isPublished: true,
+      publishedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const blogPost4: BlogPost = {
+      id: randomUUID(),
+      title: "Provably Fair Games Explained: How Crypto Casinos Ensure Fairness",
+      slug: "provably-fair-games-crypto-casinos-fairness",
+      excerpt: "Learn how provably fair technology works in crypto casinos and why it's revolutionary for online gambling transparency and trust.",
+      content: "Provably fair technology explanation...",
+      featuredImage: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80",
+      category: "Education",
+      tags: ["Provably Fair", "Technology", "Crypto", "Fairness"],
+      readTime: 8,
+      isPublished: true,
+      publishedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const blogPost5: BlogPost = {
+      id: randomUUID(),
+      title: "Crypto Casino Bonuses Guide: Maximize Your Bitcoin Winnings",
+      slug: "crypto-casino-bonuses-guide-bitcoin-winnings",
+      excerpt: "Master the art of crypto casino bonuses. Learn about welcome bonuses, cashback offers, and VIP rewards to boost your cryptocurrency gambling profits.",
+      content: "Comprehensive bonus guide content...",
+      featuredImage: "https://images.unsplash.com/photo-1634704784915-aacf363b021e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80",
+      category: "Strategy",
+      tags: ["Bonuses", "Strategy", "Bitcoin", "Winnings"],
+      readTime: 10,
+      isPublished: true,
+      publishedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
     this.blogPosts.set(blogPost1.id, blogPost1);
     this.blogPosts.set(blogPost2.id, blogPost2);
+    this.blogPosts.set(blogPost3.id, blogPost3);
+    this.blogPosts.set(blogPost4.id, blogPost4);
+    this.blogPosts.set(blogPost5.id, blogPost5);
   }
 
   // User methods
