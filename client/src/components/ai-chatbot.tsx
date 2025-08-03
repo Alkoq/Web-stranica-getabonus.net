@@ -101,9 +101,10 @@ export function AIChatbot() {
               variant="ghost"
               size="icon"
               onClick={() => setIsOpen(false)}
-              className="text-white hover:bg-white/20"
+              className="text-white hover:bg-white/20 p-2"
+              data-testid="button-close-chat"
             >
-              <X className="h-4 w-4" />
+              <X className="h-6 w-6" />
             </Button>
           </div>
           <p className="text-sm text-blue-100">

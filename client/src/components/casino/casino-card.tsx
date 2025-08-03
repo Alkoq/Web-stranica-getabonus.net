@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, ExternalLink } from "lucide-react";
+import { Star, ExternalLink, Info } from "lucide-react";
+import { Link } from "wouter";
 import type { Casino } from "@shared/schema";
 
 interface CasinoCardProps {
@@ -9,8 +10,8 @@ interface CasinoCardProps {
 }
 
 export function CasinoCard({ casino, showDetails = true }: CasinoCardProps) {
-  const renderStars = (rating: string) => {
-    const numRating = parseFloat(rating);
+  const renderStars = (rating: string | null) => {
+    const numRating = parseFloat(rating || '0');
     const fullStars = Math.floor(numRating);
     const hasHalfStar = numRating % 1 >= 0.5;
     
@@ -32,8 +33,8 @@ export function CasinoCard({ casino, showDetails = true }: CasinoCardProps) {
     );
   };
 
-  const getSafetyColor = (index: string) => {
-    const numIndex = parseFloat(index);
+  const getSafetyColor = (index: string | null) => {
+    const numIndex = parseFloat(index || '0');
     if (numIndex >= 9.0) return "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200";
     if (numIndex >= 8.0) return "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200";
     if (numIndex >= 7.0) return "bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200";
@@ -64,14 +65,14 @@ export function CasinoCard({ casino, showDetails = true }: CasinoCardProps) {
           <div className="flex items-center space-x-4">
             <div className="text-center">
               <div className={`px-4 py-2 rounded-lg ${getSafetyColor(casino.safetyIndex)}`}>
-                <div className="text-2xl font-bold">{casino.safetyIndex}</div>
+                <div className="text-2xl font-bold">{casino.safetyIndex || '0'}</div>
                 <div className="text-xs">Safety Index</div>
               </div>
             </div>
             <div className="text-center">
               {renderStars(casino.userRating)}
               <div className="text-xs text-muted-foreground mt-1">
-                {casino.userRating}/5 ({casino.totalReviews} reviews)
+                {casino.userRating || '0'}/5 ({casino.totalReviews} reviews)
               </div>
             </div>
           </div>
@@ -84,9 +85,12 @@ export function CasinoCard({ casino, showDetails = true }: CasinoCardProps) {
                 <ExternalLink className="ml-2 h-4 w-4" />
               </a>
             </Button>
-            <Button variant="outline">
-              Read Review
-            </Button>
+            <Link href={`/casino/${casino.id}`}>
+              <Button variant="outline" data-testid="button-casino-details">
+                <Info className="mr-2 h-4 w-4" />
+                Više Informacija
+              </Button>
+            </Link>
           </div>
         </div>
 
@@ -94,11 +98,11 @@ export function CasinoCard({ casino, showDetails = true }: CasinoCardProps) {
         {showDetails && (
           <div className="mt-4 pt-4 border-t border-border">
             <div className="flex flex-wrap gap-2">
-              {casino.features.slice(0, 4).map((feature, index) => (
+              {casino.features?.slice(0, 4).map((feature, index) => (
                 <Badge key={index} variant="secondary">
                   {feature}
                 </Badge>
-              ))}
+              )) || null}
               {casino.license && (
                 <Badge variant="outline">
                   Licensed: {casino.license}
@@ -106,7 +110,7 @@ export function CasinoCard({ casino, showDetails = true }: CasinoCardProps) {
               )}
             </div>
             
-            {casino.paymentMethods.length > 0 && (
+            {casino.paymentMethods && casino.paymentMethods.length > 0 && (
               <div className="mt-2">
                 <span className="text-sm text-muted-foreground">Payment Methods: </span>
                 <span className="text-sm">{casino.paymentMethods.slice(0, 3).join(", ")}</span>
