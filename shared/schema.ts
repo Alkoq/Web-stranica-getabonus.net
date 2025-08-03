@@ -99,10 +99,51 @@ export const comparisons = pgTable("comparisons", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const games = pgTable("games", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  description: text("description"),
+  provider: text("provider").notNull(),
+  type: text("type").notNull(), // slot, table, live, etc.
+  rtp: decimal("rtp", { precision: 5, scale: 2 }), // Return to Player percentage
+  volatility: text("volatility"), // low, medium, high
+  minBet: decimal("min_bet", { precision: 10, scale: 2 }),
+  maxBet: decimal("max_bet", { precision: 10, scale: 2 }),
+  imageUrl: text("image_url"),
+  demoUrl: text("demo_url"),
+  tags: jsonb("tags").$type<string[]>().default([]),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const casinoGames = pgTable("casino_games", {
+  casinoId: varchar("casino_id").references(() => casinos.id).notNull(),  
+  gameId: varchar("game_id").references(() => games.id).notNull(),
+  isAvailable: boolean("is_available").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const casinoRatings = pgTable("casino_ratings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  casinoId: varchar("casino_id").references(() => casinos.id).notNull(),
+  bonusesRating: decimal("bonuses_rating", { precision: 3, scale: 1 }).notNull(),
+  designRating: decimal("design_rating", { precision: 3, scale: 1 }).notNull(),
+  payoutsRating: decimal("payouts_rating", { precision: 3, scale: 1 }).notNull(),
+  customerSupportRating: decimal("customer_support_rating", { precision: 3, scale: 1 }).notNull(),
+  gameSelectionRating: decimal("game_selection_rating", { precision: 3, scale: 1 }).notNull(),
+  mobileExperienceRating: decimal("mobile_experience_rating", { precision: 3, scale: 1 }).notNull(),
+  overallRating: decimal("overall_rating", { precision: 3, scale: 1 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 export const casinosRelations = relations(casinos, ({ many }) => ({
   bonuses: many(bonuses),
   reviews: many(reviews),
+  casinoGames: many(casinoGames),
+  ratings: many(casinoRatings),
 }));
 
 export const bonusesRelations = relations(bonuses, ({ one }) => ({
@@ -120,6 +161,28 @@ export const reviewsRelations = relations(reviews, ({ one }) => ({
   user: one(users, {
     fields: [reviews.userId],
     references: [users.id],
+  }),
+}));
+
+export const gamesRelations = relations(games, ({ many }) => ({
+  casinoGames: many(casinoGames),
+}));
+
+export const casinoGamesRelations = relations(casinoGames, ({ one }) => ({
+  casino: one(casinos, {
+    fields: [casinoGames.casinoId],
+    references: [casinos.id],
+  }),
+  game: one(games, {
+    fields: [casinoGames.gameId],
+    references: [games.id],
+  }),
+}));
+
+export const casinoRatingsRelations = relations(casinoRatings, ({ one }) => ({
+  casino: one(casinos, {
+    fields: [casinoRatings.casinoId],
+    references: [casinos.id],
   }),
 }));
 
@@ -175,6 +238,22 @@ export const insertComparisonSchema = createInsertSchema(comparisons).omit({
   createdAt: true,
 });
 
+export const insertGameSchema = createInsertSchema(games).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertCasinoGameSchema = createInsertSchema(casinoGames).omit({
+  createdAt: true,
+});
+
+export const insertCasinoRatingSchema = createInsertSchema(casinoRatings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -196,3 +275,12 @@ export type InsertNewsletterSubscriber = z.infer<typeof insertNewsletterSubscrib
 
 export type Comparison = typeof comparisons.$inferSelect;
 export type InsertComparison = z.infer<typeof insertComparisonSchema>;
+
+export type Game = typeof games.$inferSelect;
+export type InsertGame = z.infer<typeof insertGameSchema>;
+
+export type CasinoGame = typeof casinoGames.$inferSelect;
+export type InsertCasinoGame = z.infer<typeof insertCasinoGameSchema>;
+
+export type CasinoRating = typeof casinoRatings.$inferSelect;
+export type InsertCasinoRating = z.infer<typeof insertCasinoRatingSchema>;

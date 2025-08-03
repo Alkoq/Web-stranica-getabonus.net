@@ -27,16 +27,19 @@ Preferred communication style: Simple, everyday language.
 ### Data Storage
 - **Database**: PostgreSQL with Neon serverless hosting for scalability
 - **ORM**: Drizzle ORM for type-safe database operations and schema management
-- **Schema**: Comprehensive relational design with tables for users, casinos, bonuses, reviews, blog posts, newsletter subscribers, and comparisons
+- **Schema**: Comprehensive relational design with tables for users, casinos, bonuses, games, casino_games, casino_ratings, reviews, blog posts, newsletter subscribers, and comparisons
 - **Connection**: Connection pooling with @neondatabase/serverless for efficient database access
 
 ### Key Features
 - **Casino Management**: Detailed casino profiles with safety ratings, licenses, payment methods, and features
 - **Bonus System**: Comprehensive bonus tracking with types (welcome, no-deposit, free spins, cashback)
+- **Game Database**: Casino game catalog with RTP, volatility, demo links, and provider information
 - **Review Platform**: User-generated reviews with rating systems and verification
-- **Comparison Tools**: Side-by-side casino comparison functionality
+- **Comparison Tools**: Side-by-side casino comparison functionality with detailed ratings
 - **Blog Platform**: Content management for guides, strategies, and news
 - **Newsletter**: Email subscription system for user engagement
+- **Admin Panel**: Complete content management system with forms for casinos, bonuses, games, blog posts, and detailed ratings
+- **Rating System**: 6-category casino rating system (bonuses, design, payouts, support, games, mobile)
 
 ### Development Features
 - **Theme Support**: Light/dark mode with system preference detection
