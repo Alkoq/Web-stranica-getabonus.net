@@ -697,7 +697,7 @@ export default function CasinoDetailPage() {
                   amount: "50 Free Spins",
                   type: "free-spins",
                   description: "No deposit required, valid for 7 days",
-                  code: null, // No code needed
+                  code: undefined, // No code needed
                   validUntil: "2024-12-31",
                   affiliateUrl: casino.affiliateUrl
                 },
@@ -916,7 +916,7 @@ export default function CasinoDetailPage() {
                           </div>
                           <div className="flex items-center gap-1">
                             <Clock className="h-4 w-4" />
-                            <span>{review.createdAt.toLocaleDateString()}</span>
+                            <span>{review.createdAt ? new Date(review.createdAt).toLocaleDateString() : 'Recently'}</span>
                           </div>
                         </div>
                       </div>
@@ -1146,7 +1146,7 @@ export default function CasinoDetailPage() {
                   <Card key={article.id} className="flex-shrink-0 w-80 hover:shadow-lg transition-shadow cursor-pointer">
                     <div className="aspect-video overflow-hidden rounded-t-lg">
                       <img
-                        src={article.featuredImage}
+                        src={article.featuredImage || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=200&fit=crop'}
                         alt={article.title}
                         className="w-full h-full object-cover hover:scale-105 transition-transform"
                       />
@@ -1198,7 +1198,7 @@ export default function CasinoDetailPage() {
                   <Card key={`${game.id}-${index}`} className="flex-shrink-0 w-72 hover:shadow-lg transition-shadow">
                     <div className="aspect-video overflow-hidden rounded-t-lg">
                       <img
-                        src={game.imageUrl}
+                        src={game.imageUrl || 'https://images.unsplash.com/photo-1594736797933-d0d9770d1a15?w=300&h=200&fit=crop'}
                         alt={game.name}
                         className="w-full h-full object-cover hover:scale-105 transition-transform"
                       />
