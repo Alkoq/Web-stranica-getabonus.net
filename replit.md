@@ -34,13 +34,14 @@ Preferred communication style: Simple, everyday language.
 - **Casino Management**: Detailed casino profiles with safety ratings, licenses, payment methods, and features
 - **Bonus System**: Comprehensive bonus tracking with types (welcome, no-deposit, free spins, cashback)
 - **Game Database**: Casino game catalog with RTP, volatility, demo links, and provider information
-- **Review Platform**: User-generated reviews with rating systems and verification
+- **Integrated Review System**: Casino pages include expert reviews (6 criteria with ratings/explanations) and user reviews (1-10 ratings + comments)
 - **Comparison Tools**: Side-by-side casino comparison functionality with detailed ratings
 - **Blog Platform**: Content management for guides, strategies, and news
 - **Newsletter**: Email subscription system for user engagement
 - **Admin Panel**: Hidden admin system accessible only via direct URL (/admin) for content management
 - **Authentication**: Secure admin login system with JWT tokens protecting admin panel access
 - **Rating System**: 6-category casino rating system (bonuses, design, payouts, support, games, mobile)
+- **Casino Page Structure**: Basic casino info → expert reviews → user reviews → related articles → casino games
 
 ### Development Features
 - **Theme Support**: Light/dark mode with system preference detection

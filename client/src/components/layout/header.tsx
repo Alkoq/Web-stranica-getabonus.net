@@ -14,7 +14,6 @@ export function Header() {
     { name: "Casinos", href: "/casinos", icon: "🎰" },
     { name: "Bonuses", href: "/bonuses", icon: "🎁" },
     { name: "Games", href: "/games", icon: "🎮" },
-    { name: "Reviews", href: "/reviews", icon: "⭐" },
     { name: "Compare", href: "/compare", icon: "⚖️" },
     { name: "Blog", href: "/blog", icon: "📝" },
   ];

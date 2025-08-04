@@ -1,9 +1,14 @@
 import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   ExternalLink, 
   Star, 
@@ -13,37 +18,197 @@ import {
   Gamepad2,
   ArrowLeft,
   Award,
-  Users
+  Users,
+  MessageSquare,
+  TrendingUp,
+  CheckCircle,
+  Clock
 } from "lucide-react";
-import type { Casino, Bonus } from "@shared/schema";
+import type { Casino, Bonus, Review, ExpertReview, BlogPost, Game } from "@shared/schema";
 
 export default function CasinoDetailPage() {
   const { id } = useParams();
+  const [newReview, setNewReview] = useState({
+    title: "",
+    content: "",
+    userName: "",
+    overallRating: 5,
+    bonusesRating: 5,
+    designRating: 5,
+    payoutsRating: 5,
+    customerSupportRating: 5,
+    gameSelectionRating: 5,
+    mobileExperienceRating: 5
+  });
   
   const { data: casino, isLoading: casinoLoading } = useQuery<Casino>({
     queryKey: ['/api/casinos', id],
     enabled: !!id
   });
 
-  const { data: bonuses, isLoading: bonusesLoading } = useQuery<Bonus[]>({
-    queryKey: ['/api/bonuses', id],
-    enabled: !!id
-  });
+  // Mock data for demonstration - in real app these would come from API
+  const expertReview: ExpertReview = {
+    id: "expert-1",
+    casinoId: id || "",
+    authorId: "admin-1",
+    bonusesRating: "8.5",
+    bonusesExplanation: "Excellent welcome bonus package with reasonable wagering requirements. Regular promotions for existing players.",
+    designRating: "9.2",
+    designExplanation: "Modern, intuitive interface with excellent mobile optimization. Clean layout makes navigation effortless.",
+    payoutsRating: "8.8",
+    payoutsExplanation: "Fast crypto withdrawals usually processed within 2-4 hours. Good variety of payment methods.",
+    customerSupportRating: "7.5",
+    customerSupportExplanation: "24/7 live chat available but response times can vary. Email support is thorough but slower.",
+    gameSelectionRating: "9.0",
+    gameSelectionExplanation: "Impressive selection of 2000+ games from top providers including NetEnt, Pragmatic Play, and Evolution.",
+    mobileExperienceRating: "8.7",
+    mobileExperienceExplanation: "Fully responsive design works flawlessly on all devices. Dedicated mobile app available.",
+    overallRating: "8.6",
+    summary: "A solid choice for crypto enthusiasts with excellent game variety and fast payouts.",
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
+
+  const userReviews: Review[] = [
+    {
+      id: "review-1",
+      casinoId: id || "",
+      userId: "user-1",
+      title: "Great crypto casino!",
+      content: "Been playing here for 6 months, withdrawals are super fast and games are fair.",
+      userName: "CryptoPlayer88",
+      overallRating: 9,
+      bonusesRating: 8,
+      designRating: 9,
+      payoutsRating: 10,
+      customerSupportRating: 7,
+      gameSelectionRating: 9,
+      mobileExperienceRating: 8,
+      pros: ["Fast withdrawals", "Great game selection", "Fair bonuses"],
+      cons: ["Support can be slow"],
+      isVerified: true,
+      isPublished: true,
+      createdAt: new Date("2024-12-01"),
+      updatedAt: new Date("2024-12-01")
+    },
+    {
+      id: "review-2", 
+      casinoId: id || "",
+      userId: "user-2",
+      title: "Mixed experience",
+      content: "Good games but had some issues with verification process.",
+      userName: "SlotsFan",
+      overallRating: 6,
+      bonusesRating: 7,
+      designRating: 8,
+      payoutsRating: 5,
+      customerSupportRating: 6,
+      gameSelectionRating: 8,
+      mobileExperienceRating: 7,
+      pros: ["Nice interface", "Good bonuses"],
+      cons: ["Slow verification", "Limited support hours"],
+      isVerified: false,
+      isPublished: true,
+      createdAt: new Date("2024-11-15"),
+      updatedAt: new Date("2024-11-15")
+    }
+  ];
+
+  const relatedArticles: BlogPost[] = [
+    {
+      id: "article-1",
+      title: "Complete Guide to Crypto Casino Bonuses",
+      slug: "crypto-casino-bonuses-guide",
+      excerpt: "Learn how to maximize your crypto casino bonuses and understand wagering requirements.",
+      content: "",
+      featuredImage: "https://images.unsplash.com/photo-1621752411083-bb1b8c0e0300?w=400&h=200&fit=crop",
+      authorId: "admin-1",
+      category: "Guides",
+      tags: ["bonuses", "crypto", "strategy"],
+      readTime: 8,
+      isPublished: true,
+      publishedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: "article-2",
+      title: "Best Crypto Payment Methods for Online Casinos",
+      slug: "best-crypto-payment-methods",
+      excerpt: "Discover the fastest and most secure crypto payment options for online gambling.",
+      content: "",
+      featuredImage: "https://images.unsplash.com/photo-1640170298593-a16197bd04dc?w=400&h=200&fit=crop",
+      authorId: "admin-1",
+      category: "Crypto",
+      tags: ["crypto", "payments", "security"],
+      readTime: 6,
+      isPublished: true,
+      publishedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  ];
+
+  const casinoGames: Game[] = [
+    {
+      id: "game-1",
+      name: "Book of Dead",
+      description: "Adventure-themed slot with expanding symbols",
+      provider: "Play'n GO",
+      type: "slot",
+      rtp: "96.21",
+      volatility: "High",
+      minBet: "0.01",
+      maxBet: "100.00",
+      imageUrl: "https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?w=300&h=200&fit=crop",
+      demoUrl: "#",
+      tags: ["adventure", "egypt", "expanding wilds"],
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: "game-2",
+      name: "Lightning Roulette",
+      description: "Live roulette with random multipliers",
+      provider: "Evolution Gaming",
+      type: "live",
+      rtp: "97.30",
+      volatility: "Medium",
+      minBet: "0.20",
+      maxBet: "5000.00",
+      imageUrl: "https://images.unsplash.com/photo-1521130726557-5e7e0c665fd3?w=300&h=200&fit=crop",
+      demoUrl: "#",
+      tags: ["roulette", "live", "multipliers"],
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  ];
+
+  const handleRatingChange = (category: string, value: number) => {
+    setNewReview(prev => ({
+      ...prev,
+      [category]: value
+    }));
+  };
+
+  const ratingCategories = [
+    { key: 'bonusesRating', label: 'Bonuses', icon: '🎁' },
+    { key: 'designRating', label: 'Design', icon: '🎨' },
+    { key: 'payoutsRating', label: 'Payouts', icon: '💰' },
+    { key: 'customerSupportRating', label: 'Support', icon: '🎧' },
+    { key: 'gameSelectionRating', label: 'Games', icon: '🎮' },
+    { key: 'mobileExperienceRating', label: 'Mobile', icon: '📱' }
+  ];
 
   if (casinoLoading) {
     return (
       <div className="container mx-auto p-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
-          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3 mb-8"></div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            </div>
-            <div>
-              <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            </div>
-          </div>
+        <div className="animate-pulse space-y-8">
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
+          <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded"></div>
         </div>
       </div>
     );
@@ -52,337 +217,462 @@ export default function CasinoDetailPage() {
   if (!casino) {
     return (
       <div className="container mx-auto p-6">
-        <Link href="/casinos">
-          <Button variant="ghost" className="mb-4" data-testid="button-back">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Nazad na Kasina
-          </Button>
-        </Link>
         <div className="text-center py-12">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            Casino nije pronađen
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Casino s ovim ID-om ne postoji ili nije dostupan.
-          </p>
+          <h1 className="text-2xl font-bold mb-4">Casino not found</h1>
+          <Link href="/casinos">
+            <Button>Back to Casinos</Button>
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6">
-      {/* Back Button */}
-      <Link href="/casinos">
-        <Button variant="ghost" className="mb-6" data-testid="button-back">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Nazad na Kasina
-        </Button>
-      </Link>
-
-      {/* Header */}
-      <div className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-8">
-        <img
-          src={casino.logoUrl}
-          alt={`${casino.name} logo`}
-          className="w-24 h-24 rounded-lg object-cover border-2 border-gray-200 dark:border-gray-700"
-          data-testid="img-casino-logo"
-        />
-        <div className="flex-1">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2" data-testid="text-casino-name">
-            {casino.name}
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-4" data-testid="text-casino-description">
-            {casino.description}
-          </p>
-          <div className="flex flex-wrap gap-4">
-            <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-green-500" />
-              <span className="font-semibold" data-testid="text-safety-index">
-                Safety: {casino.safetyIndex}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Star className="h-5 w-5 text-yellow-500" />
-              <span className="font-semibold" data-testid="text-user-rating">
-                {casino.userRating} ({casino.totalReviews} reviews)
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-blue-500" />
-              <span data-testid="text-established">
-                Est. {casino.establishedYear}
-              </span>
-            </div>
-          </div>
-        </div>
-        <div className="flex flex-col gap-2">
-          <Button 
-            asChild 
-            size="lg" 
-            className="bg-orange hover:bg-orange/90"
-            data-testid="button-play-now"
-          >
-            <a href={casino.affiliateUrl} target="_blank" rel="noopener noreferrer">
-              Igraj Sada
-              <ExternalLink className="h-4 w-4 ml-2" />
-            </a>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8">
+        {/* Back Button */}
+        <Link href="/casinos">
+          <Button variant="ghost" className="mb-6">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Casinos
           </Button>
-          <Button 
-            variant="outline" 
-            asChild
-            data-testid="button-visit-website"
-          >
-            <a href={casino.websiteUrl} target="_blank" rel="noopener noreferrer">
-              Posjeti Website
-              <ExternalLink className="h-4 w-4 ml-2" />
-            </a>
-          </Button>
-        </div>
-      </div>
+        </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* Bonuses */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Award className="h-5 w-5" />
-                Dostupni Bonusi
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {bonusesLoading ? (
-                <div className="animate-pulse space-y-4">
-                  <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                  <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                </div>
-              ) : bonuses && bonuses.length > 0 ? (
-                <div className="space-y-4">
-                  {bonuses.map((bonus) => (
-                    <div 
-                      key={bonus.id}
-                      className="p-4 border rounded-lg bg-gradient-to-r from-turquoise/5 to-orange/5 border-turquoise/20"
-                      data-testid={`bonus-${bonus.id}`}
+        {/* Casino Header */}
+        <Card className="mb-8" style={{
+          border: '2px solid hsl(173, 58%, 39%, 0.3)',
+          boxShadow: '0 0 20px hsl(173, 58%, 39%, 0.2)',
+        }}>
+          <CardContent className="p-8">
+            <div className="flex flex-col lg:flex-row gap-8">
+              {/* Casino Logo & Basic Info */}
+              <div className="flex-1">
+                <div className="flex items-start gap-6 mb-6">
+                  <img
+                    src={casino.logoUrl}
+                    alt={`${casino.name} logo`}
+                    className="w-20 h-20 rounded-lg object-cover"
+                  />
+                  <div className="flex-1">
+                    <h1 
+                      className="text-4xl font-bold mb-2"
+                      style={{
+                        color: 'hsl(173, 58%, 39%)',
+                        textShadow: '0 0 15px hsl(173, 58%, 39%, 0.4)'
+                      }}
                     >
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-semibold text-lg" data-testid="text-bonus-title">
-                          {bonus.title}
-                        </h3>
-                        <Badge variant="secondary" data-testid="text-bonus-type">
-                          {bonus.type}
-                        </Badge>
+                      {casino.name}
+                    </h1>
+                    <p className="text-lg text-muted-foreground mb-4">
+                      {casino.description}
+                    </p>
+                    
+                    <div className="flex flex-wrap gap-4 mb-6">
+                      <div className="flex items-center gap-2">
+                        <Shield className="h-5 w-5 text-green-500" />
+                        <span className="font-semibold">Safety: {casino.safetyIndex}</span>
                       </div>
-                      <p className="text-gray-600 dark:text-gray-400 mb-2" data-testid="text-bonus-description">
-                        {bonus.description}
-                      </p>
-                      <div className="flex flex-wrap gap-4 text-sm">
-                        <span className="font-medium" data-testid="text-bonus-amount">
-                          Iznos: {bonus.amount}
-                        </span>
-                        {bonus.wageringRequirement && (
-                          <span data-testid="text-bonus-wagering">
-                            Wagering: {bonus.wageringRequirement}
-                          </span>
-                        )}
+                      <div className="flex items-center gap-2">
+                        <Star className="h-5 w-5 text-yellow-500" />
+                        <span className="font-semibold">{casino.userRating} ({casino.totalReviews} reviews)</span>
                       </div>
-                      {bonus.terms && (
-                        <p className="text-xs text-gray-500 mt-2" data-testid="text-bonus-terms">
-                          {bonus.terms}
-                        </p>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-5 w-5 text-blue-500" />
+                        <span>Est. {casino.establishedYear}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Casino Details */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="font-semibold mb-3 text-turquoise">Payment Methods</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {casino.paymentMethods?.map((method, index) => (
+                        <Badge key={index} variant="secondary">{method}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-semibold mb-3 text-turquoise">Supported Currencies</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {casino.supportedCurrencies?.map((currency, index) => (
+                        <Badge key={index} variant="outline">{currency}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-semibold mb-3 text-turquoise">Game Providers</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {casino.gameProviders?.slice(0, 5).map((provider, index) => (
+                        <Badge key={index}>{provider}</Badge>
+                      ))}
+                      {casino.gameProviders && casino.gameProviders.length > 5 && (
+                        <Badge variant="secondary">+{casino.gameProviders.length - 5} more</Badge>
                       )}
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-500" data-testid="text-no-bonuses">
-                  Nema dostupnih bonusa trenutno.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Features */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Gamepad2 className="h-5 w-5" />
-                Ključne Funkcionalnosti
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {casino.features?.map((feature, index) => (
-                  <Badge 
-                    key={index} 
-                    variant="outline" 
-                    className="justify-center p-2"
-                    data-testid={`feature-${index}`}
-                  >
-                    {feature}
-                  </Badge>
-                )) || <p className="text-gray-500">No features listed</p>}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Game Providers */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Game Provideri</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {casino.gameProviders?.map((provider, index) => (
-                  <div 
-                    key={index}
-                    className="p-3 border rounded-lg text-center bg-gray-50 dark:bg-gray-800"
-                    data-testid={`provider-${index}`}
-                  >
-                    <span className="text-sm font-medium">{provider}</span>
                   </div>
-                )) || <p className="text-gray-500">No game providers listed</p>}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Quick Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Osnovne Informacije</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label>Licenca</Label>
-                <p className="font-medium" data-testid="text-license">{casino.license || 'N/A'}</p>
-              </div>
-              
-              <Separator />
-              
-              <div>
-                <Label>Safety Index</Label>
-                <div className="flex items-center gap-2">
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div 
-                      className="bg-green-500 h-2 rounded-full" 
-                      style={{ width: `${(parseFloat(casino.safetyIndex || '0') / 10) * 100}%` }}
-                    ></div>
+                  
+                  <div>
+                    <h3 className="font-semibold mb-3 text-turquoise">Features</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {casino.features?.map((feature, index) => (
+                        <Badge key={index} variant="outline">{feature}</Badge>
+                      ))}
+                    </div>
                   </div>
-                  <span className="font-bold text-green-500" data-testid="text-safety-score">
-                    {casino.safetyIndex || '0'}/10
-                  </span>
                 </div>
               </div>
-              
-              <Separator />
-              
-              <div>
-                <Label className="flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  Korisničke Ocjene
-                </Label>
-                <div className="flex items-center gap-2">
-                  <div className="flex">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        className={`h-4 w-4 ${
-                          star <= parseFloat(casino.userRating || '0')
-                            ? 'text-yellow-400 fill-current'
-                            : 'text-gray-300'
-                        }`}
+
+              {/* Play Now Button */}
+              <div className="lg:w-64 flex-shrink-0">
+                <Card className="p-6 text-center bg-gradient-to-br from-turquoise/10 to-orange/10">
+                  <Button 
+                    size="lg" 
+                    className="w-full mb-4 bg-gradient-to-r from-turquoise to-orange hover:from-turquoise/90 hover:to-orange/90"
+                    onClick={() => window.open(casino.affiliateUrl || casino.websiteUrl, '_blank')}
+                  >
+                    <ExternalLink className="h-5 w-5 mr-2" />
+                    Play Now
+                  </Button>
+                  <p className="text-sm text-muted-foreground">
+                    Click to visit official website
+                  </p>
+                </Card>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Expert Review Section */}
+        <Card className="mb-8" style={{
+          border: '2px solid hsl(24, 95%, 53%, 0.3)',
+          boxShadow: '0 0 20px hsl(24, 95%, 53%, 0.2)',
+        }}>
+          <CardHeader>
+            <CardTitle 
+              className="text-2xl flex items-center gap-2"
+              style={{
+                color: 'hsl(24, 95%, 53%)',
+                textShadow: '0 0 10px hsl(24, 95%, 53%, 0.3)'
+              }}
+            >
+              <Award className="h-6 w-6" />
+              Expert Review
+            </CardTitle>
+            <CardDescription>
+              Professional analysis by GetABonus.net experts
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Rating Categories */}
+              <div className="space-y-4">
+                {ratingCategories.map((category) => {
+                  const rating = parseFloat(expertReview[category.key as keyof ExpertReview] as string);
+                  const explanation = expertReview[`${category.key.replace('Rating', 'Explanation')}` as keyof ExpertReview] as string;
+                  
+                  return (
+                    <div key={category.key}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium flex items-center gap-2">
+                          <span>{category.icon}</span>
+                          {category.label}
+                        </span>
+                        <span className="font-bold text-lg text-turquoise">{rating}</span>
+                      </div>
+                      <Progress value={rating * 10} className="mb-2" />
+                      <p className="text-sm text-muted-foreground">{explanation}</p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Overall Rating & Summary */}
+              <div className="space-y-6">
+                <div className="text-center p-6 bg-gradient-to-br from-turquoise/10 to-orange/10 rounded-lg">
+                  <div className="text-4xl font-bold text-turquoise mb-2">
+                    {expertReview.overallRating}
+                  </div>
+                  <div className="text-lg font-semibold mb-2">Overall Rating</div>
+                  <div className="flex justify-center">
+                    <Progress value={parseFloat(expertReview.overallRating) * 10} className="w-32" />
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold mb-3 text-orange">Expert Summary</h4>
+                  <p className="text-muted-foreground">{expertReview.summary}</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* User Reviews Section */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="text-2xl flex items-center gap-2 text-turquoise">
+              <Users className="h-6 w-6" />
+              User Reviews ({userReviews.length})
+            </CardTitle>
+            <CardDescription>
+              Real player experiences and ratings
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {/* Existing Reviews */}
+              {userReviews.map((review) => (
+                <Card key={review.id} className="border-l-4 border-l-turquoise">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h4 className="font-semibold text-lg">{review.title}</h4>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <span>{review.userName}</span>
+                          {review.isVerified && (
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                          )}
+                          <Clock className="h-4 w-4" />
+                          <span>{review.createdAt.toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-turquoise">{review.overallRating}</div>
+                        <div className="text-sm text-muted-foreground">Overall</div>
+                      </div>
+                    </div>
+                    
+                    <p className="mb-4">{review.content}</p>
+                    
+                    {/* Category Ratings */}
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                      {ratingCategories.map((category) => (
+                        <div key={category.key} className="text-center">
+                          <div className="text-sm font-medium">{category.label}</div>
+                          <div className="text-lg font-bold text-turquoise">
+                            {review[category.key as keyof Review] as number}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {/* Pros & Cons */}
+                    {(review.pros?.length || review.cons?.length) && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {review.pros && review.pros.length > 0 && (
+                          <div>
+                            <h5 className="font-medium text-green-600 mb-2">Pros</h5>
+                            <ul className="text-sm space-y-1">
+                              {review.pros.map((pro, index) => (
+                                <li key={index} className="flex items-center gap-2">
+                                  <CheckCircle className="h-3 w-3 text-green-500" />
+                                  {pro}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        
+                        {review.cons && review.cons.length > 0 && (
+                          <div>
+                            <h5 className="font-medium text-red-600 mb-2">Cons</h5>
+                            <ul className="text-sm space-y-1">
+                              {review.cons.map((con, index) => (
+                                <li key={index} className="flex items-center gap-2">
+                                  <span className="h-3 w-3 rounded-full bg-red-500"></span>
+                                  {con}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+
+              {/* Add Review Form */}
+              <Card className="border-2 border-dashed border-turquoise/30">
+                <CardHeader>
+                  <CardTitle className="text-lg">Write Your Review</CardTitle>
+                  <CardDescription>
+                    Share your experience with other players
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="userName">Your Name</Label>
+                        <Input
+                          id="userName"
+                          value={newReview.userName}
+                          onChange={(e) => setNewReview(prev => ({ ...prev, userName: e.target.value }))}
+                          placeholder="Enter your name"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="title">Review Title</Label>
+                        <Input
+                          id="title"
+                          value={newReview.title}
+                          onChange={(e) => setNewReview(prev => ({ ...prev, title: e.target.value }))}
+                          placeholder="Summarize your experience"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Rating Categories */}
+                    <div>
+                      <Label className="text-base font-semibold">Rate Your Experience (1-10)</Label>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        {ratingCategories.map((category) => (
+                          <div key={category.key} className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <Label className="flex items-center gap-2">
+                                <span>{category.icon}</span>
+                                {category.label}
+                              </Label>
+                              <span className="font-bold text-turquoise">
+                                {newReview[category.key as keyof typeof newReview]}
+                              </span>
+                            </div>
+                            <input
+                              type="range"
+                              min="1"
+                              max="10"
+                              value={newReview[category.key as keyof typeof newReview]}
+                              onChange={(e) => handleRatingChange(category.key, parseInt(e.target.value))}
+                              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="content">Your Review</Label>
+                      <Textarea
+                        id="content"
+                        value={newReview.content}
+                        onChange={(e) => setNewReview(prev => ({ ...prev, content: e.target.value }))}
+                        placeholder="Share your detailed experience..."
+                        rows={4}
                       />
-                    ))}
+                    </div>
+
+                    <Button className="w-full bg-turquoise hover:bg-turquoise/90">
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Submit Review
+                    </Button>
                   </div>
-                  <span className="font-medium" data-testid="text-rating-value">
-                    {casino.userRating || '0'}
-                  </span>
-                  <span className="text-sm text-gray-500" data-testid="text-review-count">
-                    ({casino.totalReviews} reviews)
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Payment Methods */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
-                Payment Methods
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {casino.paymentMethods?.map((method, index) => (
-                  <div 
-                    key={index}
-                    className="flex items-center p-2 bg-gray-50 dark:bg-gray-800 rounded"
-                    data-testid={`payment-${index}`}
-                  >
-                    <CreditCard className="h-4 w-4 mr-2 text-gray-500" />
-                    <span>{method}</span>
+        {/* Related Articles */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="text-2xl flex items-center gap-2 text-orange">
+              <TrendingUp className="h-6 w-6" />
+              Related Articles
+            </CardTitle>
+            <CardDescription>
+              Learn more about crypto casino strategies and tips
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {relatedArticles.map((article) => (
+                <Card key={article.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+                  <div className="aspect-video overflow-hidden rounded-t-lg">
+                    <img
+                      src={article.featuredImage}
+                      alt={article.title}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform"
+                    />
                   </div>
-                )) || <p className="text-gray-500">No payment methods listed</p>}
-              </div>
-            </CardContent>
-          </Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge variant="secondary">{article.category}</Badge>
+                      <span className="text-sm text-muted-foreground">{article.readTime} min read</span>
+                    </div>
+                    <h3 className="font-semibold text-lg mb-2 line-clamp-2">
+                      {article.title}
+                    </h3>
+                    <p className="text-muted-foreground text-sm line-clamp-2">
+                      {article.excerpt}
+                    </p>
+                    <Button variant="ghost" className="mt-3 p-0 h-auto text-turquoise hover:text-turquoise/80">
+                      Read More <ExternalLink className="h-3 w-3 ml-1" />
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Supported Currencies */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Podržane Valute</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {casino.supportedCurrencies?.map((currency, index) => (
-                  <Badge 
-                    key={index} 
-                    variant="outline"
-                    data-testid={`currency-${index}`}
-                  >
-                    {currency}
-                  </Badge>
-                )) || <p className="text-gray-500">No currencies listed</p>}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* CTA */}
-          <Card className="bg-gradient-to-br from-turquoise/10 to-orange/10 border-turquoise/20">
-            <CardContent className="p-6 text-center">
-              <h3 className="font-bold text-lg mb-2">Spreman za igru?</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Počnite svoju casino avanturu danas!
-              </p>
-              <Button 
-                asChild 
-                size="lg" 
-                className="w-full bg-orange hover:bg-orange/90"
-                data-testid="button-cta-play"
-              >
-                <a href={casino.affiliateUrl || casino.websiteUrl} target="_blank" rel="noopener noreferrer">
-                  Igraj u {casino.name}
-                  <ExternalLink className="h-4 w-4 ml-2" />
-                </a>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Casino Games */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl flex items-center gap-2 text-turquoise">
+              <Gamepad2 className="h-6 w-6" />
+              Popular Games at {casino.name}
+            </CardTitle>
+            <CardDescription>
+              Top games available at this casino
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {casinoGames.map((game) => (
+                <Card key={game.id} className="hover:shadow-lg transition-shadow">
+                  <div className="aspect-video overflow-hidden rounded-t-lg">
+                    <img
+                      src={game.imageUrl}
+                      alt={game.name}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform"
+                    />
+                  </div>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <Badge variant="secondary">{game.provider}</Badge>
+                      <Badge variant={game.volatility === "High" ? "destructive" : game.volatility === "Medium" ? "default" : "secondary"}>
+                        {game.volatility}
+                      </Badge>
+                    </div>
+                    <h3 className="font-semibold text-lg mb-2">{game.name}</h3>
+                    <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
+                      {game.description}
+                    </p>
+                    <div className="flex items-center justify-between text-sm text-muted-foreground mb-3">
+                      <span>RTP: <span className="font-semibold text-green-600">{game.rtp}%</span></span>
+                      <span>Max Win: ${game.maxBet}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" className="flex-1">
+                        Demo
+                      </Button>
+                      <Button size="sm" className="flex-1 bg-turquoise hover:bg-turquoise/90">
+                        Play
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
-    </div>
-  );
-}
-
-function Label({ children, className = "", ...props }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={`text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 ${className}`} {...props}>
-      {children}
     </div>
   );
 }

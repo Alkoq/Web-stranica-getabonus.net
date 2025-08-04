@@ -59,11 +59,41 @@ export const reviews = pgTable("reviews", {
   userId: varchar("user_id").references(() => users.id),
   title: text("title").notNull(),
   content: text("content").notNull(),
-  rating: integer("rating").notNull(), // 1-5 stars
+  overallRating: integer("overall_rating").notNull(), // 1-10 stars
+  bonusesRating: integer("bonuses_rating").notNull(), // 1-10 rating
+  designRating: integer("design_rating").notNull(), // 1-10 rating
+  payoutsRating: integer("payouts_rating").notNull(), // 1-10 rating
+  customerSupportRating: integer("customer_support_rating").notNull(), // 1-10 rating
+  gameSelectionRating: integer("game_selection_rating").notNull(), // 1-10 rating
+  mobileExperienceRating: integer("mobile_experience_rating").notNull(), // 1-10 rating
+  userName: text("user_name"),
   pros: jsonb("pros").$type<string[]>().default([]),
   cons: jsonb("cons").$type<string[]>().default([]),
   isVerified: boolean("is_verified").default(false),
   isPublished: boolean("is_published").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Expert reviews table for our portal's professional reviews
+export const expertReviews = pgTable("expert_reviews", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  casinoId: varchar("casino_id").references(() => casinos.id).notNull(),
+  authorId: varchar("author_id").references(() => users.id).notNull(),
+  bonusesRating: decimal("bonuses_rating", { precision: 3, scale: 1 }).notNull(),
+  bonusesExplanation: text("bonuses_explanation").notNull(),
+  designRating: decimal("design_rating", { precision: 3, scale: 1 }).notNull(),
+  designExplanation: text("design_explanation").notNull(),
+  payoutsRating: decimal("payouts_rating", { precision: 3, scale: 1 }).notNull(),
+  payoutsExplanation: text("payouts_explanation").notNull(),
+  customerSupportRating: decimal("customer_support_rating", { precision: 3, scale: 1 }).notNull(),
+  customerSupportExplanation: text("customer_support_explanation").notNull(),
+  gameSelectionRating: decimal("game_selection_rating", { precision: 3, scale: 1 }).notNull(),
+  gameSelectionExplanation: text("game_selection_explanation").notNull(),
+  mobileExperienceRating: decimal("mobile_experience_rating", { precision: 3, scale: 1 }).notNull(),
+  mobileExperienceExplanation: text("mobile_experience_explanation").notNull(),
+  overallRating: decimal("overall_rating", { precision: 3, scale: 1 }).notNull(),
+  summary: text("summary").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -139,9 +169,10 @@ export const casinoRatings = pgTable("casino_ratings", {
 });
 
 // Relations
-export const casinosRelations = relations(casinos, ({ many }) => ({
+export const casinosRelations = relations(casinos, ({ many, one }) => ({
   bonuses: many(bonuses),
   reviews: many(reviews),
+  expertReview: one(expertReviews),
   casinoGames: many(casinoGames),
   ratings: many(casinoRatings),
 }));
@@ -160,6 +191,17 @@ export const reviewsRelations = relations(reviews, ({ one }) => ({
   }),
   user: one(users, {
     fields: [reviews.userId],
+    references: [users.id],
+  }),
+}));
+
+export const expertReviewsRelations = relations(expertReviews, ({ one }) => ({
+  casino: one(casinos, {
+    fields: [expertReviews.casinoId],
+    references: [casinos.id],
+  }),
+  author: one(users, {
+    fields: [expertReviews.authorId],
     references: [users.id],
   }),
 }));
@@ -222,6 +264,12 @@ export const insertReviewSchema = createInsertSchema(reviews).omit({
   updatedAt: true,
 });
 
+export const insertExpertReviewSchema = createInsertSchema(expertReviews).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
   id: true,
   createdAt: true,
@@ -266,6 +314,9 @@ export type InsertBonus = z.infer<typeof insertBonusSchema>;
 
 export type Review = typeof reviews.$inferSelect;
 export type InsertReview = z.infer<typeof insertReviewSchema>;
+
+export type ExpertReview = typeof expertReviews.$inferSelect;
+export type InsertExpertReview = z.infer<typeof insertExpertReviewSchema>;
 
 export type BlogPost = typeof blogPosts.$inferSelect;
 export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
