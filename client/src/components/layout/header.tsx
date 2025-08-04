@@ -10,11 +10,13 @@ export function Header() {
   const { theme, setTheme } = useTheme();
 
   const navigation = [
-    { name: "Casinos", href: "/casinos" },
-    { name: "Bonuses", href: "/bonuses" },
-    { name: "Reviews", href: "/reviews" },
-    { name: "Compare", href: "/compare" },
-    { name: "Blog", href: "/blog" },
+    { name: "Home", href: "/", icon: "🏠" },
+    { name: "Casinos", href: "/casinos", icon: "🎰" },
+    { name: "Bonuses", href: "/bonuses", icon: "🎁" },
+    { name: "Reviews", href: "/reviews", icon: "⭐" },
+    { name: "Compare", href: "/compare", icon: "⚖️" },
+    { name: "Blog", href: "/blog", icon: "📝" },
+    { name: "Admin", href: "/admin-panel", icon: "🔧" },
   ];
 
   const isActive = (href: string) => location === href;
@@ -32,7 +34,7 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            {navigation.map((item) => (
+            {navigation.filter(item => item.href !== "/admin-panel").map((item) => (
               <Link key={item.name} href={item.href}>
                 <Button
                   variant={isActive(item.href) ? "default" : "ghost"}
@@ -76,28 +78,90 @@ export function Header() {
                   <span className="sr-only">Open menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-                <nav className="flex flex-col space-y-4">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <SheetContent 
+                side="right" 
+                className="w-[300px] sm:w-[400px]"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(173, 58, 39, 0.1))',
+                  border: '1px solid hsl(173, 58%, 39%, 0.3)',
+                  boxShadow: '0 0 30px hsl(173, 58%, 39%, 0.2)',
+                }}
+              >
+                <div className="flex flex-col h-full">
+                  {/* Header */}
+                  <div className="border-b border-turquoise/30 pb-4 mb-6">
+                    <h2 
+                      className="text-xl font-bold mb-1"
+                      style={{
+                        color: 'hsl(173, 58%, 39%)',
+                        textShadow: '0 0 10px hsl(173, 58%, 39%, 0.5)'
+                      }}
+                    >
+                      🎰 Navigation
+                    </h2>
+                    <p className="text-sm text-gray-300">Explore casino reviews and bonuses</p>
+                  </div>
+                  
+                  {/* Search */}
+                  <div className="relative mb-6">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-turquoise h-4 w-4" />
                     <Input
                       placeholder="Search casinos, bonuses..."
-                      className="pl-10"
+                      className="pl-10 bg-black/20 border-turquoise/30 text-white placeholder:text-gray-400 focus:ring-turquoise focus:border-turquoise"
+                      style={{
+                        boxShadow: '0 0 10px hsl(173, 58%, 39%, 0.2)'
+                      }}
                     />
                   </div>
-                  {navigation.map((item) => (
-                    <Link key={item.name} href={item.href}>
-                      <Button
-                        variant={isActive(item.href) ? "default" : "ghost"}
-                        className={`w-full justify-start ${
-                          isActive(item.href) ? "bg-turquoise hover:bg-turquoise/90" : ""
-                        }`}
-                      >
-                        {item.name}
-                      </Button>
-                    </Link>
-                  ))}
-                </nav>
+                  
+                  {/* Navigation Links */}
+                  <nav className="flex flex-col space-y-2 flex-1">
+                    {navigation.map((item) => (
+                      <Link key={item.name} href={item.href}>
+                        <Button
+                          variant="ghost"
+                          className={`w-full justify-start text-left h-12 transition-all duration-300 ${
+                            isActive(item.href) 
+                              ? "text-white" 
+                              : "text-gray-300 hover:text-white"
+                          }`}
+                          style={isActive(item.href) ? {
+                            background: 'linear-gradient(90deg, hsl(173, 58%, 39%, 0.8), hsl(24, 95%, 53%, 0.3))',
+                            border: '1px solid hsl(173, 58%, 39%, 0.5)',
+                            boxShadow: '0 0 15px hsl(173, 58%, 39%, 0.3)',
+                            textShadow: '0 0 10px hsl(173, 58%, 39%, 0.8)'
+                          } : {
+                            border: '1px solid transparent',
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!isActive(item.href)) {
+                              e.currentTarget.style.background = 'linear-gradient(90deg, hsl(173, 58%, 39%, 0.2), hsl(24, 95%, 53%, 0.1))';
+                              e.currentTarget.style.border = '1px solid hsl(173, 58%, 39%, 0.3)';
+                              e.currentTarget.style.boxShadow = '0 0 10px hsl(173, 58%, 39%, 0.2)';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isActive(item.href)) {
+                              e.currentTarget.style.background = 'transparent';
+                              e.currentTarget.style.border = '1px solid transparent';
+                              e.currentTarget.style.boxShadow = 'none';
+                            }
+                          }}
+                        >
+                          <span className="mr-3 text-lg">{item.icon}</span>
+                          <span className="font-medium">{item.name}</span>
+                        </Button>
+                      </Link>
+                    ))}
+                  </nav>
+                  
+                  {/* Footer */}
+                  <div className="border-t border-turquoise/30 pt-4 mt-6">
+                    <p className="text-xs text-gray-400 text-center">
+                      © 2024 GetABonus.net
+                    </p>
+                  </div>
+                </div>
               </SheetContent>
             </Sheet>
           </div>
