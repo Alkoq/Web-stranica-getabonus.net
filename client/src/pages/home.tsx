@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Search, Star, TrendingUp, Users, Award, ChevronRight, Gift, Gamepad2, Clock, FileText, Filter, Bitcoin, CreditCard } from "lucide-react";
 import { CasinoCard } from "@/components/casino/casino-card";
 import { BonusCard } from "@/components/bonus/bonus-card";
@@ -24,6 +25,17 @@ export default function Home() {
   const [selectedGame, setSelectedGame] = useState<{name: string, id: string} | null>(null);
   const [showCasinoModal, setShowCasinoModal] = useState(false);
   const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [, setLocation] = useLocation();
 
@@ -180,86 +192,152 @@ export default function Home() {
             {/* Search Bar with Suggestions */}
             <div className="flex-1">
               <div className="relative">
-                <Popover open={showSearchSuggestions} onOpenChange={setShowSearchSuggestions}>
-                  <PopoverTrigger asChild>
-                    <div className="relative">
-                      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
-                      <Input
-                        type="text"
-                        placeholder="Search casinos, bonuses, providers..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        onFocus={() => setShowSearchSuggestions(true)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            handleSearch();
-                            setShowSearchSuggestions(false);
-                          }
-                          if (e.key === 'Escape') {
-                            setShowSearchSuggestions(false);
-                          }
-                        }}
-                        className="pl-12 pr-20 sm:pr-24 py-3 text-base sm:text-lg"
-                        data-testid="input-search"
-                      />
-                      <Button
-                        onClick={handleSearch}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 px-2 sm:px-3 bg-turquoise hover:bg-turquoise/90 text-xs sm:text-sm"
-                        size="sm"
-                      >
-                        <span className="hidden sm:inline">Search</span>
-                        <Search className="h-4 w-4 sm:hidden" />
-                      </Button>
-                    </div>
-                  </PopoverTrigger>
-                  <PopoverContent 
-                    className="w-[calc(100vw-1rem)] sm:w-[600px] md:w-[700px] p-0 max-h-[80vh] overflow-hidden border shadow-lg mobile-search-dropdown" 
-                    side="bottom" 
-                    align="start"
-                    sideOffset={8}
-                    onCloseAutoFocus={(e) => e.preventDefault()}
-                  >
-                    <Command className="rounded-lg border-none">
-                      <CommandInput 
-                        placeholder="Search suggestions..." 
-                        className="h-12 text-base"
-                      />
-                      <CommandList className="max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-muted">
-                        <CommandEmpty className="py-6 text-center text-muted-foreground">
-                          No suggestions found.
-                        </CommandEmpty>
-                        {Object.entries(searchSuggestions).map(([category, suggestions]) => (
-                          <CommandGroup key={category} heading={category} className="p-2">
-                            {suggestions.map((suggestion, index) => (
-                              <CommandItem
-                                key={index}
-                                onSelect={() => {
-                                  handleSearchSuggestion(suggestion.query);
-                                  setShowSearchSuggestions(false);
-                                }}
-                                className="flex items-center gap-3 cursor-pointer p-3 rounded-md hover:bg-accent/50 touch-manipulation"
-                              >
-                                <suggestion.icon className="h-5 w-5 flex-shrink-0 text-turquoise" />
-                                <span className="text-sm font-medium">{suggestion.label}</span>
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        ))}
-                        
-                        {/* Close button for mobile */}
-                        <div className="p-3 border-t sm:hidden">
-                          <Button 
-                            variant="outline" 
-                            className="w-full"
-                            onClick={() => setShowSearchSuggestions(false)}
-                          >
-                            Close
-                          </Button>
-                        </div>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                {isMobile ? (
+                  /* Mobile Dialog */
+                  <Dialog open={showSearchSuggestions} onOpenChange={setShowSearchSuggestions}>
+                    <DialogTrigger asChild>
+                      <div className="relative">
+                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+                        <Input
+                          type="text"
+                          placeholder="Search casinos, bonuses, providers..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          onFocus={() => setShowSearchSuggestions(true)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              handleSearch();
+                              setShowSearchSuggestions(false);
+                            }
+                            if (e.key === 'Escape') {
+                              setShowSearchSuggestions(false);
+                            }
+                          }}
+                          className="pl-12 pr-20 py-3 text-base"
+                          data-testid="input-search"
+                        />
+                        <Button
+                          onClick={handleSearch}
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 px-2 bg-turquoise hover:bg-turquoise/90 text-xs"
+                          size="sm"
+                        >
+                          <Search className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </DialogTrigger>
+                    <DialogContent className="w-[95vw] max-w-md max-h-[80vh] p-0 gap-0">
+                      <Command className="rounded-lg border-none">
+                        <CommandInput 
+                          placeholder="Search suggestions..." 
+                          className="h-12 text-base border-b"
+                        />
+                        <CommandList className="max-h-[60vh] overflow-y-auto p-2">
+                          <CommandEmpty className="py-6 text-center text-muted-foreground">
+                            No suggestions found.
+                          </CommandEmpty>
+                          {Object.entries(searchSuggestions).map(([category, suggestions]) => (
+                            <CommandGroup key={category} heading={category} className="mb-4">
+                              {suggestions.map((suggestion, index) => (
+                                <CommandItem
+                                  key={index}
+                                  onSelect={() => {
+                                    handleSearchSuggestion(suggestion.query);
+                                    setShowSearchSuggestions(false);
+                                  }}
+                                  className="flex items-center gap-3 cursor-pointer p-4 rounded-md touch-manipulation"
+                                >
+                                  <suggestion.icon className="h-5 w-5 flex-shrink-0 text-turquoise" />
+                                  <span className="text-base font-medium">{suggestion.label}</span>
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          ))}
+                          
+                          {/* Close button */}
+                          <div className="p-3 border-t mt-4">
+                            <Button 
+                              variant="outline" 
+                              className="w-full"
+                              onClick={() => setShowSearchSuggestions(false)}
+                            >
+                              Close
+                            </Button>
+                          </div>
+                        </CommandList>
+                      </Command>
+                    </DialogContent>
+                  </Dialog>
+                ) : (
+                  /* Desktop Popover */
+                  <Popover open={showSearchSuggestions} onOpenChange={setShowSearchSuggestions}>
+                    <PopoverTrigger asChild>
+                      <div className="relative">
+                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+                        <Input
+                          type="text"
+                          placeholder="Search casinos, bonuses, providers..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          onFocus={() => setShowSearchSuggestions(true)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              handleSearch();
+                              setShowSearchSuggestions(false);
+                            }
+                            if (e.key === 'Escape') {
+                              setShowSearchSuggestions(false);
+                            }
+                          }}
+                          className="pl-12 pr-24 py-3 text-lg"
+                          data-testid="input-search"
+                        />
+                        <Button
+                          onClick={handleSearch}
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 px-3 bg-turquoise hover:bg-turquoise/90 text-sm"
+                          size="sm"
+                        >
+                          Search
+                        </Button>
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent 
+                      className="w-[700px] p-0 max-h-[80vh] overflow-hidden border shadow-lg" 
+                      side="bottom" 
+                      align="start"
+                      sideOffset={8}
+                      onCloseAutoFocus={(e) => e.preventDefault()}
+                    >
+                      <Command className="rounded-lg border-none">
+                        <CommandInput 
+                          placeholder="Search suggestions..." 
+                          className="h-12 text-base"
+                        />
+                        <CommandList className="max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-muted">
+                          <CommandEmpty className="py-6 text-center text-muted-foreground">
+                            No suggestions found.
+                          </CommandEmpty>
+                          {Object.entries(searchSuggestions).map(([category, suggestions]) => (
+                            <CommandGroup key={category} heading={category} className="p-2">
+                              {suggestions.map((suggestion, index) => (
+                                <CommandItem
+                                  key={index}
+                                  onSelect={() => {
+                                    handleSearchSuggestion(suggestion.query);
+                                    setShowSearchSuggestions(false);
+                                  }}
+                                  className="flex items-center gap-3 cursor-pointer p-3 rounded-md hover:bg-accent/50"
+                                >
+                                  <suggestion.icon className="h-5 w-5 flex-shrink-0 text-turquoise" />
+                                  <span className="text-sm font-medium">{suggestion.label}</span>
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          ))}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                )}
               </div>
             </div>
             
