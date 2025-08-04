@@ -558,65 +558,92 @@ export default function CasinoDetailPage() {
         </Card>
 
         {/* User Reviews Section */}
-        <Card className="mb-8">
+        <Card className="mb-8" style={{
+          border: '2px solid hsl(173, 58%, 39%, 0.3)',
+          boxShadow: '0 0 15px hsl(173, 58%, 39%, 0.1)',
+        }}>
           <CardHeader>
             <CardTitle className="text-2xl flex items-center gap-2 text-turquoise">
               <Users className="h-6 w-6" />
               User Reviews ({userReviews.length})
             </CardTitle>
             <CardDescription>
-              Real player experiences and ratings
+              Real player experiences and detailed ratings from our community
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
               {/* Existing Reviews */}
               {userReviews.map((review) => (
-                <Card key={review.id} className="border-l-4 border-l-turquoise">
+                <Card key={review.id} className="border-l-4 border-l-turquoise bg-gradient-to-r from-turquoise/5 to-transparent">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h4 className="font-semibold text-lg">{review.title}</h4>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <span>{review.userName}</span>
-                          {review.isVerified && (
-                            <CheckCircle className="h-4 w-4 text-green-500" />
-                          )}
-                          <Clock className="h-4 w-4" />
-                          <span>{review.createdAt.toLocaleDateString()}</span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-turquoise">{review.overallRating}</div>
-                        <div className="text-sm text-muted-foreground">Overall</div>
-                      </div>
-                    </div>
-                    
-                    <p className="mb-4">{review.content}</p>
-                    
-                    {/* Category Ratings */}
-                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-                      {ratingCategories.map((category) => (
-                        <div key={category.key} className="text-center">
-                          <div className="text-sm font-medium">{category.label}</div>
-                          <div className="text-lg font-bold text-turquoise">
-                            {review[category.key as keyof Review] as number}
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-xl text-turquoise mb-2">{review.title}</h4>
+                        <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
+                          <div className="flex items-center gap-1">
+                            <span className="font-medium">{review.userName}</span>
+                            {review.isVerified && (
+                              <CheckCircle className="h-4 w-4 text-green-500" />
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-4 w-4" />
+                            <span>{review.createdAt.toLocaleDateString()}</span>
                           </div>
                         </div>
-                      ))}
+                      </div>
+                      <div className="text-right ml-4">
+                        <div className="text-3xl font-bold text-turquoise mb-1">{review.overallRating}/10</div>
+                        <div className="text-sm font-medium text-muted-foreground">Overall Rating</div>
+                      </div>
                     </div>
                     
-                    {/* Pros & Cons */}
+                    {/* User's Written Review */}
+                    <div className="mb-6 p-4 bg-muted/30 rounded-lg border-l-2 border-l-orange">
+                      <h5 className="font-semibold text-orange mb-2">Player's Experience:</h5>
+                      <p className="text-muted-foreground leading-relaxed">{review.content}</p>
+                    </div>
+                    
+                    {/* Category Ratings */}
+                    <div className="mb-6">
+                      <h5 className="font-semibold text-lg mb-4 text-turquoise">Detailed Ratings (1-10 scale):</h5>
+                      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                        {ratingCategories.map((category) => {
+                          const rating = review[category.key as keyof Review] as number;
+                          return (
+                            <div key={category.key} className="bg-background/50 p-3 rounded-lg border">
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-lg">{category.icon}</span>
+                                  <span className="text-sm font-medium">{category.label}</span>
+                                </div>
+                                <span className="text-lg font-bold text-turquoise">{rating}/10</span>
+                              </div>
+                              <Progress value={rating * 10} className="h-2" />
+                              <div className="mt-1 text-xs text-muted-foreground">
+                                {rating >= 8 ? 'Excellent' : rating >= 6 ? 'Good' : rating >= 4 ? 'Average' : 'Poor'}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    
+                    {/* Auto-Generated Pros & Cons */}
                     {(review.pros?.length || review.cons?.length) && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {review.pros && review.pros.length > 0 && (
-                          <div>
-                            <h5 className="font-medium text-green-600 mb-2">Pros</h5>
-                            <ul className="text-sm space-y-1">
+                          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+                            <h5 className="font-semibold text-green-700 dark:text-green-400 mb-3 flex items-center gap-2">
+                              <CheckCircle className="h-5 w-5" />
+                              What Players Loved
+                            </h5>
+                            <ul className="space-y-2">
                               {review.pros.map((pro, index) => (
-                                <li key={index} className="flex items-center gap-2">
-                                  <CheckCircle className="h-3 w-3 text-green-500" />
-                                  {pro}
+                                <li key={index} className="flex items-start gap-2 text-sm">
+                                  <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                                  <span className="text-green-700 dark:text-green-300">{pro}</span>
                                 </li>
                               ))}
                             </ul>
@@ -624,13 +651,18 @@ export default function CasinoDetailPage() {
                         )}
                         
                         {review.cons && review.cons.length > 0 && (
-                          <div>
-                            <h5 className="font-medium text-red-600 mb-2">Cons</h5>
-                            <ul className="text-sm space-y-1">
+                          <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800">
+                            <h5 className="font-semibold text-red-700 dark:text-red-400 mb-3 flex items-center gap-2">
+                              <span className="h-5 w-5 rounded-full bg-red-500 flex items-center justify-center">
+                                <span className="text-white text-xs">✕</span>
+                              </span>
+                              Areas for Improvement
+                            </h5>
+                            <ul className="space-y-2">
                               {review.cons.map((con, index) => (
-                                <li key={index} className="flex items-center gap-2">
-                                  <span className="h-3 w-3 rounded-full bg-red-500"></span>
-                                  {con}
+                                <li key={index} className="flex items-start gap-2 text-sm">
+                                  <span className="h-4 w-4 rounded-full bg-red-500 mt-0.5 flex-shrink-0"></span>
+                                  <span className="text-red-700 dark:text-red-300">{con}</span>
                                 </li>
                               ))}
                             </ul>
@@ -638,6 +670,13 @@ export default function CasinoDetailPage() {
                         )}
                       </div>
                     )}
+                    
+                    {/* Review Summary */}
+                    <div className="mt-4 pt-4 border-t border-muted-foreground/20">
+                      <div className="text-xs text-muted-foreground">
+                        <span className="italic">Pros & cons automatically generated based on rating scores</span>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
