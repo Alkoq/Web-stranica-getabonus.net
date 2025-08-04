@@ -76,52 +76,52 @@ export function AIChatbot() {
 
   if (!isOpen) {
     return (
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-50">
         <Button
           onClick={() => setIsOpen(true)}
-          className="bg-turquoise hover:bg-turquoise/90 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 animate-pulse"
+          className="bg-turquoise hover:bg-turquoise/90 text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 animate-pulse"
           size="lg"
         >
-          <MessageCircle className="h-6 w-6" />
+          <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
         </Button>
       </div>
     );
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 w-96 max-w-[calc(100vw-2rem)]">
-      <Card className="shadow-2xl border-turquoise/20">
-        <CardHeader className="bg-gradient-to-r from-turquoise to-blue-600 text-white rounded-t-lg">
+    <div className="fixed bottom-2 sm:bottom-6 right-2 sm:right-6 z-50 w-[calc(100vw-1rem)] sm:w-96 max-w-[calc(100vw-1rem)] sm:max-w-96">
+      <Card className="shadow-2xl border-turquoise/20 max-h-[calc(100vh-4rem)] sm:max-h-none">
+        <CardHeader className="bg-gradient-to-r from-turquoise to-blue-600 text-white rounded-t-lg flex-shrink-0 py-3 sm:py-6">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center space-x-2">
-              <MessageCircle className="h-5 w-5" />
-              <span>AI Casino Assistant</span>
+              <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="text-sm sm:text-base">AI Casino Assistant</span>
             </CardTitle>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setIsOpen(false)}
-              className="text-white hover:bg-white/20 p-2"
+              className="text-white hover:bg-white/20 p-1 sm:p-2 h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0"
               data-testid="button-close-chat"
             >
-              <X className="h-6 w-6" />
+              <X className="h-4 w-4 sm:h-6 sm:w-6" />
             </Button>
           </div>
-          <p className="text-sm text-blue-100">
+          <p className="text-xs sm:text-sm text-blue-100 mt-1">
             Get expert advice on casinos, bonuses, and strategies
           </p>
         </CardHeader>
         
-        <CardContent className="p-0">
+        <CardContent className="p-0 flex flex-col max-h-[calc(100vh-8rem)] sm:max-h-none">
           {/* Messages */}
-          <div className="h-80 overflow-y-auto p-4 space-y-4">
+          <div className="h-64 sm:h-80 max-h-[40vh] sm:max-h-none overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-gray-50 dark:bg-gray-900 flex-1">
             {messages.map((message) => (
               <div
                 key={message.id}
                 className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
+                  className={`max-w-[70%] sm:max-w-xs px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm ${
                     message.type === 'user'
                       ? 'bg-turquoise text-white'
                       : 'bg-muted text-foreground'
@@ -135,9 +135,9 @@ export function AIChatbot() {
 
           {/* Quick Questions */}
           {messages.length === 1 && (
-            <div className="px-4 pb-4">
-              <p className="text-sm text-muted-foreground mb-2">Quick questions:</p>
-              <div className="grid grid-cols-2 gap-2">
+            <div className="px-3 sm:px-4 pb-3 sm:pb-4 flex-shrink-0">
+              <p className="text-xs sm:text-sm text-muted-foreground mb-2">Quick questions:</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {quickQuestions.map((question, index) => (
                   <Button
                     key={index}
@@ -146,8 +146,8 @@ export function AIChatbot() {
                     className="text-xs h-auto py-2 px-2 justify-start"
                     onClick={() => handleQuickQuestion(question.text)}
                   >
-                    <question.icon className="h-3 w-3 mr-1" />
-                    {question.text}
+                    <question.icon className="h-3 w-3 mr-1 flex-shrink-0" />
+                    <span className="truncate">{question.text}</span>
                   </Button>
                 ))}
               </div>
@@ -155,14 +155,14 @@ export function AIChatbot() {
           )}
 
           {/* Input */}
-          <div className="p-4 border-t border-border">
+          <div className="p-3 sm:p-4 border-t border-border flex-shrink-0">
             <div className="flex space-x-2">
               <Input
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 placeholder="Ask me about casinos..."
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                className="flex-1"
+                className="flex-1 text-sm"
               />
               <Button
                 onClick={handleSendMessage}
