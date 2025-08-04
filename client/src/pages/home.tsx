@@ -181,6 +181,12 @@ export default function Home() {
                 size="lg"
                 className="bg-orange hover:bg-orange/90 text-white px-8 py-4 text-lg shadow-lg"
                 data-testid="button-discover-casinos"
+                onClick={() => {
+                  const casinosSection = document.getElementById('top-casinos-section');
+                  if (casinosSection) {
+                    casinosSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
               >
                 Discover Top Casinos
               </Button>
@@ -189,6 +195,12 @@ export default function Home() {
                 variant="outline"
                 className="bg-white/20 hover:bg-white/30 text-white border-white/20 px-8 py-4 text-lg backdrop-blur-sm"
                 data-testid="button-compare-bonuses"
+                onClick={() => {
+                  const bonusesSection = document.getElementById('featured-bonuses-section');
+                  if (bonusesSection) {
+                    bonusesSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
               >
                 Compare Bonuses
               </Button>
@@ -461,7 +473,7 @@ export default function Home() {
       <div className="container mx-auto px-2 sm:px-4 lg:px-8 py-8 sm:py-12 space-y-12 sm:space-y-16 max-w-full overflow-hidden">
         
         {/* Top Casinos Carousel */}
-        <section className="relative p-3 sm:p-6 rounded-xl overflow-hidden" style={{
+        <section id="top-casinos-section" className="relative p-3 sm:p-6 rounded-xl overflow-hidden" style={{
           background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.1), rgba(173, 58, 39, 0.05))',
           border: '1px solid hsl(173, 58%, 39%, 0.2)',
           boxShadow: '0 0 20px hsl(173, 58%, 39%, 0.1)',
@@ -558,7 +570,7 @@ export default function Home() {
         </section>
 
         {/* Top Bonuses */}
-        <section className="relative p-6 rounded-xl" style={{
+        <section id="featured-bonuses-section" className="relative p-6 rounded-xl" style={{
           background: 'linear-gradient(135deg, rgba(173, 58, 39, 0.1), rgba(24, 95, 53, 0.05))',
           border: '1px solid hsl(173, 58%, 39%, 0.2)',
           boxShadow: '0 0 20px hsl(173, 58%, 39%, 0.1), 0 0 40px hsl(24, 95%, 53%, 0.05)',

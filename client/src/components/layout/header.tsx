@@ -101,17 +101,7 @@ export function Header() {
                     <p className="text-xs text-gray-300">Explore casino reviews and bonuses</p>
                   </div>
                   
-                  {/* Search */}
-                  <div className="relative mb-4 flex-shrink-0">
-                    <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-turquoise h-3 w-3" />
-                    <Input
-                      placeholder="Search..."
-                      className="pl-8 py-2 h-9 text-sm bg-black/20 border-turquoise/30 text-white placeholder:text-gray-400 focus:ring-turquoise focus:border-turquoise"
-                      style={{
-                        boxShadow: '0 0 10px hsl(173, 58%, 39%, 0.2)'
-                      }}
-                    />
-                  </div>
+
                   
                   {/* Navigation Links */}
                   <nav className="flex flex-col space-y-1 flex-1 overflow-y-auto">

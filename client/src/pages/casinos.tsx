@@ -1,8 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
+import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Search, Filter, Grid, List } from "lucide-react";
 import { CasinoCard } from "@/components/casino/casino-card";
 import { CasinoFiltersComponent } from "@/components/casino/casino-filters";
@@ -18,6 +22,8 @@ export default function Casinos() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [showFilters, setShowFilters] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
+  const [, setLocation] = useLocation();
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 640);
@@ -41,6 +47,17 @@ export default function Casinos() {
     queryKey: ['/api/casinos', { ...filters, search: searchQuery }],
     queryFn: () => api.getCasinos({ ...filters, search: searchQuery }),
   });
+
+  // Search results for suggestions
+  const searchResults = useMemo(() => {
+    if (searchQuery.length < 2) return [];
+    return casinos.filter(casino => 
+      casino.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      casino.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      casino.features?.some(feature => feature.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      casino.paymentMethods?.some(method => method.toLowerCase().includes(searchQuery.toLowerCase()))
+    ).slice(0, 5);
+  }, [casinos, searchQuery]);
 
   const handleFiltersChange = (newFilters: CasinoFilters) => {
     setFilters(newFilters);
@@ -100,16 +117,104 @@ export default function Casinos() {
               Discover safe, trusted casinos with the best bonuses and games
             </p>
             <div className="max-w-2xl mx-auto">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/70 h-5 w-5" />
-                <Input
-                  type="text"
-                  placeholder="Search casinos by name, features, or payment methods..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 py-3 text-lg bg-white/10 border-white/20 text-white placeholder-white/70 focus:bg-white/20"
-                />
-              </div>
+              {/* Mobile Search Dialog */}
+              {isMobile ? (
+                <Dialog open={showSearchSuggestions} onOpenChange={setShowSearchSuggestions}>
+                  <DialogTrigger asChild>
+                    <div className="relative cursor-pointer">
+                      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/70 h-5 w-5" />
+                      <Input
+                        type="text"
+                        placeholder="Search casinos by name, features, or payment methods..."
+                        value={searchQuery}
+                        readOnly
+                        className="pl-12 py-3 text-lg bg-white/10 border-white/20 text-white placeholder-white/70"
+                      />
+                    </div>
+                  </DialogTrigger>
+                  <DialogContent className="w-[95vw] max-w-[95vw] h-[85vh] max-h-[85vh] p-0 rounded-lg">
+                    <VisuallyHidden>
+                      <DialogTitle>Search Casinos</DialogTitle>
+                      <DialogDescription>Find casinos by name, features, or payment methods</DialogDescription>
+                    </VisuallyHidden>
+                    <Command shouldFilter={false} className="h-full rounded-lg border-0">
+                      <div className="p-4 border-b">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                          <Input
+                            type="text"
+                            placeholder="Search casinos..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-10 text-base"
+                            autoFocus
+                          />
+                        </div>
+                      </div>
+                      <CommandList className="flex-1 overflow-auto p-2">
+                        <CommandEmpty className="p-4 text-center">
+                          {searchQuery.length >= 2 ? "No casinos found" : "Type to search casinos..."}
+                        </CommandEmpty>
+                        
+                        {/* Real search results */}
+                        {searchQuery.length >= 2 && searchResults && searchResults.length > 0 && (
+                          <CommandGroup heading="Casino Results" className="mb-4">
+                            {searchResults.map((casino: any) => (
+                              <CommandItem
+                                key={casino.id}
+                                value={casino.name}
+                                onSelect={() => {
+                                  setLocation(`/casino/${casino.id}`);
+                                  setShowSearchSuggestions(false);
+                                }}
+                                className="flex items-center gap-3 cursor-pointer p-4 rounded-md"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <img 
+                                    src={casino.logoUrl || '/placeholder-casino.png'} 
+                                    alt={casino.name}
+                                    className="w-8 h-8 rounded object-cover"
+                                  />
+                                  <div>
+                                    <span className="text-base font-medium">{casino.name}</span>
+                                    {casino.safetyIndex && (
+                                      <div className="text-xs text-muted-foreground">
+                                        Safety: {casino.safetyIndex}/10
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        )}
+                        
+                        <div className="p-3 border-t mt-4">
+                          <Button 
+                            variant="outline" 
+                            className="w-full"
+                            onClick={() => setShowSearchSuggestions(false)}
+                          >
+                            Close
+                          </Button>
+                        </div>
+                      </CommandList>
+                    </Command>
+                  </DialogContent>
+                </Dialog>
+              ) : (
+                /* Desktop Search */
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/70 h-5 w-5" />
+                  <Input
+                    type="text"
+                    placeholder="Search casinos by name, features, or payment methods..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-12 py-3 text-lg bg-white/10 border-white/20 text-white placeholder-white/70 focus:bg-white/20"
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
