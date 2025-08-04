@@ -569,7 +569,7 @@ export default function CasinoDetailPage() {
               <div className="flex-1">
                 <div className="flex items-start gap-6 mb-6">
                   <img
-                    src={casino.logoUrl}
+                    src={casino.logoUrl || 'https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?w=80&h=80&fit=crop'}
                     alt={`${casino.name} logo`}
                     className="w-20 h-20 rounded-lg object-cover"
                   />
