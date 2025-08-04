@@ -652,7 +652,10 @@ export default function CasinoDetailPage() {
                 <Card className="p-6 text-center bg-gradient-to-br from-turquoise/10 to-orange/10">
                   <Button 
                     size="lg" 
-                    className="w-full mb-4 bg-gradient-to-r from-turquoise to-orange hover:from-turquoise/90 hover:to-orange/90"
+                    className="w-full mb-4 bg-gradient-to-r from-turquoise to-orange hover:from-turquoise/90 hover:to-orange/90 text-white border-2 border-white/30 hover:border-white/50 font-bold shadow-xl hover:shadow-2xl transition-all duration-300"
+                    style={{
+                      boxShadow: '0 0 30px hsl(173, 58%, 39%, 0.3), 0 0 40px hsl(24, 95%, 53%, 0.2)'
+                    }}
                     onClick={() => window.open(casino.affiliateUrl || casino.websiteUrl, '_blank')}
                   >
                     <ExternalLink className="h-5 w-5 mr-2" />
@@ -749,7 +752,7 @@ export default function CasinoDetailPage() {
                       </div>
                       
                       <Button 
-                        className="w-full bg-turquoise hover:bg-turquoise/90" 
+                        className="w-full btn-neon-turquoise" 
                         size="sm"
                         onClick={() => window.open(bonus.affiliateUrl || casino.websiteUrl, '_blank')}
                       >
