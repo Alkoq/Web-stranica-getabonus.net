@@ -63,14 +63,20 @@ export default function Bonuses() {
   const sortedBonuses = [...filteredBonuses].sort((a, b) => {
     switch (sortBy) {
       case "latest":
-        return b.createdAt.getTime() - a.createdAt.getTime();
+        const aTime = new Date(a.createdAt || '1970-01-01').getTime();
+        const bTime = new Date(b.createdAt || '1970-01-01').getTime();
+        return bTime - aTime;
       case "expiring":
         if (!a.validUntil && !b.validUntil) return 0;
         if (!a.validUntil) return 1;
         if (!b.validUntil) return -1;
-        return a.validUntil.getTime() - b.validUntil.getTime();
+        const aExpiry = new Date(a.validUntil).getTime();
+        const bExpiry = new Date(b.validUntil).getTime();
+        return aExpiry - bExpiry;
       case "amount":
-        return bonus => bonus.amount ? -1 : 1;
+        const aAmount = parseFloat(a.amount || '0');
+        const bAmount = parseFloat(b.amount || '0');
+        return bAmount - aAmount;
       default:
         return 0;
     }
