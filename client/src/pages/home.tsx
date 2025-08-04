@@ -322,7 +322,7 @@ export default function Home() {
                   </Dialog>
                 ) : (
                   /* Desktop Popover */
-                  <Popover open={showSearchSuggestions} onOpenChange={setShowSearchSuggestions}>
+                  <Popover open={showSearchSuggestions} onOpenChange={setShowSearchSuggestions} modal={false}>
                     <PopoverTrigger asChild>
                       <div className="relative">
                         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
@@ -332,6 +332,12 @@ export default function Home() {
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           onFocus={() => setShowSearchSuggestions(true)}
+                          onBlur={(e) => {
+                            // Delay closing to allow clicking on suggestions
+                            setTimeout(() => {
+                              setShowSearchSuggestions(false);
+                            }, 200);
+                          }}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') {
                               handleSearch();
@@ -358,6 +364,7 @@ export default function Home() {
                       side="bottom" 
                       align="start"
                       sideOffset={8}
+                      onOpenAutoFocus={(e) => e.preventDefault()}
                       onCloseAutoFocus={(e) => e.preventDefault()}
                     >
                       <Command className="rounded-lg border-none" shouldFilter={false}>
@@ -366,6 +373,7 @@ export default function Home() {
                           className="h-12 text-base"
                           value={searchQuery}
                           onValueChange={setSearchQuery}
+                          onFocus={(e) => e.preventDefault()}
                         />
                         <CommandList className="max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-muted">
                           <CommandEmpty className="py-6 text-center text-muted-foreground">
