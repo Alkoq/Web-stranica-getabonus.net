@@ -11,6 +11,7 @@ import { Footer } from "@/components/layout/footer";
 import Home from "@/pages/home";
 import Casinos from "@/pages/casinos";
 import Bonuses from "@/pages/bonuses";
+import Games from "@/pages/games";
 import Reviews from "@/pages/reviews";
 import Compare from "@/pages/compare";
 import Blog from "@/pages/blog";
@@ -29,6 +30,7 @@ function Router() {
           <Route path="/casinos" component={Casinos} />
           <Route path="/casino/:id" component={CasinoDetail} />
           <Route path="/bonuses" component={Bonuses} />
+          <Route path="/games" component={Games} />
           <Route path="/reviews" component={Reviews} />
           <Route path="/compare" component={Compare} />
           <Route path="/blog" component={Blog} />

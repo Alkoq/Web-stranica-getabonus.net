@@ -13,6 +13,7 @@ export function Header() {
     { name: "Home", href: "/", icon: "🏠" },
     { name: "Casinos", href: "/casinos", icon: "🎰" },
     { name: "Bonuses", href: "/bonuses", icon: "🎁" },
+    { name: "Games", href: "/games", icon: "🎮" },
     { name: "Reviews", href: "/reviews", icon: "⭐" },
     { name: "Compare", href: "/compare", icon: "⚖️" },
     { name: "Blog", href: "/blog", icon: "📝" },
@@ -34,7 +35,7 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            {navigation.filter(item => item.href !== "/admin-panel").map((item) => (
+            {navigation.filter(item => item.href !== "/admin-panel" && item.href !== "/").map((item) => (
               <Link key={item.name} href={item.href}>
                 <Button
                   variant={isActive(item.href) ? "default" : "ghost"}
@@ -80,18 +81,18 @@ export function Header() {
               </SheetTrigger>
               <SheetContent 
                 side="right" 
-                className="w-[300px] sm:w-[400px]"
+                className="w-[280px] sm:w-[320px] p-4"
                 style={{
                   background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(173, 58, 39, 0.1))',
                   border: '1px solid hsl(173, 58%, 39%, 0.3)',
                   boxShadow: '0 0 30px hsl(173, 58%, 39%, 0.2)',
                 }}
               >
-                <div className="flex flex-col h-full">
+                <div className="flex flex-col h-full max-h-screen overflow-hidden">
                   {/* Header */}
-                  <div className="border-b border-turquoise/30 pb-4 mb-6">
+                  <div className="border-b border-turquoise/30 pb-3 mb-4 flex-shrink-0">
                     <h2 
-                      className="text-xl font-bold mb-1"
+                      className="text-lg font-bold mb-1"
                       style={{
                         color: 'hsl(173, 58%, 39%)',
                         textShadow: '0 0 10px hsl(173, 58%, 39%, 0.5)'
@@ -99,15 +100,15 @@ export function Header() {
                     >
                       🎰 Navigation
                     </h2>
-                    <p className="text-sm text-gray-300">Explore casino reviews and bonuses</p>
+                    <p className="text-xs text-gray-300">Explore casino reviews and bonuses</p>
                   </div>
                   
                   {/* Search */}
-                  <div className="relative mb-6">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-turquoise h-4 w-4" />
+                  <div className="relative mb-4 flex-shrink-0">
+                    <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-turquoise h-3 w-3" />
                     <Input
-                      placeholder="Search casinos, bonuses..."
-                      className="pl-10 bg-black/20 border-turquoise/30 text-white placeholder:text-gray-400 focus:ring-turquoise focus:border-turquoise"
+                      placeholder="Search..."
+                      className="pl-8 py-2 h-9 text-sm bg-black/20 border-turquoise/30 text-white placeholder:text-gray-400 focus:ring-turquoise focus:border-turquoise"
                       style={{
                         boxShadow: '0 0 10px hsl(173, 58%, 39%, 0.2)'
                       }}
@@ -115,12 +116,12 @@ export function Header() {
                   </div>
                   
                   {/* Navigation Links */}
-                  <nav className="flex flex-col space-y-2 flex-1">
+                  <nav className="flex flex-col space-y-1 flex-1 overflow-y-auto">
                     {navigation.map((item) => (
                       <Link key={item.name} href={item.href}>
                         <Button
                           variant="ghost"
-                          className={`w-full justify-start text-left h-12 transition-all duration-300 ${
+                          className={`w-full justify-start text-left h-10 text-sm transition-all duration-300 ${
                             isActive(item.href) 
                               ? "text-white" 
                               : "text-gray-300 hover:text-white"
@@ -148,7 +149,7 @@ export function Header() {
                             }
                           }}
                         >
-                          <span className="mr-3 text-lg">{item.icon}</span>
+                          <span className="mr-2 text-base">{item.icon}</span>
                           <span className="font-medium">{item.name}</span>
                         </Button>
                       </Link>
@@ -156,8 +157,8 @@ export function Header() {
                   </nav>
                   
                   {/* Footer */}
-                  <div className="border-t border-turquoise/30 pt-4 mt-6">
-                    <p className="text-xs text-gray-400 text-center">
+                  <div className="border-t border-turquoise/30 pt-3 mt-4 flex-shrink-0">
+                    <p className="text-xs text-gray-500 text-center">
                       © 2024 GetABonus.net
                     </p>
                   </div>
