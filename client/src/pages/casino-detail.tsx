@@ -23,7 +23,8 @@ import {
   TrendingUp,
   CheckCircle,
   Clock,
-  ChevronDown
+  ChevronDown,
+  Gift
 } from "lucide-react";
 import type { Casino, Bonus, Review, ExpertReview, BlogPost, Game } from "@shared/schema";
 
@@ -750,7 +751,7 @@ export default function CasinoDetailPage() {
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="text-center">
                   <div className="text-4xl font-bold text-orange mb-2">
-                    {averageUserRatings.overall}
+                    {averageUserRatings.overall}/10
                   </div>
                   <div className="text-sm font-medium">Overall Rating</div>
                   <Progress value={parseFloat(averageUserRatings.overall) * 10} className="mt-2" />
@@ -763,7 +764,7 @@ export default function CasinoDetailPage() {
                       <div className="flex items-center justify-center gap-2 mb-2">
                         <span className="text-lg">{category.icon}</span>
                         <div className="text-2xl font-bold text-turquoise">
-                          {avgRating}
+                          {avgRating}/10
                         </div>
                       </div>
                       <div className="text-sm font-medium">{category.label}</div>
@@ -775,6 +776,90 @@ export default function CasinoDetailPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Casino Bonuses Section */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="text-2xl flex items-center gap-2 text-turquoise">
+              <Gift className="h-6 w-6" />
+              Available Bonuses
+            </CardTitle>
+            <CardDescription>
+              Exclusive bonus offers for this casino
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-4">
+              {[
+                {
+                  id: "bonus-1",
+                  title: "Welcome Bonus",
+                  amount: "100% up to $500",
+                  type: "welcome",
+                  description: "First deposit bonus with 35x wagering",
+                  code: "WELCOME100",
+                  validUntil: "2024-12-31"
+                },
+                {
+                  id: "bonus-2", 
+                  title: "Free Spins",
+                  amount: "50 Free Spins",
+                  type: "free-spins",
+                  description: "No deposit required, valid for 7 days",
+                  code: "FREESPINS50",
+                  validUntil: "2024-12-31"
+                },
+                {
+                  id: "bonus-3",
+                  title: "Reload Bonus",
+                  amount: "50% up to $200",
+                  type: "reload",
+                  description: "Weekly reload bonus for existing players",
+                  code: "RELOAD50",
+                  validUntil: "2024-12-31"
+                }
+              ].map((bonus) => (
+                <Card key={bonus.id} className="flex-shrink-0 w-80 border-turquoise/30 hover:border-turquoise/60 transition-colors cursor-pointer">
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h4 className="font-semibold text-lg text-turquoise">{bonus.title}</h4>
+                          <p className="text-2xl font-bold text-orange">{bonus.amount}</p>
+                        </div>
+                        <Badge variant="secondary" className="bg-turquoise/10 text-turquoise">
+                          {bonus.type}
+                        </Badge>
+                      </div>
+                      
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {bonus.description}
+                      </p>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="font-medium">Code:</span>
+                          <Badge variant="outline" className="font-mono">
+                            {bonus.code}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Clock className="h-4 w-4" />
+                          <span>Valid until: {new Date(bonus.validUntil).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                      
+                      <Button className="w-full bg-turquoise hover:bg-turquoise/90" size="sm">
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Claim Bonus
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* User Reviews Section */}
         <Card className="mb-8" style={{
@@ -798,7 +883,9 @@ export default function CasinoDetailPage() {
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
-                        <h4 className="font-semibold text-xl text-turquoise mb-2">{review.title}</h4>
+                        <h4 className="font-semibold text-xl text-turquoise mb-2">
+                          {review.title.length > 50 ? `${review.title.substring(0, 50)}...` : review.title}
+                        </h4>
                         <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
                           <div className="flex items-center gap-1">
                             <span className="font-medium">{review.userName}</span>
@@ -821,7 +908,9 @@ export default function CasinoDetailPage() {
                     {/* User's Written Review */}
                     <div className="mb-6 p-4 bg-muted/30 rounded-lg border-l-2 border-l-orange">
                       <h5 className="font-semibold text-orange mb-2">Player's Experience:</h5>
-                      <p className="text-muted-foreground leading-relaxed">{review.content}</p>
+                      <p className="text-muted-foreground leading-relaxed">
+                        {review.content.length > 300 ? `${review.content.substring(0, 300)}...` : review.content}
+                      </p>
                     </div>
                     
                     {/* Category Ratings */}
@@ -939,9 +1028,17 @@ export default function CasinoDetailPage() {
                         <Input
                           id="title"
                           value={newReview.title}
-                          onChange={(e) => setNewReview(prev => ({ ...prev, title: e.target.value }))}
-                          placeholder="Summarize your experience"
+                          onChange={(e) => {
+                            if (e.target.value.length <= 50) {
+                              setNewReview(prev => ({ ...prev, title: e.target.value }))
+                            }
+                          }}
+                          placeholder="Summarize your experience (max 50 characters)"
+                          maxLength={50}
                         />
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {newReview.title.length}/50 characters
+                        </div>
                       </div>
                     </div>
 
@@ -978,10 +1075,18 @@ export default function CasinoDetailPage() {
                       <Textarea
                         id="content"
                         value={newReview.content}
-                        onChange={(e) => setNewReview(prev => ({ ...prev, content: e.target.value }))}
-                        placeholder="Share your detailed experience..."
+                        onChange={(e) => {
+                          if (e.target.value.length <= 300) {
+                            setNewReview(prev => ({ ...prev, content: e.target.value }))
+                          }
+                        }}
+                        placeholder="Share your detailed experience (max 300 characters)..."
                         rows={4}
+                        maxLength={300}
                       />
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {newReview.content.length}/300 characters
+                      </div>
                     </div>
 
                     <Button className="w-full bg-turquoise hover:bg-turquoise/90">
