@@ -121,13 +121,20 @@
   /* Mobile optimized card heights */
   @media (max-width: 768px) {
     .carousel-card {
-      max-height: 350px;
+      min-height: 380px;
+      max-height: 420px;
     }
   }
 
   @media (max-width: 640px) {
     .carousel-card {
-      max-height: 320px;
+      min-height: 360px;
+      max-height: 400px;
     }
+  }
+
+  /* Ensure all carousel cards have consistent heights */
+  .carousel-card {
+    min-height: 400px;
   }
 }

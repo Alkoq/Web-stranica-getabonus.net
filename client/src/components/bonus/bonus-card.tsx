@@ -79,7 +79,7 @@ export function BonusCard({ bonus, casinoName, casinoLogo, affiliateUrl }: Bonus
   };
 
   return (
-    <div className={`bg-gradient-to-br ${getBonusTypeColor(bonus.type)} text-white rounded-xl p-6 hover:shadow-xl transition-shadow duration-300`}>
+    <div className={`bg-gradient-to-br ${getBonusTypeColor(bonus.type)} text-white rounded-xl p-6 hover:shadow-xl transition-shadow duration-300 h-full flex flex-col`}>
       <div className="flex items-center justify-between mb-4">
         <Badge className="bg-white bg-opacity-20 text-white border-white/20 hover:bg-white/30">
           {getBonusTypeName(bonus.type)}
@@ -118,7 +118,7 @@ export function BonusCard({ bonus, casinoName, casinoLogo, affiliateUrl }: Bonus
         )}
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mt-auto">
         <div>
           {casinoName && (
             <div className="text-sm opacity-75">Casino:</div>
