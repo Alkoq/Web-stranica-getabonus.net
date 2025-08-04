@@ -242,7 +242,7 @@ export default function Home() {
                         <DialogTitle>Search Suggestions</DialogTitle>
                         <DialogDescription>Browse search suggestions by category</DialogDescription>
                       </VisuallyHidden>
-                      <Command className="rounded-lg border-none">
+                      <Command className="rounded-lg border-none" shouldFilter={false}>
                         <CommandInput 
                           placeholder="Search suggestions..." 
                           className="h-12 text-base border-b"
@@ -260,6 +260,7 @@ export default function Home() {
                               {searchResults.map((casino: any) => (
                                 <CommandItem
                                   key={casino.id}
+                                  value={casino.name}
                                   onSelect={() => {
                                     setLocation(`/casino/${casino.id}`);
                                     setShowSearchSuggestions(false);
@@ -359,7 +360,7 @@ export default function Home() {
                       sideOffset={8}
                       onCloseAutoFocus={(e) => e.preventDefault()}
                     >
-                      <Command className="rounded-lg border-none">
+                      <Command className="rounded-lg border-none" shouldFilter={false}>
                         <CommandInput 
                           placeholder="Search suggestions..." 
                           className="h-12 text-base"
@@ -377,6 +378,7 @@ export default function Home() {
                               {searchResults.map((casino: any) => (
                                 <CommandItem
                                   key={casino.id}
+                                  value={casino.name}
                                   onSelect={() => {
                                     setLocation(`/casino/${casino.id}`);
                                     setShowSearchSuggestions(false);
