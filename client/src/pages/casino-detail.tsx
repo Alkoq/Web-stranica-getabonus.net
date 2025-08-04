@@ -22,7 +22,8 @@ import {
   MessageSquare,
   TrendingUp,
   CheckCircle,
-  Clock
+  Clock,
+  ChevronDown
 } from "lucide-react";
 import type { Casino, Bonus, Review, ExpertReview, BlogPost, Game } from "@shared/schema";
 
@@ -156,8 +157,181 @@ export default function CasinoDetailPage() {
       isPublished: true,
       createdAt: new Date("2024-11-15"),
       updatedAt: new Date("2024-11-15")
+    },
+    {
+      id: "review-3",
+      casinoId: id || "",
+      userId: "user-3", 
+      title: "Amazing live casino!",
+      content: "Love the live dealer games, especially Evolution Gaming tables. Professional dealers and smooth streaming.",
+      userName: "LiveDealer21",
+      overallRating: 9,
+      bonusesRating: 7,
+      designRating: 9,
+      payoutsRating: 8,
+      customerSupportRating: 9,
+      gameSelectionRating: 10,
+      mobileExperienceRating: 8,
+      ...generateProsAndCons({
+        bonusesRating: 7,
+        designRating: 9,
+        payoutsRating: 8,
+        customerSupportRating: 9,
+        gameSelectionRating: 10,
+        mobileExperienceRating: 8
+      }),
+      isVerified: true,
+      isPublished: true,
+      createdAt: new Date("2024-11-20"),
+      updatedAt: new Date("2024-11-20")
+    },
+    {
+      id: "review-4",
+      casinoId: id || "",
+      userId: "user-4",
+      title: "Good but slow withdrawals",
+      content: "Games are great and bonuses are decent, but withdrawal process takes too long. Customer support is helpful though.",
+      userName: "PatientPlayer",
+      overallRating: 6,
+      bonusesRating: 7,
+      designRating: 8,
+      payoutsRating: 3,
+      customerSupportRating: 8,
+      gameSelectionRating: 8,
+      mobileExperienceRating: 7,
+      ...generateProsAndCons({
+        bonusesRating: 7,
+        designRating: 8,
+        payoutsRating: 3,
+        customerSupportRating: 8,
+        gameSelectionRating: 8,
+        mobileExperienceRating: 7
+      }),
+      isVerified: false,
+      isPublished: true,
+      createdAt: new Date("2024-11-10"),
+      updatedAt: new Date("2024-11-10")
+    },
+    {
+      id: "review-5",
+      casinoId: id || "",
+      userId: "user-5",
+      title: "Perfect mobile experience",
+      content: "Using this casino mainly on mobile and it's fantastic. Apps works smoothly, games load fast, deposits are instant.",
+      userName: "MobileGamer",
+      overallRating: 8,
+      bonusesRating: 8,
+      designRating: 9,
+      payoutsRating: 7,
+      customerSupportRating: 7,
+      gameSelectionRating: 8,
+      mobileExperienceRating: 10,
+      ...generateProsAndCons({
+        bonusesRating: 8,
+        designRating: 9,
+        payoutsRating: 7,
+        customerSupportRating: 7,
+        gameSelectionRating: 8,
+        mobileExperienceRating: 10
+      }),
+      isVerified: true,
+      isPublished: true,
+      createdAt: new Date("2024-12-05"),
+      updatedAt: new Date("2024-12-05")
+    },
+    {
+      id: "review-6",
+      casinoId: id || "",
+      userId: "user-6",
+      title: "Great slots selection",
+      content: "Huge variety of slot machines from top providers. Found all my favorite games here. RTP seems fair too.",
+      userName: "SlotMaster99",
+      overallRating: 8,
+      bonusesRating: 6,
+      designRating: 8,
+      payoutsRating: 8,
+      customerSupportRating: 6,
+      gameSelectionRating: 9,
+      mobileExperienceRating: 7,
+      ...generateProsAndCons({
+        bonusesRating: 6,
+        designRating: 8,
+        payoutsRating: 8,
+        customerSupportRating: 6,
+        gameSelectionRating: 9,
+        mobileExperienceRating: 7
+      }),
+      isVerified: true,
+      isPublished: true,
+      createdAt: new Date("2024-11-25"),
+      updatedAt: new Date("2024-11-25")
+    },
+    {
+      id: "review-7",
+      casinoId: id || "",
+      userId: "user-7",
+      title: "Disappointing experience",
+      content: "Had high expectations but was let down. Bonus terms are confusing, support is slow to respond, and some games feel rigged.",
+      userName: "DisappointedUser",
+      overallRating: 4,
+      bonusesRating: 3,
+      designRating: 6,
+      payoutsRating: 4,
+      customerSupportRating: 3,
+      gameSelectionRating: 5,
+      mobileExperienceRating: 5,
+      ...generateProsAndCons({
+        bonusesRating: 3,
+        designRating: 6,
+        payoutsRating: 4,
+        customerSupportRating: 3,
+        gameSelectionRating: 5,
+        mobileExperienceRating: 5
+      }),
+      isVerified: false,
+      isPublished: true,
+      createdAt: new Date("2024-11-08"),
+      updatedAt: new Date("2024-11-08")
     }
   ];
+  
+  const [reviewsToShow, setReviewsToShow] = useState(5);
+  
+  // Calculate average user ratings
+  const averageUserRatings = useMemo(() => {
+    if (userReviews.length === 0) return null;
+    
+    const totals = {
+      overall: 0,
+      bonuses: 0,
+      design: 0,
+      payouts: 0,
+      customerSupport: 0,
+      gameSelection: 0,
+      mobileExperience: 0
+    };
+    
+    userReviews.forEach(review => {
+      totals.overall += review.overallRating;
+      totals.bonuses += review.bonusesRating;
+      totals.design += review.designRating;
+      totals.payouts += review.payoutsRating;
+      totals.customerSupport += review.customerSupportRating;
+      totals.gameSelection += review.gameSelectionRating;
+      totals.mobileExperience += review.mobileExperienceRating;
+    });
+    
+    const count = userReviews.length;
+    return {
+      overall: (totals.overall / count).toFixed(1),
+      bonuses: (totals.bonuses / count).toFixed(1),
+      design: (totals.design / count).toFixed(1),
+      payouts: (totals.payouts / count).toFixed(1),
+      customerSupport: (totals.customerSupport / count).toFixed(1),
+      gameSelection: (totals.gameSelection / count).toFixed(1),
+      mobileExperience: (totals.mobileExperience / count).toFixed(1)
+    };
+  }, [userReviews]);
 
   const relatedArticles: BlogPost[] = [
     {
@@ -557,6 +731,51 @@ export default function CasinoDetailPage() {
           </CardContent>
         </Card>
 
+        {/* Average User Ratings Section */}
+        {averageUserRatings && (
+          <Card className="mb-8" style={{
+            border: '2px solid hsl(24, 95%, 53%, 0.3)',
+            boxShadow: '0 0 15px hsl(24, 95%, 53%, 0.1)',
+          }}>
+            <CardHeader>
+              <CardTitle className="text-2xl flex items-center gap-2 text-orange">
+                <TrendingUp className="h-6 w-6" />
+                Average User Ratings
+              </CardTitle>
+              <CardDescription>
+                Based on {userReviews.length} player reviews
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="text-center">
+                  <div className="text-4xl font-bold text-orange mb-2">
+                    {averageUserRatings.overall}
+                  </div>
+                  <div className="text-sm font-medium">Overall Rating</div>
+                  <Progress value={parseFloat(averageUserRatings.overall) * 10} className="mt-2" />
+                </div>
+                
+                {ratingCategories.map((category) => {
+                  const avgRating = averageUserRatings[category.key as keyof typeof averageUserRatings] as string;
+                  return (
+                    <div key={category.key} className="text-center">
+                      <div className="flex items-center justify-center gap-2 mb-2">
+                        <span className="text-lg">{category.icon}</span>
+                        <div className="text-2xl font-bold text-turquoise">
+                          {avgRating}
+                        </div>
+                      </div>
+                      <div className="text-sm font-medium">{category.label}</div>
+                      <Progress value={parseFloat(avgRating) * 10} className="mt-2" />
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* User Reviews Section */}
         <Card className="mb-8" style={{
           border: '2px solid hsl(173, 58%, 39%, 0.3)',
@@ -573,8 +792,8 @@ export default function CasinoDetailPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              {/* Existing Reviews */}
-              {userReviews.map((review) => (
+              {/* Existing Reviews - Show limited amount */}
+              {userReviews.slice(0, reviewsToShow).map((review) => (
                 <Card key={review.id} className="border-l-4 border-l-turquoise bg-gradient-to-r from-turquoise/5 to-transparent">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
@@ -680,6 +899,20 @@ export default function CasinoDetailPage() {
                   </CardContent>
                 </Card>
               ))}
+
+              {/* Load More Reviews Button */}
+              {reviewsToShow < userReviews.length && (
+                <div className="text-center py-6">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setReviewsToShow(prev => Math.min(prev + 5, userReviews.length))}
+                    className="border-turquoise text-turquoise hover:bg-turquoise hover:text-white"
+                  >
+                    <ChevronDown className="h-4 w-4 mr-2" />
+                    View More Reviews ({userReviews.length - reviewsToShow} remaining)
+                  </Button>
+                </div>
+              )}
 
               {/* Add Review Form */}
               <Card className="border-2 border-dashed border-turquoise/30">
