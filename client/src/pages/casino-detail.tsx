@@ -688,7 +688,8 @@ export default function CasinoDetailPage() {
                   type: "welcome",
                   description: "First deposit bonus with 35x wagering",
                   code: "WELCOME100",
-                  validUntil: "2024-12-31"
+                  validUntil: "2024-12-31",
+                  affiliateUrl: casino.affiliateUrl
                 },
                 {
                   id: "bonus-2", 
@@ -696,8 +697,9 @@ export default function CasinoDetailPage() {
                   amount: "50 Free Spins",
                   type: "free-spins",
                   description: "No deposit required, valid for 7 days",
-                  code: "FREESPINS50",
-                  validUntil: "2024-12-31"
+                  code: null, // No code needed
+                  validUntil: "2024-12-31",
+                  affiliateUrl: casino.affiliateUrl
                 },
                 {
                   id: "bonus-3",
@@ -706,7 +708,8 @@ export default function CasinoDetailPage() {
                   type: "reload",
                   description: "Weekly reload bonus for existing players",
                   code: "RELOAD50",
-                  validUntil: "2024-12-31"
+                  validUntil: "2024-12-31",
+                  affiliateUrl: casino.affiliateUrl
                 }
               ].map((bonus) => (
                 <Card key={bonus.id} className="flex-shrink-0 w-80 border-turquoise/30 hover:border-turquoise/60 transition-colors cursor-pointer">
@@ -727,21 +730,31 @@ export default function CasinoDetailPage() {
                       </p>
                       
                       <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-sm">
-                          <span className="font-medium">Code:</span>
-                          <Badge variant="outline" className="font-mono">
-                            {bonus.code}
-                          </Badge>
-                        </div>
+                        {bonus.code ? (
+                          <div className="flex items-center gap-2 text-sm">
+                            <span className="font-medium">Code:</span>
+                            <Badge variant="outline" className="font-mono">
+                              {bonus.code}
+                            </Badge>
+                          </div>
+                        ) : (
+                          <div className="text-sm text-muted-foreground">
+                            No code required - automatic bonus
+                          </div>
+                        )}
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Clock className="h-4 w-4" />
                           <span>Valid until: {new Date(bonus.validUntil).toLocaleDateString()}</span>
                         </div>
                       </div>
                       
-                      <Button className="w-full bg-turquoise hover:bg-turquoise/90" size="sm">
+                      <Button 
+                        className="w-full bg-turquoise hover:bg-turquoise/90" 
+                        size="sm"
+                        onClick={() => window.open(bonus.affiliateUrl || casino.websiteUrl, '_blank')}
+                      >
                         <ExternalLink className="h-4 w-4 mr-2" />
-                        Claim Bonus
+                        {bonus.code ? 'Claim with Code' : 'Claim Bonus'}
                       </Button>
                     </div>
                   </CardContent>
