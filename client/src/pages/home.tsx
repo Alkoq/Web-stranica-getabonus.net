@@ -132,15 +132,16 @@ export default function Home() {
   };
 
   // Search results query for real-time search
-  const { data: searchResults } = useQuery({
-    queryKey: ['/api/casinos', searchQuery],
-    enabled: searchQuery.length >= 2,
+  const { data: searchResults, isLoading: searchLoading } = useQuery({
+    queryKey: ['/api/casinos'],
     select: (data: any[]) => {
-      if (!searchQuery.trim()) return [];
-      return data.filter(casino => 
+      if (!searchQuery || searchQuery.length < 2) return [];
+      const filtered = data.filter(casino => 
         casino.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         casino.description?.toLowerCase().includes(searchQuery.toLowerCase())
-      ).slice(0, 5); // Limit to 5 results
+      );
+      console.log('Search query:', searchQuery, 'Found casinos:', filtered.length);
+      return filtered.slice(0, 5); // Limit to 5 results
     }
   });
 
@@ -248,6 +249,8 @@ export default function Home() {
                         <CommandInput 
                           placeholder="Search suggestions..." 
                           className="h-12 text-base border-b"
+                          value={searchQuery}
+                          onValueChange={setSearchQuery}
                         />
                         <CommandList className="max-h-[60vh] overflow-y-auto p-2">
                           <CommandEmpty className="py-6 text-center text-muted-foreground">
@@ -363,6 +366,8 @@ export default function Home() {
                         <CommandInput 
                           placeholder="Search suggestions..." 
                           className="h-12 text-base"
+                          value={searchQuery}
+                          onValueChange={setSearchQuery}
                         />
                         <CommandList className="max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-muted">
                           <CommandEmpty className="py-6 text-center text-muted-foreground">
