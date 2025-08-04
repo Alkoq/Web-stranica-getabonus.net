@@ -114,7 +114,7 @@
   /* Neon button effects for better visibility */
   .btn-neon-turquoise {
     background-color: hsl(var(--turquoise));
-    color: white;
+    color: hsl(0, 0%, 100%);
     border: 2px solid hsl(var(--turquoise));
     box-shadow: var(--neon-turquoise);
     font-weight: 600;
@@ -123,9 +123,28 @@
   
   .btn-neon-turquoise:hover {
     background-color: hsl(var(--turquoise));
+    color: hsl(0, 0%, 100%);
     opacity: 0.9;
     box-shadow: 0 0 30px hsl(173, 58%, 39%, 0.8);
     transform: translateY(-1px);
+  }
+  
+  /* Light theme - dark text */
+  :root .btn-neon-turquoise {
+    color: hsl(0, 0%, 0%);
+  }
+  
+  :root .btn-neon-turquoise:hover {
+    color: hsl(0, 0%, 0%);
+  }
+  
+  /* Dark theme - white text */
+  .dark .btn-neon-turquoise {
+    color: hsl(0, 0%, 100%);
+  }
+  
+  .dark .btn-neon-turquoise:hover {
+    color: hsl(0, 0%, 100%);
   }
   
   .btn-neon-orange {
