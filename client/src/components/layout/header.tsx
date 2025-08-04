@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, Menu, Search } from "lucide-react";
@@ -8,6 +9,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 export function Header() {
   const [location] = useLocation();
   const { theme, setTheme } = useTheme();
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const navigation = [
     { name: "Home", href: "/", icon: "🏠" },
@@ -70,7 +72,7 @@ export function Header() {
             </Button>
 
             {/* Mobile menu */}
-            <Sheet>
+            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="md:hidden">
                   <Menu className="h-5 w-5" />
@@ -122,6 +124,7 @@ export function Header() {
                           } : {
                             border: '1px solid transparent',
                           }}
+                          onClick={() => setIsSheetOpen(false)}
                           onMouseEnter={(e) => {
                             if (!isActive(item.href)) {
                               e.currentTarget.style.background = 'linear-gradient(90deg, hsl(173, 58%, 39%, 0.2), hsl(24, 95%, 53%, 0.1))';
