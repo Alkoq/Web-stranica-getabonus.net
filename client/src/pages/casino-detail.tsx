@@ -69,6 +69,39 @@ export default function CasinoDetailPage() {
     updatedAt: new Date()
   };
 
+  // Function to auto-generate pros and cons based on ratings
+  const generateProsAndCons = (ratings: {
+    bonusesRating: number;
+    designRating: number; 
+    payoutsRating: number;
+    customerSupportRating: number;
+    gameSelectionRating: number;
+    mobileExperienceRating: number;
+  }) => {
+    const pros: string[] = [];
+    const cons: string[] = [];
+    
+    if (ratings.bonusesRating >= 8) pros.push("Excellent bonus offers");
+    else if (ratings.bonusesRating <= 4) cons.push("Limited bonus options");
+    
+    if (ratings.designRating >= 8) pros.push("Great user interface");
+    else if (ratings.designRating <= 4) cons.push("Poor website design");
+    
+    if (ratings.payoutsRating >= 8) pros.push("Fast withdrawals");
+    else if (ratings.payoutsRating <= 4) cons.push("Slow payout process");
+    
+    if (ratings.customerSupportRating >= 8) pros.push("Responsive customer support");
+    else if (ratings.customerSupportRating <= 4) cons.push("Poor customer service");
+    
+    if (ratings.gameSelectionRating >= 8) pros.push("Wide game selection");
+    else if (ratings.gameSelectionRating <= 4) cons.push("Limited game variety");
+    
+    if (ratings.mobileExperienceRating >= 8) pros.push("Great mobile experience");
+    else if (ratings.mobileExperienceRating <= 4) cons.push("Poor mobile optimization");
+
+    return { pros, cons };
+  };
+
   const userReviews: Review[] = [
     {
       id: "review-1",
@@ -84,8 +117,14 @@ export default function CasinoDetailPage() {
       customerSupportRating: 7,
       gameSelectionRating: 9,
       mobileExperienceRating: 8,
-      pros: ["Fast withdrawals", "Great game selection", "Fair bonuses"],
-      cons: ["Support can be slow"],
+      ...generateProsAndCons({
+        bonusesRating: 8,
+        designRating: 9,
+        payoutsRating: 10,
+        customerSupportRating: 7,
+        gameSelectionRating: 9,
+        mobileExperienceRating: 8
+      }),
       isVerified: true,
       isPublished: true,
       createdAt: new Date("2024-12-01"),
@@ -105,8 +144,14 @@ export default function CasinoDetailPage() {
       customerSupportRating: 6,
       gameSelectionRating: 8,
       mobileExperienceRating: 7,
-      pros: ["Nice interface", "Good bonuses"],
-      cons: ["Slow verification", "Limited support hours"],
+      ...generateProsAndCons({
+        bonusesRating: 7,
+        designRating: 8,
+        payoutsRating: 5,
+        customerSupportRating: 6,
+        gameSelectionRating: 8,
+        mobileExperienceRating: 7
+      }),
       isVerified: false,
       isPublished: true,
       createdAt: new Date("2024-11-15"),
@@ -146,6 +191,38 @@ export default function CasinoDetailPage() {
       publishedAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date()
+    },
+    {
+      id: "article-3",
+      title: "How to Choose a Safe Crypto Casino",
+      slug: "safe-crypto-casino-guide",
+      excerpt: "Essential tips for identifying trustworthy crypto casinos and avoiding scams.",
+      content: "",
+      featuredImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=200&fit=crop",
+      authorId: "admin-1",
+      category: "Safety",
+      tags: ["safety", "crypto", "tips"],
+      readTime: 10,
+      isPublished: true,
+      publishedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: "article-4",
+      title: "Crypto Casino vs Traditional Casino: Pros and Cons",
+      slug: "crypto-vs-traditional-casinos",
+      excerpt: "Compare the advantages and disadvantages of crypto casinos versus traditional online casinos.",
+      content: "",
+      featuredImage: "https://images.unsplash.com/photo-1620335527347-9bd4b27e9658?w=400&h=200&fit=crop",
+      authorId: "admin-1",
+      category: "Comparison",
+      tags: ["comparison", "crypto", "traditional"],
+      readTime: 7,
+      isPublished: true,
+      publishedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date()
     }
   ];
 
@@ -169,7 +246,7 @@ export default function CasinoDetailPage() {
     },
     {
       id: "game-2",
-      name: "Lightning Roulette",
+      name: "Lightning Roulette", 
       description: "Live roulette with random multipliers",
       provider: "Evolution Gaming",
       type: "live",
@@ -180,6 +257,74 @@ export default function CasinoDetailPage() {
       imageUrl: "https://images.unsplash.com/photo-1521130726557-5e7e0c665fd3?w=300&h=200&fit=crop",
       demoUrl: "#",
       tags: ["roulette", "live", "multipliers"],
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: "game-3",
+      name: "Sweet Bonanza",
+      description: "Colorful fruit slot with tumbling reels",
+      provider: "Pragmatic Play",
+      type: "slot",
+      rtp: "96.51",
+      volatility: "High",
+      minBet: "0.20",
+      maxBet: "125.00",
+      imageUrl: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=300&h=200&fit=crop",
+      demoUrl: "#",
+      tags: ["fruit", "tumbling", "high volatility"],
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: "game-4",
+      name: "Crazy Time",
+      description: "Live game show with bonus rounds",
+      provider: "Evolution Gaming", 
+      type: "live",
+      rtp: "96.08",
+      volatility: "Medium",
+      minBet: "0.10",
+      maxBet: "2500.00",
+      imageUrl: "https://images.unsplash.com/photo-1594736797933-d0d9770d1a15?w=300&h=200&fit=crop",
+      demoUrl: "#",
+      tags: ["game show", "bonus rounds", "live"],
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: "game-5",
+      name: "Gates of Olympus",
+      description: "Greek mythology themed slot with multipliers",
+      provider: "Pragmatic Play",
+      type: "slot", 
+      rtp: "96.50",
+      volatility: "High",
+      minBet: "0.20",
+      maxBet: "125.00",
+      imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=200&fit=crop",
+      demoUrl: "#",
+      tags: ["mythology", "multipliers", "zeus"],
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: "game-6",
+      name: "Blackjack Premium",
+      description: "Classic blackjack with perfect strategy guide",
+      provider: "NetEnt",
+      type: "table",
+      rtp: "99.50",
+      volatility: "Low",
+      minBet: "1.00",
+      maxBet: "1000.00",
+      imageUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=200&fit=crop",
+      demoUrl: "#",
+      tags: ["blackjack", "strategy", "classic"],
       isActive: true,
       createdAt: new Date(),
       updatedAt: new Date()
@@ -581,42 +726,51 @@ export default function CasinoDetailPage() {
         {/* Related Articles */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="text-2xl flex items-center gap-2 text-orange">
-              <TrendingUp className="h-6 w-6" />
-              Related Articles
-            </CardTitle>
-            <CardDescription>
-              Learn more about crypto casino strategies and tips
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-2xl flex items-center gap-2 text-orange">
+                  <TrendingUp className="h-6 w-6" />
+                  Related Articles
+                </CardTitle>
+                <CardDescription>
+                  Learn more about crypto casino strategies and tips
+                </CardDescription>
+              </div>
+              <Button variant="outline" className="text-orange border-orange hover:bg-orange hover:text-white">
+                View All Articles
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {relatedArticles.map((article) => (
-                <Card key={article.id} className="hover:shadow-lg transition-shadow cursor-pointer">
-                  <div className="aspect-video overflow-hidden rounded-t-lg">
-                    <img
-                      src={article.featuredImage}
-                      alt={article.title}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform"
-                    />
-                  </div>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge variant="secondary">{article.category}</Badge>
-                      <span className="text-sm text-muted-foreground">{article.readTime} min read</span>
+            <div className="relative">
+              <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                {relatedArticles.map((article) => (
+                  <Card key={article.id} className="flex-shrink-0 w-80 hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="aspect-video overflow-hidden rounded-t-lg">
+                      <img
+                        src={article.featuredImage}
+                        alt={article.title}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform"
+                      />
                     </div>
-                    <h3 className="font-semibold text-lg mb-2 line-clamp-2">
-                      {article.title}
-                    </h3>
-                    <p className="text-muted-foreground text-sm line-clamp-2">
-                      {article.excerpt}
-                    </p>
-                    <Button variant="ghost" className="mt-3 p-0 h-auto text-turquoise hover:text-turquoise/80">
-                      Read More <ExternalLink className="h-3 w-3 ml-1" />
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="secondary">{article.category}</Badge>
+                        <span className="text-sm text-muted-foreground">{article.readTime} min read</span>
+                      </div>
+                      <h3 className="font-semibold text-lg mb-2 line-clamp-2">
+                        {article.title}
+                      </h3>
+                      <p className="text-muted-foreground text-sm line-clamp-2">
+                        {article.excerpt}
+                      </p>
+                      <Button variant="ghost" className="mt-3 p-0 h-auto text-turquoise hover:text-turquoise/80">
+                        Read More <ExternalLink className="h-3 w-3 ml-1" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -624,51 +778,60 @@ export default function CasinoDetailPage() {
         {/* Casino Games */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl flex items-center gap-2 text-turquoise">
-              <Gamepad2 className="h-6 w-6" />
-              Popular Games at {casino.name}
-            </CardTitle>
-            <CardDescription>
-              Top games available at this casino
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-2xl flex items-center gap-2 text-turquoise">
+                  <Gamepad2 className="h-6 w-6" />
+                  Popular Games at {casino.name}
+                </CardTitle>
+                <CardDescription>
+                  Top games available at this casino
+                </CardDescription>
+              </div>
+              <Button variant="outline" className="text-turquoise border-turquoise hover:bg-turquoise hover:text-white">
+                View All Games
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {casinoGames.map((game) => (
-                <Card key={game.id} className="hover:shadow-lg transition-shadow">
-                  <div className="aspect-video overflow-hidden rounded-t-lg">
-                    <img
-                      src={game.imageUrl}
-                      alt={game.name}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform"
-                    />
-                  </div>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <Badge variant="secondary">{game.provider}</Badge>
-                      <Badge variant={game.volatility === "High" ? "destructive" : game.volatility === "Medium" ? "default" : "secondary"}>
-                        {game.volatility}
-                      </Badge>
+            <div className="relative">
+              <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                {[...casinoGames, ...casinoGames.slice(0, 8)].slice(0, 10).map((game, index) => (
+                  <Card key={`${game.id}-${index}`} className="flex-shrink-0 w-72 hover:shadow-lg transition-shadow">
+                    <div className="aspect-video overflow-hidden rounded-t-lg">
+                      <img
+                        src={game.imageUrl}
+                        alt={game.name}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform"
+                      />
                     </div>
-                    <h3 className="font-semibold text-lg mb-2">{game.name}</h3>
-                    <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
-                      {game.description}
-                    </p>
-                    <div className="flex items-center justify-between text-sm text-muted-foreground mb-3">
-                      <span>RTP: <span className="font-semibold text-green-600">{game.rtp}%</span></span>
-                      <span>Max Win: ${game.maxBet}</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="flex-1">
-                        Demo
-                      </Button>
-                      <Button size="sm" className="flex-1 bg-turquoise hover:bg-turquoise/90">
-                        Play
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <Badge variant="secondary">{game.provider}</Badge>
+                        <Badge variant={game.volatility === "High" ? "destructive" : game.volatility === "Medium" ? "default" : "secondary"}>
+                          {game.volatility}
+                        </Badge>
+                      </div>
+                      <h3 className="font-semibold text-lg mb-2">{game.name}</h3>
+                      <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
+                        {game.description}
+                      </p>
+                      <div className="flex items-center justify-between text-sm text-muted-foreground mb-3">
+                        <span>RTP: <span className="font-semibold text-green-600">{game.rtp}%</span></span>
+                        <span>Max Win: ${game.maxBet}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" className="flex-1">
+                          Demo
+                        </Button>
+                        <Button size="sm" className="flex-1 bg-turquoise hover:bg-turquoise/90">
+                          Play
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>
