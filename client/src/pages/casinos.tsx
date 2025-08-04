@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { Search, Filter, Grid, List } from "lucide-react";
+import { Search, Filter, Grid, List, ChevronLeft, ChevronRight } from "lucide-react";
 import { CasinoCard } from "@/components/casino/casino-card";
 import { CasinoFiltersComponent } from "@/components/casino/casino-filters";
 import { AIChatbot } from "@/components/ai-chatbot";
@@ -23,7 +23,10 @@ export default function Casinos() {
   const [showFilters, setShowFilters] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [, setLocation] = useLocation();
+
+  const CASINOS_PER_PAGE = 20;
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 640);
@@ -66,7 +69,13 @@ export default function Casinos() {
   const handleClearFilters = () => {
     setFilters({});
     setSearchQuery("");
+    setCurrentPage(1);
   };
+
+  // Reset page when filters or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters, searchQuery, sortBy]);
 
   const sortedCasinos = [...casinos].sort((a, b) => {
     const [field, direction] = sortBy.split('-');
@@ -94,6 +103,19 @@ export default function Casinos() {
         return 0;
     }
   });
+
+  // Pagination calculations
+  const totalCasinos = sortedCasinos.length;
+  const totalPages = Math.ceil(totalCasinos / CASINOS_PER_PAGE);
+  const startIndex = (currentPage - 1) * CASINOS_PER_PAGE;
+  const endIndex = startIndex + CASINOS_PER_PAGE;
+  const currentCasinos = sortedCasinos.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top of results
+    window.scrollTo({ top: 300, behavior: 'smooth' });
+  };
 
   if (error) {
     return (
@@ -299,10 +321,16 @@ export default function Casinos() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-foreground">
-                  {isLoading ? "Loading..." : `${sortedCasinos.length} Casinos Found`}
+                  {isLoading ? "Loading..." : `${totalCasinos} Casinos Found`}
                 </h2>
-                {Object.keys(filters).length > 0 && (
+                {totalCasinos > 0 && (
                   <p className="text-muted-foreground">
+                    Showing {startIndex + 1}-{Math.min(endIndex, totalCasinos)} of {totalCasinos} casinos
+                    {totalPages > 1 && ` • Page ${currentPage} of ${totalPages}`}
+                  </p>
+                )}
+                {Object.keys(filters).length > 0 && (
+                  <p className="text-sm text-muted-foreground">
                     Filtered results based on your criteria
                   </p>
                 )}
@@ -325,7 +353,7 @@ export default function Casinos() {
                   </div>
                 ))}
               </div>
-            ) : sortedCasinos.length === 0 ? (
+            ) : totalCasinos === 0 ? (
               <div className="text-center py-16">
                 <div className="text-6xl mb-4">🔍</div>
                 <h3 className="text-xl font-semibold text-foreground mb-2">No Casinos Found</h3>
@@ -337,29 +365,101 @@ export default function Casinos() {
                 </Button>
               </div>
             ) : (
-              <div className={
-                isMobile || viewMode === "list"
-                  ? "space-y-6"
-                  : "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
-              }>
-                {sortedCasinos.map((casino) => (
-                  <CasinoCard 
-                    key={casino.id} 
-                    casino={casino} 
-                    showDetails={isMobile || viewMode === "list"}
-                    variant={isMobile || viewMode === "list" ? "list" : "grid"}
-                  />
-                ))}
-              </div>
-            )}
+              <>
+                <div className={
+                  isMobile || viewMode === "list"
+                    ? "space-y-6"
+                    : "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+                }>
+                  {currentCasinos.map((casino) => (
+                    <CasinoCard 
+                      key={casino.id} 
+                      casino={casino} 
+                      showDetails={isMobile || viewMode === "list"}
+                      variant={isMobile || viewMode === "list" ? "list" : "grid"}
+                    />
+                  ))}
+                </div>
 
-            {/* Load More - Future Enhancement */}
-            {sortedCasinos.length >= 20 && (
-              <div className="text-center mt-12">
-                <Button variant="outline" size="lg">
-                  Load More Casinos
-                </Button>
-              </div>
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center space-x-2 mt-12">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="flex items-center gap-2"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      Previous
+                    </Button>
+
+                    <div className="flex items-center space-x-1">
+                      {/* First page */}
+                      {currentPage > 3 && (
+                        <>
+                          <Button
+                            variant={1 === currentPage ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => handlePageChange(1)}
+                            className="w-10"
+                          >
+                            1
+                          </Button>
+                          {currentPage > 4 && <span className="px-2">...</span>}
+                        </>
+                      )}
+
+                      {/* Current page and neighbors */}
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        const pageStart = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
+                        const pageNum = pageStart + i;
+                        
+                        if (pageNum > totalPages) return null;
+                        
+                        return (
+                          <Button
+                            key={pageNum}
+                            variant={pageNum === currentPage ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => handlePageChange(pageNum)}
+                            className="w-10"
+                          >
+                            {pageNum}
+                          </Button>
+                        );
+                      })}
+
+                      {/* Last page */}
+                      {currentPage < totalPages - 2 && (
+                        <>
+                          {currentPage < totalPages - 3 && <span className="px-2">...</span>}
+                          <Button
+                            variant={totalPages === currentPage ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => handlePageChange(totalPages)}
+                            className="w-10"
+                          >
+                            {totalPages}
+                          </Button>
+                        </>
+                      )}
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className="flex items-center gap-2"
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
