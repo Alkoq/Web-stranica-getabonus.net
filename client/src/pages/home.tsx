@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Search, Star, TrendingUp, Users, Award, ChevronRight, Gift, Gamepad2, Clock, FileText, Filter, Bitcoin, CreditCard } from "lucide-react";
 import { CasinoCard } from "@/components/casino/casino-card";
 import { BonusCard } from "@/components/bonus/bonus-card";
@@ -130,6 +131,19 @@ export default function Home() {
     }
   };
 
+  // Search results query for real-time search
+  const { data: searchResults } = useQuery({
+    queryKey: ['/api/casinos', searchQuery],
+    enabled: searchQuery.length >= 2,
+    select: (data: any[]) => {
+      if (!searchQuery.trim()) return [];
+      return data.filter(casino => 
+        casino.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        casino.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      ).slice(0, 5); // Limit to 5 results
+    }
+  });
+
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Hero Section with Dynamic Stats */}
@@ -226,6 +240,10 @@ export default function Home() {
                       </div>
                     </DialogTrigger>
                     <DialogContent className="w-[95vw] max-w-md max-h-[80vh] p-0 gap-0">
+                      <VisuallyHidden>
+                        <DialogTitle>Search Suggestions</DialogTitle>
+                        <DialogDescription>Browse search suggestions by category</DialogDescription>
+                      </VisuallyHidden>
                       <Command className="rounded-lg border-none">
                         <CommandInput 
                           placeholder="Search suggestions..." 
@@ -233,9 +251,43 @@ export default function Home() {
                         />
                         <CommandList className="max-h-[60vh] overflow-y-auto p-2">
                           <CommandEmpty className="py-6 text-center text-muted-foreground">
-                            No suggestions found.
+                            {searchQuery.length >= 2 ? "No casinos found." : "Type to search casinos..."}
                           </CommandEmpty>
-                          {Object.entries(searchSuggestions).map(([category, suggestions]) => (
+                          
+                          {/* Real search results */}
+                          {searchQuery.length >= 2 && searchResults && searchResults.length > 0 && (
+                            <CommandGroup heading="Casino Results" className="mb-4">
+                              {searchResults.map((casino: any) => (
+                                <CommandItem
+                                  key={casino.id}
+                                  onSelect={() => {
+                                    setLocation(`/casino/${casino.id}`);
+                                    setShowSearchSuggestions(false);
+                                  }}
+                                  className="flex items-center gap-3 cursor-pointer p-4 rounded-md touch-manipulation"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <img 
+                                      src={casino.logo || '/placeholder-casino.png'} 
+                                      alt={casino.name}
+                                      className="w-8 h-8 rounded object-cover"
+                                    />
+                                    <div>
+                                      <span className="text-base font-medium">{casino.name}</span>
+                                      {casino.safetyIndex && (
+                                        <div className="text-xs text-muted-foreground">
+                                          Safety: {casino.safetyIndex}/10
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          )}
+                          
+                          {/* Suggestions only show when no search query or no results */}
+                          {(!searchQuery || searchQuery.length < 2 || (searchResults && searchResults.length === 0)) && Object.entries(searchSuggestions).map(([category, suggestions]) => (
                             <CommandGroup key={category} heading={category} className="mb-4">
                               {suggestions.map((suggestion, index) => (
                                 <CommandItem
@@ -314,9 +366,43 @@ export default function Home() {
                         />
                         <CommandList className="max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-muted">
                           <CommandEmpty className="py-6 text-center text-muted-foreground">
-                            No suggestions found.
+                            {searchQuery.length >= 2 ? "No casinos found." : "Type to search casinos..."}
                           </CommandEmpty>
-                          {Object.entries(searchSuggestions).map(([category, suggestions]) => (
+                          
+                          {/* Real search results for desktop */}
+                          {searchQuery.length >= 2 && searchResults && searchResults.length > 0 && (
+                            <CommandGroup heading="Casino Results" className="p-2">
+                              {searchResults.map((casino: any) => (
+                                <CommandItem
+                                  key={casino.id}
+                                  onSelect={() => {
+                                    setLocation(`/casino/${casino.id}`);
+                                    setShowSearchSuggestions(false);
+                                  }}
+                                  className="flex items-center gap-3 cursor-pointer p-3 rounded-md hover:bg-accent/50"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <img 
+                                      src={casino.logo || '/placeholder-casino.png'} 
+                                      alt={casino.name}
+                                      className="w-6 h-6 rounded object-cover"
+                                    />
+                                    <div>
+                                      <span className="text-sm font-medium">{casino.name}</span>
+                                      {casino.safetyIndex && (
+                                        <div className="text-xs text-muted-foreground">
+                                          Safety: {casino.safetyIndex}/10
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          )}
+                          
+                          {/* Suggestions only show when no search query or no results */}
+                          {(!searchQuery || searchQuery.length < 2 || (searchResults && searchResults.length === 0)) && Object.entries(searchSuggestions).map(([category, suggestions]) => (
                             <CommandGroup key={category} heading={category} className="p-2">
                               {suggestions.map((suggestion, index) => (
                                 <CommandItem
