@@ -265,6 +265,7 @@ export default function Games() {
           setSelectedGame(null);
         }}
         gameName={selectedGame?.name || ""}
+        casinos={[]}
       />
     </div>
   );

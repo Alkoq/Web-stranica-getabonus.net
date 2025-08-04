@@ -34,7 +34,7 @@ function Router() {
           <Route path="/reviews" component={Reviews} />
           <Route path="/compare" component={Compare} />
           <Route path="/blog" component={Blog} />
-          <Route path="/admin" component={Login} />
+          <Route path="/admin" component={AdminPanel} />
           <Route path="/admin-panel" component={AdminPanel} />
           <Route component={NotFound} />
         </Switch>

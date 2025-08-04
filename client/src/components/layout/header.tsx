@@ -17,7 +17,6 @@ export function Header() {
     { name: "Reviews", href: "/reviews", icon: "⭐" },
     { name: "Compare", href: "/compare", icon: "⚖️" },
     { name: "Blog", href: "/blog", icon: "📝" },
-    { name: "Admin", href: "/admin-panel", icon: "🔧" },
   ];
 
   const isActive = (href: string) => location === href;
