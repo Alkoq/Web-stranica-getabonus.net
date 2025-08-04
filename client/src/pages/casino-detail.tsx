@@ -667,6 +667,90 @@ export default function CasinoDetailPage() {
           </CardContent>
         </Card>
 
+        {/* Casino Bonuses Section */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="text-2xl flex items-center gap-2 text-turquoise">
+              <Gift className="h-6 w-6" />
+              Available Bonuses
+            </CardTitle>
+            <CardDescription>
+              Exclusive bonus offers for this casino
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-4">
+              {[
+                {
+                  id: "bonus-1",
+                  title: "Welcome Bonus",
+                  amount: "100% up to $500",
+                  type: "welcome",
+                  description: "First deposit bonus with 35x wagering",
+                  code: "WELCOME100",
+                  validUntil: "2024-12-31"
+                },
+                {
+                  id: "bonus-2", 
+                  title: "Free Spins",
+                  amount: "50 Free Spins",
+                  type: "free-spins",
+                  description: "No deposit required, valid for 7 days",
+                  code: "FREESPINS50",
+                  validUntil: "2024-12-31"
+                },
+                {
+                  id: "bonus-3",
+                  title: "Reload Bonus",
+                  amount: "50% up to $200",
+                  type: "reload",
+                  description: "Weekly reload bonus for existing players",
+                  code: "RELOAD50",
+                  validUntil: "2024-12-31"
+                }
+              ].map((bonus) => (
+                <Card key={bonus.id} className="flex-shrink-0 w-80 border-turquoise/30 hover:border-turquoise/60 transition-colors cursor-pointer">
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h4 className="font-semibold text-lg text-turquoise">{bonus.title}</h4>
+                          <p className="text-2xl font-bold text-orange">{bonus.amount}</p>
+                        </div>
+                        <Badge variant="secondary" className="bg-turquoise/10 text-turquoise">
+                          {bonus.type}
+                        </Badge>
+                      </div>
+                      
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {bonus.description}
+                      </p>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="font-medium">Code:</span>
+                          <Badge variant="outline" className="font-mono">
+                            {bonus.code}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Clock className="h-4 w-4" />
+                          <span>Valid until: {new Date(bonus.validUntil).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                      
+                      <Button className="w-full bg-turquoise hover:bg-turquoise/90" size="sm">
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Claim Bonus
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Expert Review Section */}
         <Card className="mb-8" style={{
           border: '2px solid hsl(24, 95%, 53%, 0.3)',
@@ -758,7 +842,15 @@ export default function CasinoDetailPage() {
                 </div>
                 
                 {ratingCategories.map((category) => {
-                  const avgRating = averageUserRatings[category.key as keyof typeof averageUserRatings] as string;
+                  // Map category key to averageUserRatings key
+                  let ratingKey = category.key.replace('Rating', '');
+                  // Special case mappings
+                  if (ratingKey === 'bonuses') ratingKey = 'bonuses';
+                  if (ratingKey === 'customerSupport') ratingKey = 'customerSupport';
+                  if (ratingKey === 'gameSelection') ratingKey = 'gameSelection';
+                  if (ratingKey === 'mobileExperience') ratingKey = 'mobileExperience';
+                  
+                  const avgRating = averageUserRatings[ratingKey as keyof typeof averageUserRatings] as string;
                   return (
                     <div key={category.key} className="text-center">
                       <div className="flex items-center justify-center gap-2 mb-2">
@@ -776,90 +868,6 @@ export default function CasinoDetailPage() {
             </CardContent>
           </Card>
         )}
-
-        {/* Casino Bonuses Section */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-2xl flex items-center gap-2 text-turquoise">
-              <Gift className="h-6 w-6" />
-              Available Bonuses
-            </CardTitle>
-            <CardDescription>
-              Exclusive bonus offers for this casino
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-4">
-              {[
-                {
-                  id: "bonus-1",
-                  title: "Welcome Bonus",
-                  amount: "100% up to $500",
-                  type: "welcome",
-                  description: "First deposit bonus with 35x wagering",
-                  code: "WELCOME100",
-                  validUntil: "2024-12-31"
-                },
-                {
-                  id: "bonus-2", 
-                  title: "Free Spins",
-                  amount: "50 Free Spins",
-                  type: "free-spins",
-                  description: "No deposit required, valid for 7 days",
-                  code: "FREESPINS50",
-                  validUntil: "2024-12-31"
-                },
-                {
-                  id: "bonus-3",
-                  title: "Reload Bonus",
-                  amount: "50% up to $200",
-                  type: "reload",
-                  description: "Weekly reload bonus for existing players",
-                  code: "RELOAD50",
-                  validUntil: "2024-12-31"
-                }
-              ].map((bonus) => (
-                <Card key={bonus.id} className="flex-shrink-0 w-80 border-turquoise/30 hover:border-turquoise/60 transition-colors cursor-pointer">
-                  <CardContent className="p-6">
-                    <div className="space-y-4">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h4 className="font-semibold text-lg text-turquoise">{bonus.title}</h4>
-                          <p className="text-2xl font-bold text-orange">{bonus.amount}</p>
-                        </div>
-                        <Badge variant="secondary" className="bg-turquoise/10 text-turquoise">
-                          {bonus.type}
-                        </Badge>
-                      </div>
-                      
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {bonus.description}
-                      </p>
-                      
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-sm">
-                          <span className="font-medium">Code:</span>
-                          <Badge variant="outline" className="font-mono">
-                            {bonus.code}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Clock className="h-4 w-4" />
-                          <span>Valid until: {new Date(bonus.validUntil).toLocaleDateString()}</span>
-                        </div>
-                      </div>
-                      
-                      <Button className="w-full bg-turquoise hover:bg-turquoise/90" size="sm">
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        Claim Bonus
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
 
         {/* User Reviews Section */}
         <Card className="mb-8" style={{
