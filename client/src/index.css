@@ -102,4 +102,32 @@
   .gradient-orange {
     background: linear-gradient(135deg, hsl(var(--orange)), hsl(0, 84%, 60%));
   }
+
+  /* Line clamp utilities */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  /* Mobile optimized card heights */
+  @media (max-width: 768px) {
+    .carousel-card {
+      max-height: 350px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .carousel-card {
+      max-height: 320px;
+    }
+  }
 }

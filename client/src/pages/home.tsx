@@ -13,11 +13,14 @@ import { BlogCard } from "@/components/blog/blog-card";
 import { CasinoComparison } from "@/components/casino/casino-comparison";
 import { Newsletter } from "@/components/newsletter";
 import { AIChatbot } from "@/components/ai-chatbot";
+import { GameCasinoModal } from "@/components/game/game-casino-modal";
 import { api } from "@/lib/api";
 import type { Casino, Bonus, BlogPost } from "@shared/schema";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedGame, setSelectedGame] = useState<{name: string, id: string} | null>(null);
+  const [showCasinoModal, setShowCasinoModal] = useState(false);
 
   // Fetch stats and data
   const { data: stats } = useQuery({
@@ -317,16 +320,31 @@ export default function Home() {
             <CarouselContent className="-ml-2 md:-ml-4">
               {hotGames.map((game) => (
                 <CarouselItem key={game.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                  <Card className="hover:shadow-lg transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="aspect-video bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg mb-4 flex items-center justify-center">
-                        <Gamepad2 className="h-12 w-12 text-white" />
+                  <Card className="hover:shadow-lg transition-shadow h-full carousel-card">
+                    <CardContent className="p-4 flex flex-col h-full">
+                      <div className="aspect-[4/3] bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg mb-4 flex items-center justify-center">
+                        <Gamepad2 className="h-8 w-8 md:h-12 md:w-12 text-white" />
                       </div>
-                      <h3 className="font-semibold text-lg mb-1">{game.name}</h3>
-                      <p className="text-sm text-muted-foreground mb-2">{game.provider}</p>
-                      <div className="flex justify-between items-center">
-                        <Badge variant="secondary">RTP: {game.rtp}</Badge>
-                        <Button size="sm" variant="outline">Play Demo</Button>
+                      <h3 className="font-semibold text-base md:text-lg mb-1 line-clamp-1">{game.name}</h3>
+                      <p className="text-sm text-muted-foreground mb-3 line-clamp-1">{game.provider}</p>
+                      <div className="mt-auto space-y-2">
+                        <Badge variant="secondary" className="text-xs">RTP: {game.rtp}</Badge>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" className="flex-1 text-xs" data-testid={`button-play-demo-${game.id}`}>
+                            Play Demo
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            className="flex-1 bg-orange hover:bg-orange/90 text-xs"
+                            data-testid={`button-play-real-${game.id}`}
+                            onClick={() => {
+                              setSelectedGame({ name: game.name, id: game.id });
+                              setShowCasinoModal(true);
+                            }}
+                          >
+                            Play Real
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -363,16 +381,31 @@ export default function Home() {
             <CarouselContent className="-ml-2 md:-ml-4">
               {hotGames.slice().reverse().map((game) => (
                 <CarouselItem key={game.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                  <Card className="hover:shadow-lg transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="aspect-video bg-gradient-to-br from-blue-400 to-green-400 rounded-lg mb-4 flex items-center justify-center">
-                        <Gamepad2 className="h-12 w-12 text-white" />
+                  <Card className="hover:shadow-lg transition-shadow h-full carousel-card">
+                    <CardContent className="p-4 flex flex-col h-full">
+                      <div className="aspect-[4/3] bg-gradient-to-br from-blue-400 to-green-400 rounded-lg mb-4 flex items-center justify-center">
+                        <Gamepad2 className="h-8 w-8 md:h-12 md:w-12 text-white" />
                       </div>
-                      <h3 className="font-semibold text-lg mb-1">{game.name}</h3>
-                      <p className="text-sm text-muted-foreground mb-2">{game.provider}</p>
-                      <div className="flex justify-between items-center">
-                        <Badge variant="secondary">RTP: {game.rtp}</Badge>
-                        <Button size="sm" variant="outline">Play Demo</Button>
+                      <h3 className="font-semibold text-base md:text-lg mb-1 line-clamp-1">{game.name}</h3>
+                      <p className="text-sm text-muted-foreground mb-3 line-clamp-1">{game.provider}</p>
+                      <div className="mt-auto space-y-2">
+                        <Badge variant="secondary" className="text-xs">RTP: {game.rtp}</Badge>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" className="flex-1 text-xs" data-testid={`button-play-demo-latest-${game.id}`}>
+                            Play Demo
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            className="flex-1 bg-orange hover:bg-orange/90 text-xs"
+                            data-testid={`button-play-real-latest-${game.id}`}
+                            onClick={() => {
+                              setSelectedGame({ name: game.name, id: game.id });
+                              setShowCasinoModal(true);
+                            }}
+                          >
+                            Play Real
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -449,6 +482,17 @@ export default function Home() {
           <Newsletter />
         </div>
       </div>
+
+      {/* Game Casino Modal */}
+      <GameCasinoModal 
+        isOpen={showCasinoModal}
+        onClose={() => {
+          setShowCasinoModal(false);
+          setSelectedGame(null);
+        }}
+        gameName={selectedGame?.name || ""}
+        casinos={allCasinos}
+      />
     </div>
   );
 }
