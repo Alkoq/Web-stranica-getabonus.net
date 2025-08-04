@@ -7,6 +7,8 @@ import {
   type InsertBonus,
   type Review,
   type InsertReview,
+  type ExpertReview,
+  type InsertExpertReview,
   type BlogPost,
   type InsertBlogPost,
   type NewsletterSubscriber,
@@ -40,6 +42,11 @@ export interface IStorage {
   getReviewsByCasino(casinoId: string): Promise<Review[]>;
   getReview(id: string): Promise<Review | undefined>;
   createReview(review: InsertReview): Promise<Review>;
+
+  // Expert Reviews
+  getExpertReviewsByCasino(casinoId: string): Promise<ExpertReview[]>;
+  getExpertReview(id: string): Promise<ExpertReview | undefined>;
+  createExpertReview(review: InsertExpertReview): Promise<ExpertReview>;
 
   // Blog Posts
   getBlogPosts(published?: boolean): Promise<BlogPost[]>;
@@ -77,6 +84,7 @@ export class MemStorage implements IStorage {
   private casinos: Map<string, Casino> = new Map();
   private bonuses: Map<string, Bonus> = new Map();
   private reviews: Map<string, Review> = new Map();
+  private expertReviews: Map<string, ExpertReview> = new Map();
   private blogPosts: Map<string, BlogPost> = new Map();
   private newsletterSubscribers: Map<string, NewsletterSubscriber> = new Map();
   private comparisons: Map<string, Comparison> = new Map();
@@ -522,6 +530,59 @@ export class MemStorage implements IStorage {
     this.blogPosts.set(blogPost3.id, blogPost3);
     this.blogPosts.set(blogPost4.id, blogPost4);
     this.blogPosts.set(blogPost5.id, blogPost5);
+
+    // Initialize Expert Reviews for first few casinos
+    const casinos = Array.from(this.casinos.values());
+    if (casinos.length > 0) {
+      // Create expert review for Stake
+      const stakeExpertReview: ExpertReview = {
+        id: randomUUID(),
+        casinoId: casinos[0].id,
+        authorId: randomUUID(),
+        bonusesRating: "9.1",
+        bonusesExplanation: "Excellent bonus variety with VIP program and regular promotions. Crypto bonuses are particularly strong.",
+        designRating: "8.8",
+        designExplanation: "Modern, sleek design with excellent user experience. Dark theme works well for crypto audience.",
+        payoutsRating: "9.5",
+        payoutsExplanation: "Instant crypto withdrawals and competitive RTP rates. Outstanding payout speed.",
+        customerSupportRating: "8.7",
+        customerSupportExplanation: "24/7 live chat support with knowledgeable agents. Response times could be faster.",
+        gameSelectionRating: "9.2",
+        gameSelectionExplanation: "Massive game library with exclusive Stake originals and top providers.",
+        mobileExperienceRating: "9.0",
+        mobileExperienceExplanation: "Excellent mobile optimization with full feature parity.",
+        overallRating: "9.0",
+        summary: "Stake sets the gold standard for crypto casinos with provably fair games, instant payouts, and an exceptional VIP program.",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      // Create expert review for Roobet
+      const roobetExpertReview: ExpertReview = {
+        id: randomUUID(),
+        casinoId: casinos[1].id,
+        authorId: randomUUID(),
+        bonusesRating: "8.5",
+        bonusesExplanation: "Solid welcome package and regular reload bonuses. Strong focus on community rewards.",
+        designRating: "8.9",
+        designExplanation: "Vibrant, gaming-focused design that appeals to streaming community.",
+        payoutsRating: "8.8",
+        payoutsExplanation: "Fast crypto withdrawals with competitive processing times.",
+        customerSupportRating: "8.4",
+        customerSupportExplanation: "Good support team with focus on community engagement.",
+        gameSelectionRating: "8.6",
+        gameSelectionExplanation: "Great selection of original games plus popular slots.",
+        mobileExperienceRating: "8.7",
+        mobileExperienceExplanation: "Good mobile experience with most features available.",
+        overallRating: "8.6",
+        summary: "Roobet excels in community building and original games, making it popular among streamers and social gamers.",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      this.expertReviews.set(stakeExpertReview.id, stakeExpertReview);
+      this.expertReviews.set(roobetExpertReview.id, roobetExpertReview);
+    }
   }
 
   // User methods
@@ -664,6 +725,29 @@ export class MemStorage implements IStorage {
       updatedAt: new Date(),
     };
     this.reviews.set(id, review);
+    return review;
+  }
+
+  // Expert Review methods
+  async getExpertReviewsByCasino(casinoId: string): Promise<ExpertReview[]> {
+    return Array.from(this.expertReviews.values())
+      .filter(review => review.casinoId === casinoId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async getExpertReview(id: string): Promise<ExpertReview | undefined> {
+    return this.expertReviews.get(id);
+  }
+
+  async createExpertReview(insertReview: InsertExpertReview): Promise<ExpertReview> {
+    const id = randomUUID();
+    const review: ExpertReview = {
+      ...insertReview,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.expertReviews.set(id, review);
     return review;
   }
 

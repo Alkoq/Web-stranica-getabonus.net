@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, ExternalLink, Info } from "lucide-react";
+import { Star, ExternalLink, Info, Shield } from "lucide-react";
 import { Link } from "wouter";
-import type { Casino } from "@shared/schema";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+import type { Casino, Review, ExpertReview } from "@shared/schema";
 
 interface CasinoCardProps {
   casino: Casino;
@@ -11,17 +13,29 @@ interface CasinoCardProps {
 }
 
 export function CasinoCard({ casino, showDetails = true, variant = "list" }: CasinoCardProps) {
-  const renderStars = (rating: string | null) => {
-    const numRating = parseFloat(rating || '0');
-    const fullStars = Math.floor(numRating);
-    const hasHalfStar = numRating % 1 >= 0.5;
+  // Fetch expert reviews for this casino
+  const { data: expertReviews = [] } = useQuery<ExpertReview[]>({
+    queryKey: ['/api/expert-reviews', casino.id],
+    queryFn: () => api.getExpertReviews(casino.id),
+  });
+
+  // Fetch user reviews for this casino
+  const { data: userReviews = [] } = useQuery<Review[]>({
+    queryKey: ['/api/reviews', casino.id],
+    queryFn: () => api.getReviews(casino.id),
+  });
+
+  const renderStars = (rating: number, size: "sm" | "md" = "md") => {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    const starSize = size === "sm" ? "h-3 w-3" : "h-4 w-4";
     
     return (
       <div className="flex items-center">
         {[...Array(5)].map((_, i) => (
           <Star
             key={i}
-            className={`h-4 w-4 ${
+            className={`${starSize} ${
               i < fullStars
                 ? "text-yellow-400 fill-current"
                 : i === fullStars && hasHalfStar
@@ -33,6 +47,16 @@ export function CasinoCard({ casino, showDetails = true, variant = "list" }: Cas
       </div>
     );
   };
+
+  // Calculate average expert rating
+  const expertRating = expertReviews.length > 0 
+    ? expertReviews.reduce((acc, review) => acc + parseFloat(review.overallRating), 0) / expertReviews.length 
+    : 0;
+
+  // Calculate average user rating
+  const userRating = userReviews.length > 0 
+    ? userReviews.reduce((acc, review) => acc + review.overallRating, 0) / userReviews.length 
+    : 0;
 
   const getSafetyColor = (index: string | null) => {
     const numIndex = parseFloat(index || '0');
@@ -94,20 +118,54 @@ export function CasinoCard({ casino, showDetails = true, variant = "list" }: Cas
             </div>
           </div>
 
-          {/* Safety Rating */}
-          <div className={`flex ${variant === "grid" ? "justify-center" : "items-center"} space-x-4`}>
+          {/* Ratings Section */}
+          <div className={`flex ${variant === "grid" ? "justify-center flex-col space-y-3" : "items-center"} space-x-4`}>
+            {/* Safety Index */}
             <div className="text-center">
-              <div className={`px-4 py-2 rounded-lg ${getSafetyColor(casino.safetyIndex)}`}>
-                <div className="text-2xl font-bold">{casino.safetyIndex || '0'}</div>
-                <div className="text-xs">Safety Index</div>
+              <div className={`px-3 py-2 rounded-lg ${getSafetyColor(casino.safetyIndex)}`}>
+                <div className="text-xl font-bold">{casino.safetyIndex || '0'}</div>
+                <div className="text-xs flex items-center justify-center">
+                  <Shield className="h-3 w-3 mr-1" />
+                  Safety
+                </div>
               </div>
             </div>
-            <div className="text-center">
-              {renderStars(casino.userRating)}
-              <div className="text-xs text-gray-600 dark:text-gray-300 mt-1">
-                {casino.userRating || '0'}/5 ({casino.totalReviews} reviews)
+
+            {/* Expert Rating */}
+            {expertReviews.length > 0 && (
+              <div className="text-center">
+                <div className="flex flex-col items-center">
+                  {renderStars(expertRating, "sm")}
+                  <div className="text-xs text-turquoise font-medium mt-1">
+                    Expert: {expertRating.toFixed(1)}/5
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* User Rating */}
+            {userReviews.length > 0 && (
+              <div className="text-center">
+                <div className="flex flex-col items-center">
+                  {renderStars(userRating, "sm")}
+                  <div className="text-xs text-gray-600 dark:text-gray-300 mt-1">
+                    Users: {userRating.toFixed(1)}/5 ({userReviews.length})
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Fallback if no reviews */}
+            {expertReviews.length === 0 && userReviews.length === 0 && (
+              <div className="text-center">
+                <div className="flex flex-col items-center">
+                  {renderStars(0, "sm")}
+                  <div className="text-xs text-gray-500 mt-1">
+                    No reviews yet
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Actions */}

@@ -42,9 +42,13 @@ export default function Blog() {
   const sortedPosts = [...filteredPosts].sort((a, b) => {
     switch (sortBy) {
       case "latest":
-        return (b.publishedAt || b.createdAt).getTime() - (a.publishedAt || a.createdAt).getTime();
+        const bDate = new Date(b.publishedAt || b.createdAt || '1970-01-01').getTime();
+        const aDate = new Date(a.publishedAt || a.createdAt || '1970-01-01').getTime();
+        return bDate - aDate;
       case "oldest":
-        return (a.publishedAt || a.createdAt).getTime() - (b.publishedAt || b.createdAt).getTime();
+        const aDateOld = new Date(a.publishedAt || a.createdAt || '1970-01-01').getTime();
+        const bDateOld = new Date(b.publishedAt || b.createdAt || '1970-01-01').getTime();
+        return aDateOld - bDateOld;
       case "title":
         return a.title.localeCompare(b.title);
       case "readTime":

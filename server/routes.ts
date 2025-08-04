@@ -139,6 +139,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Expert Review routes
+  app.get("/api/expert-reviews/casino/:casinoId", async (req, res) => {
+    try {
+      const expertReviews = await storage.getExpertReviewsByCasino(req.params.casinoId);
+      res.json(expertReviews);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch expert reviews" });
+    }
+  });
+
   // Blog routes
   app.get("/api/blog", async (req, res) => {
     try {
