@@ -79,7 +79,22 @@ export function BonusCard({ bonus, casinoName, casinoLogo, affiliateUrl }: Bonus
   };
 
   return (
-    <div className={`bg-gradient-to-br ${getBonusTypeColor(bonus.type)} text-white rounded-xl p-6 hover:shadow-xl transition-shadow duration-300 h-full flex flex-col`}>
+    <div 
+      className="text-white rounded-xl p-6 transition-all duration-300 h-full flex flex-col relative overflow-hidden group"
+      style={{
+        background: `linear-gradient(135deg, ${bonus.type === 'no_deposit' ? 'hsl(24, 95%, 53%)' : bonus.type === 'welcome' ? 'hsl(173, 58%, 39%)' : 'hsl(173, 58%, 39%)'}, ${bonus.type === 'no_deposit' ? 'hsl(24, 95%, 43%)' : bonus.type === 'welcome' ? 'hsl(173, 58%, 29%)' : 'hsl(173, 58%, 29%)'})`,
+        border: `2px solid ${bonus.type === 'no_deposit' ? 'hsl(24, 95%, 53%)' : 'hsl(173, 58%, 39%)'}`,
+        boxShadow: `0 0 15px ${bonus.type === 'no_deposit' ? 'hsl(24, 95%, 53%, 0.3)' : 'hsl(173, 58%, 39%, 0.3)'}, 0 0 30px ${bonus.type === 'no_deposit' ? 'hsl(24, 95%, 53%, 0.1)' : 'hsl(173, 58%, 39%, 0.1)'}`,
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-5px) scale(1.02)';
+        e.currentTarget.style.boxShadow = `0 0 25px ${bonus.type === 'no_deposit' ? 'hsl(24, 95%, 53%, 0.5)' : 'hsl(173, 58%, 39%, 0.5)'}, 0 0 50px ${bonus.type === 'no_deposit' ? 'hsl(24, 95%, 53%, 0.2)' : 'hsl(173, 58%, 39%, 0.2)'}`;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0) scale(1)';
+        e.currentTarget.style.boxShadow = `0 0 15px ${bonus.type === 'no_deposit' ? 'hsl(24, 95%, 53%, 0.3)' : 'hsl(173, 58%, 39%, 0.3)'}, 0 0 30px ${bonus.type === 'no_deposit' ? 'hsl(24, 95%, 53%, 0.1)' : 'hsl(173, 58%, 39%, 0.1)'}`;
+      }}
+    >
       <div className="flex items-center justify-between mb-4">
         <Badge className="bg-white bg-opacity-20 text-white border-white/20 hover:bg-white/30">
           {getBonusTypeName(bonus.type)}

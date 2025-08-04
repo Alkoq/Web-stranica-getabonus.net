@@ -160,10 +160,22 @@ export default function Home() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
         
         {/* Top Casinos Carousel */}
-        <section>
+        <section className="relative p-6 rounded-xl" style={{
+          background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.1), rgba(173, 58, 39, 0.05))',
+          border: '1px solid hsl(173, 58%, 39%, 0.2)',
+          boxShadow: '0 0 20px hsl(173, 58%, 39%, 0.1)',
+        }}>
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Top Rated Casinos</h2>
+              <h2 
+                className="text-3xl font-bold mb-2"
+                style={{
+                  color: 'hsl(173, 58%, 39%)',
+                  textShadow: '0 0 10px hsl(173, 58%, 39%, 0.3)'
+                }}
+              >
+                Top Rated Casinos 🎰
+              </h2>
               <p className="text-gray-600 dark:text-gray-300">Best casinos based on our expert reviews</p>
             </div>
             <Link href="/casinos?sort=rating">
@@ -196,10 +208,22 @@ export default function Home() {
         </section>
 
         {/* Latest Casinos */}
-        <section>
+        <section className="relative p-6 rounded-xl" style={{
+          background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.1), rgba(24, 95, 53, 0.05))',
+          border: '1px solid hsl(24, 95%, 53%, 0.2)',
+          boxShadow: '0 0 20px hsl(24, 95%, 53%, 0.1)',
+        }}>
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Latest Casinos</h2>
+              <h2 
+                className="text-3xl font-bold mb-2"
+                style={{
+                  color: 'hsl(24, 95%, 53%)',
+                  textShadow: '0 0 10px hsl(24, 95%, 53%, 0.3)'
+                }}
+              >
+                Latest Casinos 🆕
+              </h2>
               <p className="text-gray-600 dark:text-gray-300">Newest additions to our platform</p>
             </div>
             <Link href="/casinos?sort=newest">
@@ -232,10 +256,24 @@ export default function Home() {
         </section>
 
         {/* Top Bonuses */}
-        <section>
+        <section className="relative p-6 rounded-xl" style={{
+          background: 'linear-gradient(135deg, rgba(173, 58, 39, 0.1), rgba(24, 95, 53, 0.05))',
+          border: '1px solid hsl(173, 58%, 39%, 0.2)',
+          boxShadow: '0 0 20px hsl(173, 58%, 39%, 0.1), 0 0 40px hsl(24, 95%, 53%, 0.05)',
+        }}>
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Top Bonuses</h2>
+              <h2 
+                className="text-3xl font-bold mb-2"
+                style={{
+                  background: 'linear-gradient(45deg, hsl(173, 58%, 39%), hsl(24, 95%, 53%))',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  filter: 'drop-shadow(0 0 10px hsl(173, 58%, 39%, 0.3))'
+                }}
+              >
+                Top Bonuses 🎁
+              </h2>
               <p className="text-gray-600 dark:text-gray-300">Best bonus offers available right now</p>
             </div>
             <Link href="/bonuses?sort=value">
@@ -268,10 +306,22 @@ export default function Home() {
         </section>
 
         {/* Latest Bonuses */}
-        <section>
+        <section className="relative p-6 rounded-xl" style={{
+          background: 'linear-gradient(135deg, rgba(24, 95, 53, 0.1), rgba(173, 58, 39, 0.05))',
+          border: '1px solid hsl(24, 95%, 53%, 0.2)',
+          boxShadow: '0 0 20px hsl(24, 95%, 53%, 0.1)',
+        }}>
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Latest Bonuses</h2>
+              <h2 
+                className="text-3xl font-bold mb-2"
+                style={{
+                  color: 'hsl(24, 95%, 53%)',
+                  textShadow: '0 0 10px hsl(24, 95%, 53%, 0.3)'
+                }}
+              >
+                Latest Bonuses 🆕
+              </h2>
               <p className="text-gray-600 dark:text-gray-300">Newest bonus offers just added</p>
             </div>
             <Link href="/bonuses?sort=newest">
@@ -304,10 +354,24 @@ export default function Home() {
         </section>
 
         {/* Hot Games */}
-        <section>
+        <section className="relative p-6 rounded-xl" style={{
+          background: 'linear-gradient(135deg, rgba(24, 95, 53, 0.05), rgba(173, 58, 39, 0.1))',
+          border: '1px solid hsl(24, 95%, 53%, 0.2)',
+          boxShadow: '0 0 20px hsl(24, 95%, 53%, 0.1), 0 0 40px hsl(173, 58%, 39%, 0.05)',
+        }}>
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Hot Games Right Now</h2>
+              <h2 
+                className="text-3xl font-bold mb-2"
+                style={{
+                  background: 'linear-gradient(45deg, hsl(24, 95%, 53%), hsl(173, 58%, 39%))',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  filter: 'drop-shadow(0 0 10px hsl(24, 95%, 53%, 0.3))'
+                }}
+              >
+                Hot Games Right Now 🔥
+              </h2>
               <p className="text-gray-600 dark:text-gray-300">Most popular games this week</p>
             </div>
             <Link href="/games">
@@ -328,7 +392,24 @@ export default function Home() {
             <CarouselContent className="-ml-2 md:-ml-4">
               {hotGames.map((game) => (
                 <CarouselItem key={game.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                  <Card className="hover:shadow-lg transition-shadow h-full carousel-card">
+                  <Card 
+                    className="transition-all duration-300 h-full carousel-card relative overflow-hidden"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6))',
+                      border: '2px solid hsl(173, 58%, 39%, 0.3)',
+                      boxShadow: '0 0 15px hsl(173, 58%, 39%, 0.2)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-3px) scale(1.01)';
+                      e.currentTarget.style.border = '2px solid hsl(173, 58%, 39%, 0.6)';
+                      e.currentTarget.style.boxShadow = '0 0 25px hsl(173, 58%, 39%, 0.3)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                      e.currentTarget.style.border = '2px solid hsl(173, 58%, 39%, 0.3)';
+                      e.currentTarget.style.boxShadow = '0 0 15px hsl(173, 58%, 39%, 0.2)';
+                    }}
+                  >
                     <CardContent className="p-4 flex flex-col h-full">
                       <div className="aspect-[4/3] bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg mb-4 flex items-center justify-center">
                         <Gamepad2 className="h-8 w-8 md:h-12 md:w-12 text-white" />

@@ -42,7 +42,25 @@ export function CasinoCard({ casino, showDetails = true }: CasinoCardProps) {
   };
 
   return (
-    <div className="bg-card rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-border">
+    <div 
+      className="rounded-xl transition-all duration-300 border relative overflow-hidden group"
+      style={{
+        background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6))',
+        border: '2px solid hsl(173, 58%, 39%, 0.3)',
+        boxShadow: '0 0 15px hsl(173, 58%, 39%, 0.2), 0 0 30px hsl(173, 58%, 39%, 0.1)',
+        backdropFilter: 'blur(10px)',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-5px) scale(1.02)';
+        e.currentTarget.style.border = '2px solid hsl(173, 58%, 39%, 0.6)';
+        e.currentTarget.style.boxShadow = '0 0 25px hsl(173, 58%, 39%, 0.4), 0 0 50px hsl(173, 58%, 39%, 0.2)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0) scale(1)';
+        e.currentTarget.style.border = '2px solid hsl(173, 58%, 39%, 0.3)';
+        e.currentTarget.style.boxShadow = '0 0 15px hsl(173, 58%, 39%, 0.2), 0 0 30px hsl(173, 58%, 39%, 0.1)';
+      }}
+    >
       <div className="p-6">
         <div className="flex flex-col lg:flex-row lg:items-center gap-6">
           {/* Casino Logo & Info */}
@@ -53,7 +71,15 @@ export function CasinoCard({ casino, showDetails = true }: CasinoCardProps) {
               className="w-16 h-16 rounded-lg object-cover"
             />
             <div>
-              <h3 className="text-xl font-bold text-foreground">{casino.name}</h3>
+              <h3 
+                className="text-xl font-bold"
+                style={{
+                  color: 'hsl(173, 58%, 39%)',
+                  textShadow: '0 0 10px hsl(173, 58%, 39%, 0.5)'
+                }}
+              >
+                {casino.name}
+              </h3>
               <p className="text-muted-foreground">{casino.description}</p>
               {casino.establishedYear && (
                 <p className="text-sm text-muted-foreground">Est. {casino.establishedYear}</p>
