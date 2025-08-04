@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -131,19 +131,16 @@ export default function Home() {
     }
   };
 
-  // Search results query for real-time search
-  const { data: searchResults, isLoading: searchLoading } = useQuery({
-    queryKey: ['/api/casinos'],
-    select: (data: any[]) => {
-      if (!searchQuery || searchQuery.length < 2) return [];
-      const filtered = data.filter(casino => 
-        casino.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        casino.description?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      console.log('Search query:', searchQuery, 'Found casinos:', filtered.length);
-      return filtered.slice(0, 5); // Limit to 5 results
-    }
-  });
+  // Filter casinos based on search query
+  const searchResults = useMemo(() => {
+    if (!searchQuery || searchQuery.length < 2) return [];
+    const filtered = allCasinos.filter((casino: any) => 
+      casino.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      casino.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    console.log('Search query:', searchQuery, 'Found casinos:', filtered.length, filtered.map((c: any) => c.name));
+    return filtered.slice(0, 5); // Limit to 5 results
+  }, [allCasinos, searchQuery]);
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
@@ -290,7 +287,7 @@ export default function Home() {
                           )}
                           
                           {/* Suggestions only show when no search query or no results */}
-                          {(!searchQuery || searchQuery.length < 2 || (searchResults && searchResults.length === 0)) && Object.entries(searchSuggestions).map(([category, suggestions]) => (
+                          {(!searchQuery || searchQuery.length < 2) && Object.entries(searchSuggestions).map(([category, suggestions]) => (
                             <CommandGroup key={category} heading={category} className="mb-4">
                               {suggestions.map((suggestion, index) => (
                                 <CommandItem
@@ -407,7 +404,7 @@ export default function Home() {
                           )}
                           
                           {/* Suggestions only show when no search query or no results */}
-                          {(!searchQuery || searchQuery.length < 2 || (searchResults && searchResults.length === 0)) && Object.entries(searchSuggestions).map(([category, suggestions]) => (
+                          {(!searchQuery || searchQuery.length < 2) && Object.entries(searchSuggestions).map(([category, suggestions]) => (
                             <CommandGroup key={category} heading={category} className="p-2">
                               {suggestions.map((suggestion, index) => (
                                 <CommandItem
