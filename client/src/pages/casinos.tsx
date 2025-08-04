@@ -14,18 +14,26 @@ import type { CasinoFilters } from "@/types";
 export default function Casinos() {
   const [filters, setFilters] = useState<CasinoFilters>({});
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState("safetyIndex");
+  const [sortBy, setSortBy] = useState("safetyIndex-desc");
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [showFilters, setShowFilters] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Check URL parameters for sorting
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const sort = urlParams.get('sort');
     if (sort === 'rating') {
-      setSortBy('safetyIndex');
+      setSortBy('safetyIndex-desc');
     } else if (sort === 'newest') {
-      setSortBy('established');
+      setSortBy('createdAt-desc');
     }
   }, []);
 
@@ -44,15 +52,27 @@ export default function Casinos() {
   };
 
   const sortedCasinos = [...casinos].sort((a, b) => {
-    switch (sortBy) {
+    const [field, direction] = sortBy.split('-');
+    const isDesc = direction === 'desc';
+    
+    switch (field) {
       case "safetyIndex":
-        return parseFloat(b.safetyIndex) - parseFloat(a.safetyIndex);
+        const diff = parseFloat(b.safetyIndex || '0') - parseFloat(a.safetyIndex || '0');
+        return isDesc ? diff : -diff;
       case "userRating":
-        return parseFloat(b.userRating) - parseFloat(a.userRating);
+        const ratingDiff = parseFloat(b.userRating || '0') - parseFloat(a.userRating || '0');
+        return isDesc ? ratingDiff : -ratingDiff;
       case "name":
-        return a.name.localeCompare(b.name);
+        const nameDiff = a.name.localeCompare(b.name);
+        return isDesc ? -nameDiff : nameDiff;
       case "established":
-        return (b.establishedYear || 0) - (a.establishedYear || 0);
+        const estDiff = (b.establishedYear || 0) - (a.establishedYear || 0);
+        return isDesc ? estDiff : -estDiff;
+      case "createdAt":
+        const aDt = new Date(a.createdAt || '1970-01-01').getTime();
+        const bDt = new Date(b.createdAt || '1970-01-01').getTime();
+        const createdDiff = bDt - aDt;
+        return isDesc ? createdDiff : -createdDiff;
       default:
         return 0;
     }
@@ -121,18 +141,24 @@ export default function Casinos() {
 
               <div className="flex flex-1 gap-4">
                 <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-48">
+                  <SelectTrigger className="w-64">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="safetyIndex">Safety Index</SelectItem>
-                    <SelectItem value="userRating">User Rating</SelectItem>
-                    <SelectItem value="name">Name</SelectItem>
-                    <SelectItem value="established">Year Established</SelectItem>
+                    <SelectItem value="safetyIndex-desc">Highest Safety Index</SelectItem>
+                    <SelectItem value="safetyIndex-asc">Lowest Safety Index</SelectItem>
+                    <SelectItem value="userRating-desc">Highest User Rating</SelectItem>
+                    <SelectItem value="userRating-asc">Lowest User Rating</SelectItem>
+                    <SelectItem value="createdAt-desc">Latest Added</SelectItem>
+                    <SelectItem value="createdAt-asc">Oldest Added</SelectItem>
+                    <SelectItem value="name-asc">Name A-Z</SelectItem>
+                    <SelectItem value="name-desc">Name Z-A</SelectItem>
+                    <SelectItem value="established-desc">Newest Casinos</SelectItem>
+                    <SelectItem value="established-asc">Oldest Casinos</SelectItem>
                   </SelectContent>
                 </Select>
 
-                <div className="flex border border-border rounded-lg">
+                <div className="hidden sm:flex border border-border rounded-lg">
                   <Button
                     variant={viewMode === "list" ? "default" : "ghost"}
                     size="sm"
@@ -207,15 +233,16 @@ export default function Casinos() {
               </div>
             ) : (
               <div className={
-                viewMode === "grid" 
-                  ? "grid grid-cols-1 md:grid-cols-2 gap-6"
-                  : "space-y-6"
+                isMobile || viewMode === "list"
+                  ? "space-y-6"
+                  : "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
               }>
                 {sortedCasinos.map((casino) => (
                   <CasinoCard 
                     key={casino.id} 
                     casino={casino} 
-                    showDetails={viewMode === "list"}
+                    showDetails={isMobile || viewMode === "list"}
+                    variant={isMobile || viewMode === "list" ? "list" : "grid"}
                   />
                 ))}
               </div>

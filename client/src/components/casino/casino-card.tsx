@@ -7,9 +7,10 @@ import type { Casino } from "@shared/schema";
 interface CasinoCardProps {
   casino: Casino;
   showDetails?: boolean;
+  variant?: "list" | "grid";
 }
 
-export function CasinoCard({ casino, showDetails = true }: CasinoCardProps) {
+export function CasinoCard({ casino, showDetails = true, variant = "list" }: CasinoCardProps) {
   const renderStars = (rating: string | null) => {
     const numRating = parseFloat(rating || '0');
     const fullStars = Math.floor(numRating);
@@ -43,7 +44,9 @@ export function CasinoCard({ casino, showDetails = true }: CasinoCardProps) {
 
   return (
     <div 
-      className="rounded-xl transition-all duration-300 border relative overflow-hidden group"
+      className={`rounded-xl transition-all duration-300 border relative overflow-hidden group ${
+        variant === "grid" ? "h-full" : ""
+      }`}
       style={{
         background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6))',
         border: '2px solid hsl(173, 58%, 39%, 0.3)',
@@ -61,18 +64,22 @@ export function CasinoCard({ casino, showDetails = true }: CasinoCardProps) {
         e.currentTarget.style.boxShadow = '0 0 15px hsl(173, 58%, 39%, 0.2), 0 0 30px hsl(173, 58%, 39%, 0.1)';
       }}
     >
-      <div className="p-3 sm:p-6">
-        <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
+      <div className="p-3 sm:p-6 h-full">
+        <div className={`${
+          variant === "grid" 
+            ? "flex flex-col gap-4 h-full"
+            : "flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6"
+        }`}>
           {/* Casino Logo & Info */}
-          <div className="flex items-center space-x-3 sm:space-x-4">
+          <div className={`flex items-center space-x-3 sm:space-x-4 ${variant === "grid" ? "justify-center text-center" : ""}`}>
             <img 
               src={casino.logoUrl || "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100&q=80"} 
               alt={`${casino.name} Logo`} 
-              className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover flex-shrink-0"
+              className={`${variant === "grid" ? "w-20 h-20 mx-auto" : "w-12 h-12 sm:w-16 sm:h-16"} rounded-lg object-cover flex-shrink-0`}
             />
-            <div className="min-w-0 flex-1">
+            <div className={`min-w-0 flex-1 ${variant === "grid" ? "text-center" : ""}`}>
               <h3 
-                className="text-lg sm:text-xl font-bold truncate"
+                className={`font-bold truncate ${variant === "grid" ? "text-lg" : "text-lg sm:text-xl"}`}
                 style={{
                   color: 'hsl(173, 58%, 39%)',
                   textShadow: '0 0 10px hsl(173, 58%, 39%, 0.5)'
@@ -80,7 +87,7 @@ export function CasinoCard({ casino, showDetails = true }: CasinoCardProps) {
               >
                 {casino.name}
               </h3>
-              <p className="text-gray-600 dark:text-gray-300">{casino.description}</p>
+              {variant === "list" && <p className="text-gray-600 dark:text-gray-300">{casino.description}</p>}
               {casino.establishedYear && (
                 <p className="text-sm text-gray-500 dark:text-gray-400">Est. {casino.establishedYear}</p>
               )}
@@ -88,7 +95,7 @@ export function CasinoCard({ casino, showDetails = true }: CasinoCardProps) {
           </div>
 
           {/* Safety Rating */}
-          <div className="flex items-center space-x-4">
+          <div className={`flex ${variant === "grid" ? "justify-center" : "items-center"} space-x-4`}>
             <div className="text-center">
               <div className={`px-4 py-2 rounded-lg ${getSafetyColor(casino.safetyIndex)}`}>
                 <div className="text-2xl font-bold">{casino.safetyIndex || '0'}</div>
@@ -104,7 +111,7 @@ export function CasinoCard({ casino, showDetails = true }: CasinoCardProps) {
           </div>
 
           {/* Actions */}
-          <div className="flex flex-col space-y-2 ml-auto">
+          <div className={`flex ${variant === "grid" ? "flex-col" : "flex-col"} space-y-2 ${variant === "list" ? "ml-auto" : ""}`}>
             <Button asChild className="bg-turquoise hover:bg-turquoise/90">
               <a href={casino.affiliateUrl || casino.websiteUrl} target="_blank" rel="noopener noreferrer">
                 🎁 Visit Casino
