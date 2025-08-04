@@ -61,18 +61,18 @@ export function CasinoCard({ casino, showDetails = true }: CasinoCardProps) {
         e.currentTarget.style.boxShadow = '0 0 15px hsl(173, 58%, 39%, 0.2), 0 0 30px hsl(173, 58%, 39%, 0.1)';
       }}
     >
-      <div className="p-6">
-        <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+      <div className="p-3 sm:p-6">
+        <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
           {/* Casino Logo & Info */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3 sm:space-x-4">
             <img 
               src={casino.logoUrl || "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100&q=80"} 
               alt={`${casino.name} Logo`} 
-              className="w-16 h-16 rounded-lg object-cover"
+              className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover flex-shrink-0"
             />
-            <div>
+            <div className="min-w-0 flex-1">
               <h3 
-                className="text-xl font-bold"
+                className="text-lg sm:text-xl font-bold truncate"
                 style={{
                   color: 'hsl(173, 58%, 39%)',
                   textShadow: '0 0 10px hsl(173, 58%, 39%, 0.5)'
@@ -80,9 +80,9 @@ export function CasinoCard({ casino, showDetails = true }: CasinoCardProps) {
               >
                 {casino.name}
               </h3>
-              <p className="text-muted-foreground">{casino.description}</p>
+              <p className="text-gray-600 dark:text-gray-300">{casino.description}</p>
               {casino.establishedYear && (
-                <p className="text-sm text-muted-foreground">Est. {casino.establishedYear}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Est. {casino.establishedYear}</p>
               )}
             </div>
           </div>
@@ -97,7 +97,7 @@ export function CasinoCard({ casino, showDetails = true }: CasinoCardProps) {
             </div>
             <div className="text-center">
               {renderStars(casino.userRating)}
-              <div className="text-xs text-muted-foreground mt-1">
+              <div className="text-xs text-gray-600 dark:text-gray-300 mt-1">
                 {casino.userRating || '0'}/5 ({casino.totalReviews} reviews)
               </div>
             </div>

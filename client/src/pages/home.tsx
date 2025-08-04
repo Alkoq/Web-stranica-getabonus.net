@@ -66,7 +66,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Hero Section with Dynamic Stats */}
       <section className="bg-gradient-to-br from-turquoise to-blue-600 text-white py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -157,18 +157,18 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+      <div className="container mx-auto px-2 sm:px-4 lg:px-8 py-8 sm:py-12 space-y-12 sm:space-y-16 max-w-full overflow-hidden">
         
         {/* Top Casinos Carousel */}
-        <section className="relative p-6 rounded-xl" style={{
+        <section className="relative p-3 sm:p-6 rounded-xl overflow-hidden" style={{
           background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.1), rgba(173, 58, 39, 0.05))',
           border: '1px solid hsl(173, 58%, 39%, 0.2)',
           boxShadow: '0 0 20px hsl(173, 58%, 39%, 0.1)',
         }}>
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
             <div>
               <h2 
-                className="text-3xl font-bold mb-2"
+                className="text-2xl sm:text-3xl font-bold mb-2"
                 style={{
                   color: 'hsl(173, 58%, 39%)',
                   textShadow: '0 0 10px hsl(173, 58%, 39%, 0.3)'
@@ -179,8 +179,9 @@ export default function Home() {
               <p className="text-gray-600 dark:text-gray-300">Best casinos based on our expert reviews</p>
             </div>
             <Link href="/casinos?sort=rating">
-              <Button variant="outline" className="flex items-center gap-2" data-testid="link-see-all-top-casinos">
-                See All Top Casinos
+              <Button variant="outline" className="flex items-center gap-2 text-sm whitespace-nowrap" data-testid="link-see-all-top-casinos">
+                <span className="hidden sm:inline">See All Top Casinos</span>
+                <span className="sm:hidden">See All</span>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </Link>
@@ -193,9 +194,9 @@ export default function Home() {
             }}
             className="w-full"
           >
-            <CarouselContent className="-ml-2 md:-ml-4">
+            <CarouselContent className="-ml-1 sm:-ml-2 md:-ml-4">
               {featuredCasinos.map((casino) => (
-                <CarouselItem key={casino.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                <CarouselItem key={casino.id} className="pl-1 sm:pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
                   <div className="casino-card-enhanced h-full">
                     <CasinoCard casino={casino} />
                   </div>
