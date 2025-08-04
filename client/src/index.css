@@ -137,4 +137,136 @@
   .carousel-card {
     min-height: 400px;
   }
+
+  /* Casino Neon Styles */
+  .neon-text-turquoise {
+    color: hsl(var(--turquoise));
+    text-shadow: 
+      0 0 5px hsl(var(--turquoise)),
+      0 0 10px hsl(var(--turquoise)),
+      0 0 15px hsl(var(--turquoise)),
+      0 0 20px hsl(var(--turquoise));
+  }
+
+  .neon-text-orange {
+    color: hsl(var(--orange));
+    text-shadow: 
+      0 0 5px hsl(var(--orange)),
+      0 0 10px hsl(var(--orange)),
+      0 0 15px hsl(var(--orange)),
+      0 0 20px hsl(var(--orange));
+  }
+
+  .drop-shadow-turquoise-glow {
+    filter: drop-shadow(0 0 8px hsl(var(--turquoise)));
+  }
+
+  .shadow-turquoise {
+    box-shadow: 
+      0 0 10px hsl(var(--turquoise) / 0.5),
+      0 0 20px hsl(var(--turquoise) / 0.3),
+      0 0 30px hsl(var(--turquoise) / 0.2);
+  }
+
+  .casino-neon-section {
+    border: 2px solid transparent;
+    background: 
+      linear-gradient(black, black) padding-box,
+      linear-gradient(45deg, hsl(var(--turquoise)), hsl(var(--orange)), hsl(var(--turquoise))) border-box;
+    animation: neon-border-pulse 3s ease-in-out infinite alternate;
+  }
+
+  .casino-neon-card {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid hsl(var(--turquoise) / 0.3);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+  }
+
+  .casino-neon-card:hover {
+    border-color: hsl(var(--turquoise) / 0.8);
+    box-shadow: 
+      0 0 15px hsl(var(--turquoise) / 0.3),
+      inset 0 0 15px hsl(var(--turquoise) / 0.1);
+    transform: translateY(-2px);
+  }
+
+  .casino-neon-button-primary {
+    background: linear-gradient(45deg, hsl(var(--turquoise)), hsl(var(--turquoise) / 0.8));
+    border: 2px solid hsl(var(--turquoise));
+    color: black;
+    font-weight: bold;
+    font-size: 1.1rem;
+    padding: 14px 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-shadow: none;
+    box-shadow: 
+      0 0 15px hsl(var(--turquoise) / 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+
+  .casino-neon-button-primary:hover {
+    background: linear-gradient(45deg, hsl(var(--turquoise) / 0.9), hsl(var(--turquoise)));
+    box-shadow: 
+      0 0 25px hsl(var(--turquoise) / 0.6),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+  }
+
+  .casino-neon-button-secondary {
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid hsl(var(--orange));
+    color: hsl(var(--orange));
+    font-weight: bold;
+    font-size: 1.1rem;
+    padding: 14px 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+  }
+
+  .casino-neon-button-secondary:hover {
+    background: hsl(var(--orange) / 0.1);
+    box-shadow: 
+      0 0 20px hsl(var(--orange) / 0.4),
+      inset 0 0 20px hsl(var(--orange) / 0.1);
+    transform: translateY(-1px);
+  }
+
+  @keyframes neon-border-pulse {
+    0% {
+      box-shadow: 
+        0 0 20px hsl(var(--turquoise) / 0.3),
+        0 0 40px hsl(var(--turquoise) / 0.2);
+    }
+    100% {
+      box-shadow: 
+        0 0 30px hsl(var(--turquoise) / 0.5),
+        0 0 60px hsl(var(--turquoise) / 0.3);
+    }
+  }
+
+  /* Dark mode improvements for casino cards */
+  @media (prefers-color-scheme: dark) {
+    .casino-card-enhanced {
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid hsl(var(--turquoise) / 0.2);
+      box-shadow: 
+        0 4px 20px rgba(0, 0, 0, 0.3),
+        0 0 15px hsl(var(--turquoise) / 0.1);
+    }
+
+    .casino-card-enhanced:hover {
+      border-color: hsl(var(--turquoise) / 0.5);
+      box-shadow: 
+        0 8px 25px rgba(0, 0, 0, 0.4),
+        0 0 25px hsl(var(--turquoise) / 0.2);
+    }
+  }
 }
