@@ -1,9 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Star, TrendingUp, Users, Award } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Search, Star, TrendingUp, Users, Award, ChevronRight, Gift, Gamepad2, Clock, FileText } from "lucide-react";
 import { CasinoCard } from "@/components/casino/casino-card";
 import { BonusCard } from "@/components/bonus/bonus-card";
 import { BlogCard } from "@/components/blog/blog-card";
@@ -16,10 +19,20 @@ import type { Casino, Bonus, BlogPost } from "@shared/schema";
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch featured data
+  // Fetch stats and data
+  const { data: stats } = useQuery({
+    queryKey: ['/api/stats'],
+    queryFn: () => api.getStats(),
+  });
+
   const { data: featuredCasinos = [], isLoading: loadingCasinos } = useQuery<Casino[]>({
     queryKey: ['/api/casinos/featured'],
     queryFn: () => api.getFeaturedCasinos(),
+  });
+
+  const { data: allCasinos = [] } = useQuery<Casino[]>({
+    queryKey: ['/api/casinos'],
+    queryFn: () => api.getCasinos(),
   });
 
   const { data: featuredBonuses = [], isLoading: loadingBonuses } = useQuery<Bonus[]>({
@@ -32,10 +45,15 @@ export default function Home() {
     queryFn: () => api.getBlogPosts(),
   });
 
-  const { data: allCasinos = [] } = useQuery<Casino[]>({
-    queryKey: ['/api/casinos'],
-    queryFn: () => api.getCasinos(),
-  });
+  // Get latest casinos (mock sorting by newest)
+  const latestCasinos = [...allCasinos].slice(0, 15);
+
+  // Mock games data
+  const hotGames = [
+    { id: '1', name: 'Book of Dead', provider: "Play'n GO", rtp: '96.21%', image: '/games/book-of-dead.jpg' },
+    { id: '2', name: 'Starburst', provider: 'NetEnt', rtp: '96.09%', image: '/games/starburst.jpg' },
+    { id: '3', name: 'Gonzo\'s Quest', provider: 'NetEnt', rtp: '95.97%', image: '/games/gonzos-quest.jpg' },
+  ];
 
   const quickFilters = [
     { label: "Top Rated", icon: Star, active: true },
@@ -44,15 +62,9 @@ export default function Home() {
     { label: "Mobile", icon: Users },
   ];
 
-  const stats = [
-    { label: "Casinos Reviewed", value: "2,100+", icon: Award },
-    { label: "Bonuses Listed", value: "18,500+", icon: TrendingUp },
-    { label: "Happy Users", value: "375K+", icon: Users },
-  ];
-
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
+      {/* Hero Section with Dynamic Stats */}
       <section className="bg-gradient-to-br from-turquoise to-blue-600 text-white py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
@@ -63,14 +75,24 @@ export default function Home() {
               Explore top-rated casinos, unlock exclusive bonuses, and start your winning journey today!
             </p>
             
-            {/* Trust Indicators */}
+            {/* Dynamic Trust Indicators */}
             <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-8 mb-8">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <div className="text-sm text-blue-200">{stat.label}</div>
-                </div>
-              ))}
+              <div className="text-center">
+                <div className="text-3xl font-bold">{stats?.totalCasinos || 0}+</div>
+                <div className="text-sm text-blue-200">Casinos Reviewed</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold">{stats?.totalBonuses || 0}+</div>
+                <div className="text-sm text-blue-200">Bonuses Listed</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold">{stats?.totalGames || 0}+</div>
+                <div className="text-sm text-blue-200">Games Available</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold">{stats?.totalUsers || 0}+</div>
+                <div className="text-sm text-blue-200">Happy Users</div>
+              </div>
             </div>
 
             {/* CTA Buttons */}
@@ -78,6 +100,7 @@ export default function Home() {
               <Button 
                 size="lg"
                 className="bg-orange hover:bg-orange/90 text-white px-8 py-4 text-lg shadow-lg"
+                data-testid="button-discover-casinos"
               >
                 Discover Top Casinos
               </Button>
@@ -85,6 +108,7 @@ export default function Home() {
                 size="lg"
                 variant="outline"
                 className="bg-white/20 hover:bg-white/30 text-white border-white/20 px-8 py-4 text-lg backdrop-blur-sm"
+                data-testid="button-compare-bonuses"
               >
                 Compare Bonuses
               </Button>
@@ -107,6 +131,7 @@ export default function Home() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-12 py-3 text-lg"
+                  data-testid="input-search"
                 />
               </div>
             </div>
@@ -118,6 +143,7 @@ export default function Home() {
                   key={index}
                   variant={filter.active ? "default" : "outline"}
                   className={filter.active ? "bg-turquoise hover:bg-turquoise/90" : ""}
+                  data-testid={`filter-${filter.label.toLowerCase().replace(' ', '-')}`}
                 >
                   <filter.icon className="mr-2 h-4 w-4" />
                   {filter.label}
@@ -128,157 +154,301 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Top 5 Featured Casinos */}
-        <section className="mb-16">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl font-bold text-foreground">🏆 Top 5 Casinos in 2025</h2>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+        
+        {/* Top Casinos Carousel */}
+        <section>
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Top Rated Casinos</h2>
+              <p className="text-gray-600 dark:text-gray-300">Best casinos based on our expert reviews</p>
+            </div>
+            <Link href="/casinos?sort=rating">
+              <Button variant="outline" className="flex items-center gap-2" data-testid="link-see-all-top-casinos">
+                See All Top Casinos
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </Link>
           </div>
 
-          {loadingCasinos ? (
-            <div className="space-y-6">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-card rounded-xl p-6 animate-pulse">
-                  <div className="h-20 bg-muted rounded"></div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-6">
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-2 md:-ml-4">
               {featuredCasinos.map((casino) => (
-                <CasinoCard key={casino.id} casino={casino} />
+                <CarouselItem key={casino.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                  <CasinoCard casino={casino} />
+                </CarouselItem>
               ))}
-            </div>
-          )}
-
-          <div className="text-center mt-8">
-            <Button variant="outline" size="lg" className="border-turquoise text-turquoise hover:bg-turquoise hover:text-white">
-              View All 2,100+ Casinos
-            </Button>
-          </div>
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
         </section>
 
-        {/* Casino Comparison Tool */}
-        <section className="mb-16">
-          <CasinoComparison availableCasinos={allCasinos} />
+        {/* Latest Casinos */}
+        <section>
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Latest Casinos</h2>
+              <p className="text-gray-600 dark:text-gray-300">Newest additions to our platform</p>
+            </div>
+            <Link href="/casinos?sort=newest">
+              <Button variant="outline" className="flex items-center gap-2" data-testid="link-see-all-latest-casinos">
+                See All Latest Casinos
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {latestCasinos.map((casino) => (
+                <CarouselItem key={casino.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                  <CasinoCard casino={casino} />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
+        </section>
+
+        {/* Top Bonuses */}
+        <section>
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Top Bonuses</h2>
+              <p className="text-gray-600 dark:text-gray-300">Best bonus offers available right now</p>
+            </div>
+            <Link href="/bonuses?sort=value">
+              <Button variant="outline" className="flex items-center gap-2" data-testid="link-see-all-top-bonuses">
+                See All Top Bonuses
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {featuredBonuses.map((bonus) => (
+                <CarouselItem key={bonus.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
+                  <BonusCard bonus={bonus} />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
         </section>
 
         {/* Latest Bonuses */}
-        <section className="mb-16">
-          <h2 className="text-3xl font-bold text-foreground mb-8">🎁 Latest Casino Bonuses</h2>
-          
-          {loadingBonuses ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-card rounded-xl p-6 animate-pulse">
-                  <div className="h-40 bg-muted rounded"></div>
-                </div>
-              ))}
+        <section>
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Latest Bonuses</h2>
+              <p className="text-gray-600 dark:text-gray-300">Newest bonus offers just added</p>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredBonuses.map((bonus) => {
-                const casino = featuredCasinos.find(c => c.id === bonus.casinoId);
-                return (
-                  <BonusCard
-                    key={bonus.id}
-                    bonus={bonus}
-                    casinoName={casino?.name}
-                    casinoLogo={casino?.logoUrl}
-                    affiliateUrl={casino?.affiliateUrl}
-                  />
-                );
-              })}
-            </div>
-          )}
+            <Link href="/bonuses?sort=newest">
+              <Button variant="outline" className="flex items-center gap-2" data-testid="link-see-all-latest-bonuses">
+                See All Latest Bonuses
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
 
-          <div className="text-center mt-8">
-            <Button className="bg-orange hover:bg-orange/90" size="lg">
-              View All 18,500+ Bonuses
-            </Button>
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {featuredBonuses.slice().reverse().map((bonus) => (
+                <CarouselItem key={bonus.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
+                  <BonusCard bonus={bonus} />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
+        </section>
+
+        {/* Hot Games */}
+        <section>
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Hot Games Right Now</h2>
+              <p className="text-gray-600 dark:text-gray-300">Most popular games this week</p>
+            </div>
+            <Link href="/games">
+              <Button variant="outline" className="flex items-center gap-2" data-testid="link-see-all-hot-games">
+                See All Games
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {hotGames.map((game) => (
+                <CarouselItem key={game.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                  <Card className="hover:shadow-lg transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="aspect-video bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg mb-4 flex items-center justify-center">
+                        <Gamepad2 className="h-12 w-12 text-white" />
+                      </div>
+                      <h3 className="font-semibold text-lg mb-1">{game.name}</h3>
+                      <p className="text-sm text-muted-foreground mb-2">{game.provider}</p>
+                      <div className="flex justify-between items-center">
+                        <Badge variant="secondary">RTP: {game.rtp}</Badge>
+                        <Button size="sm" variant="outline">Play Demo</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
+        </section>
+
+        {/* Latest Games */}
+        <section>
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Latest Games</h2>
+              <p className="text-gray-600 dark:text-gray-300">Newest game releases</p>
+            </div>
+            <Link href="/games?sort=newest">
+              <Button variant="outline" className="flex items-center gap-2" data-testid="link-see-all-latest-games">
+                See All Latest Games
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {hotGames.slice().reverse().map((game) => (
+                <CarouselItem key={game.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                  <Card className="hover:shadow-lg transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="aspect-video bg-gradient-to-br from-blue-400 to-green-400 rounded-lg mb-4 flex items-center justify-center">
+                        <Gamepad2 className="h-12 w-12 text-white" />
+                      </div>
+                      <h3 className="font-semibold text-lg mb-1">{game.name}</h3>
+                      <p className="text-sm text-muted-foreground mb-2">{game.provider}</p>
+                      <div className="flex justify-between items-center">
+                        <Badge variant="secondary">RTP: {game.rtp}</Badge>
+                        <Button size="sm" variant="outline">Play Demo</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
+        </section>
+
+        {/* Comparison Tool */}
+        <section className="bg-card rounded-lg p-8">
+          <h2 className="text-3xl font-bold text-center mb-8">Compare Your Options</h2>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/compare?type=casinos">
+              <Button size="lg" variant="outline" className="flex items-center gap-2" data-testid="button-compare-casinos">
+                <Award className="h-5 w-5" />
+                Compare Casinos
+              </Button>
+            </Link>
+            <Link href="/compare?type=bonuses">
+              <Button size="lg" variant="outline" className="flex items-center gap-2" data-testid="button-compare-bonuses">
+                <Gift className="h-5 w-5" />
+                Compare Bonuses
+              </Button>
+            </Link>
+            <Link href="/compare?type=games">
+              <Button size="lg" variant="outline" className="flex items-center gap-2" data-testid="button-compare-games">
+                <Gamepad2 className="h-5 w-5" />
+                Compare Games
+              </Button>
+            </Link>
           </div>
         </section>
-      </main>
 
-      {/* Blog Section */}
-      <section className="bg-muted/50 py-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">📰 Latest Casino News & Reviews</h2>
-            <p className="text-muted-foreground text-lg">
-              Stay updated with the latest casino industry news, reviews, and strategies
-            </p>
+        {/* Latest News */}
+        <section>
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Latest News</h2>
+              <p className="text-gray-600 dark:text-gray-300">Stay updated with casino industry news</p>
+            </div>
+            <Link href="/blog">
+              <Button variant="outline" className="flex items-center gap-2" data-testid="link-see-all-news">
+                See All News
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </Link>
           </div>
 
-          {loadingBlog ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-card rounded-xl p-6 animate-pulse">
-                  <div className="h-48 bg-muted rounded mb-4"></div>
-                  <div className="h-4 bg-muted rounded mb-2"></div>
-                  <div className="h-4 bg-muted rounded w-3/4"></div>
-                </div>
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {blogPosts.slice(0, 6).map((post) => (
+                <CarouselItem key={post.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
+                  <BlogCard post={post} />
+                </CarouselItem>
               ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {blogPosts.slice(0, 3).map((post) => (
-                <BlogCard key={post.id} post={post} />
-              ))}
-            </div>
-          )}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
+        </section>
 
-          <div className="text-center mt-12">
-            <Button className="bg-turquoise hover:bg-turquoise/90" size="lg">
-              🔎 Browse All News & Guides
-            </Button>
-          </div>
+        {/* AI Chatbot and Newsletter */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <AIChatbot />
+          <Newsletter />
         </div>
-      </section>
-
-      {/* AI Chatbot Section */}
-      <section className="py-16 bg-gradient-to-br from-blue-600 to-purple-700 text-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="mb-8">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-white bg-opacity-20 rounded-full mb-6">
-                <Users className="h-10 w-10" />
-              </div>
-              <h2 className="text-3xl font-bold mb-4">Your Personal AI Casino Assistant</h2>
-              <p className="text-xl text-blue-100">
-                Unlock the full potential of your casino experience with our intelligent AI chatbot! 
-                Get personalized recommendations, strategy tips, and instant answers to all your questions.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {[
-                { icon: "🎮", title: "Expert Game Strategies", desc: "Get personalized tips for Blackjack, Roulette, Poker, and Slots" },
-                { icon: "❓", title: "Game Rules & Mechanics", desc: "Learn rules, odds, and mechanics for any casino game" },
-                { icon: "ℹ️", title: "Casino Insights & FAQs", desc: "Get instant answers about bonuses, payments, and features" },
-                { icon: "🛡️", title: "Responsible Gambling", desc: "Tips on setting limits and safe gambling practices" }
-              ].map((feature, index) => (
-                <div key={index} className="bg-white bg-opacity-10 rounded-lg p-4 backdrop-blur-sm">
-                  <div className="text-2xl mb-3">{feature.icon}</div>
-                  <h3 className="font-semibold mb-2">{feature.title}</h3>
-                  <p className="text-sm text-blue-100">{feature.desc}</p>
-                </div>
-              ))}
-            </div>
-
-            <Button size="lg" className="bg-orange hover:bg-orange/90 text-white px-8 py-4 text-lg shadow-lg">
-              💬 Chat with AI Assistant
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Newsletter Section */}
-      <Newsletter />
-
-      {/* AI Chatbot Component */}
-      <AIChatbot />
+      </div>
     </div>
   );
 }

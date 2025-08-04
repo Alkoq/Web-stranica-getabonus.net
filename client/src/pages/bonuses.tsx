@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,17 @@ export default function Bonuses() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState("all");
   const [sortBy, setSortBy] = useState("latest");
+
+  // Check URL parameters for sorting
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const sort = urlParams.get('sort');
+    if (sort === 'value') {
+      setSortBy('value');
+    } else if (sort === 'newest') {
+      setSortBy('latest');
+    }
+  }, []);
 
   const { data: bonuses = [], isLoading: loadingBonuses } = useQuery<Bonus[]>({
     queryKey: ['/api/bonuses'],

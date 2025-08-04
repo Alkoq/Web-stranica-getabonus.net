@@ -55,4 +55,8 @@ export const api = {
 
   getComparison: (id: string) => 
     fetch(`/api/comparisons/${id}`).then(res => res.json()),
+
+  // Statistics
+  getStats: () => 
+    fetch('/api/stats').then(res => res.json()),
 };

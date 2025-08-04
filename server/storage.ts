@@ -54,6 +54,14 @@ export interface IStorage {
   // Comparisons
   createComparison(comparison: InsertComparison): Promise<Comparison>;
   getComparison(id: string): Promise<Comparison | undefined>;
+
+  // Statistics
+  getStats(): Promise<{
+    totalCasinos: number;
+    totalBonuses: number;
+    totalGames: number;
+    totalUsers: number;
+  }>;
 }
 
 export interface CasinoFilters {
@@ -716,6 +724,15 @@ export class MemStorage implements IStorage {
 
   async getComparison(id: string): Promise<Comparison | undefined> {
     return this.comparisons.get(id);
+  }
+
+  async getStats() {
+    return {
+      totalCasinos: this.casinos.size,
+      totalBonuses: this.bonuses.size,
+      totalGames: 1200, // Mock value for now
+      totalUsers: 24500  // Mock value for now
+    };
   }
 }
 

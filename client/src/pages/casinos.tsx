@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,17 @@ export default function Casinos() {
   const [sortBy, setSortBy] = useState("safetyIndex");
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [showFilters, setShowFilters] = useState(false);
+
+  // Check URL parameters for sorting
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const sort = urlParams.get('sort');
+    if (sort === 'rating') {
+      setSortBy('safetyIndex');
+    } else if (sort === 'newest') {
+      setSortBy('established');
+    }
+  }, []);
 
   const { data: casinos = [], isLoading, error } = useQuery<Casino[]>({
     queryKey: ['/api/casinos', { ...filters, search: searchQuery }],

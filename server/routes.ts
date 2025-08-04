@@ -58,6 +58,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(401).json({ success: false, message: 'Nevažeći token' });
     }
   });
+  
+  // Statistics route
+  app.get("/api/stats", async (req, res) => {
+    try {
+      const stats = await storage.getStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+      res.status(500).json({ message: "Failed to fetch statistics" });
+    }
+  });
+
   // Casino routes
   app.get("/api/casinos", async (req, res) => {
     try {
