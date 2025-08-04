@@ -46,10 +46,14 @@ export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilter
   const paymentOptions = [
     "Bitcoin",
     "Ethereum", 
+    "Litecoin",
+    "Dogecoin",
     "Credit Cards",
     "PayPal",
     "Skrill",
     "Neteller",
+    "Bank Transfer",
+    "Crypto",
   ];
 
   const featureOptions = [
@@ -59,6 +63,30 @@ export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilter
     "VIP Program",
     "Live Casino",
     "Sports Betting",
+    "24/7 Support",
+    "Fast Withdrawal",
+    "No KYC",
+  ];
+
+  const gameProviderOptions = [
+    "NetEnt",
+    "Microgaming", 
+    "Pragmatic Play",
+    "Evolution Gaming",
+    "Play'n GO",
+    "Quickspin",
+    "Yggdrasil",
+    "Red Tiger",
+    "Push Gaming",
+  ];
+
+  const bonusTypeOptions = [
+    "Welcome Bonus",
+    "No Deposit",
+    "Free Spins",
+    "Reload Bonus",
+    "Cashback",
+    "VIP Bonus",
   ];
 
   const getActiveFiltersCount = () => {
@@ -67,6 +95,9 @@ export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilter
     if (localFilters.license) count++;
     if (localFilters.paymentMethods?.length) count++;
     if (localFilters.features?.length) count++;
+    if (localFilters.gameProviders?.length) count++;
+    if (localFilters.bonusType) count++;
+    if (localFilters.establishedYear) count++;
     return count;
   };
 
@@ -158,6 +189,60 @@ export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilter
                   }}
                 />
                 <span className="text-sm">{feature}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Game Providers */}
+        <div>
+          <h4 className="font-semibold text-foreground mb-3">Game Providers</h4>
+          <div className="space-y-2">
+            {gameProviderOptions.map((provider) => (
+              <label key={provider} className="flex items-center space-x-2 cursor-pointer">
+                <Checkbox
+                  checked={localFilters.gameProviders?.includes(provider) || false}
+                  onCheckedChange={(checked) => {
+                    handleArrayFilterChange('gameProviders', provider, !!checked);
+                  }}
+                />
+                <span className="text-sm">{provider}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Bonus Type */}
+        <div>
+          <h4 className="font-semibold text-foreground mb-3">Bonus Type</h4>
+          <div className="space-y-2">
+            {bonusTypeOptions.map((bonusType) => (
+              <label key={bonusType} className="flex items-center space-x-2 cursor-pointer">
+                <Checkbox
+                  checked={localFilters.bonusType === bonusType}
+                  onCheckedChange={(checked) => {
+                    handleFilterChange('bonusType', checked ? bonusType : undefined);
+                  }}
+                />
+                <span className="text-sm">{bonusType}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Established Year */}
+        <div>
+          <h4 className="font-semibold text-foreground mb-3">Established</h4>
+          <div className="space-y-2">
+            {[2020, 2015, 2010, 2005].map((year) => (
+              <label key={year} className="flex items-center space-x-2 cursor-pointer">
+                <Checkbox
+                  checked={localFilters.establishedYear === year}
+                  onCheckedChange={(checked) => {
+                    handleFilterChange('establishedYear', checked ? year : undefined);
+                  }}
+                />
+                <span className="text-sm">{year}+ and newer</span>
               </label>
             ))}
           </div>

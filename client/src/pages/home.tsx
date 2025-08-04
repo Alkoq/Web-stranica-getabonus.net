@@ -1,12 +1,14 @@
-import { useState } from "react";
-import { Link } from "wouter";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Search, Star, TrendingUp, Users, Award, ChevronRight, Gift, Gamepad2, Clock, FileText } from "lucide-react";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Search, Star, TrendingUp, Users, Award, ChevronRight, Gift, Gamepad2, Clock, FileText, Filter, Bitcoin, CreditCard } from "lucide-react";
 import { CasinoCard } from "@/components/casino/casino-card";
 import { BonusCard } from "@/components/bonus/bonus-card";
 import { BlogCard } from "@/components/blog/blog-card";
@@ -21,6 +23,9 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGame, setSelectedGame] = useState<{name: string, id: string} | null>(null);
   const [showCasinoModal, setShowCasinoModal] = useState(false);
+  const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [, setLocation] = useLocation();
 
   // Fetch stats and data
   const { data: stats } = useQuery({
@@ -59,11 +64,59 @@ export default function Home() {
   ];
 
   const quickFilters = [
-    { label: "Top Rated", icon: Star, active: true },
-    { label: "No Deposit", icon: TrendingUp },
-    { label: "Crypto", icon: Award },
-    { label: "Mobile", icon: Users },
+    { label: "Top Rated", icon: Star, active: true, filter: "safetyIndex" },
+    { label: "No Deposit", icon: TrendingUp, filter: "bonusType:no_deposit" },
+    { label: "Crypto", icon: Bitcoin, filter: "paymentMethods:Bitcoin" },
+    { label: "Mobile", icon: Users, filter: "features:Mobile" },
   ];
+
+  // Search suggestions by category
+  const searchSuggestions = {
+    "Payment Methods": [
+      { label: "Bitcoin Casinos", icon: Bitcoin, query: "Bitcoin" },
+      { label: "Ethereum Casinos", icon: Award, query: "Ethereum" },
+      { label: "Credit Card Casinos", icon: CreditCard, query: "Credit Cards" },
+      { label: "PayPal Casinos", icon: Award, query: "PayPal" },
+    ],
+    "Casino Types": [
+      { label: "Crypto Casinos", icon: Bitcoin, query: "Crypto Casino" },
+      { label: "Live Casinos", icon: Users, query: "Live Casino" },
+      { label: "VIP Casinos", icon: Award, query: "VIP Program" },
+      { label: "Mobile Casinos", icon: Users, query: "Mobile Optimized" },
+    ],
+    "Bonus Types": [
+      { label: "Welcome Bonuses", icon: Gift, query: "Welcome Bonus" },
+      { label: "No Deposit Bonuses", icon: TrendingUp, query: "No Deposit" },
+      { label: "Free Spins", icon: Star, query: "Free Spins" },
+      { label: "Reload Bonuses", icon: Gift, query: "Reload Bonus" },
+    ],
+    "Game Providers": [
+      { label: "NetEnt Games", icon: Gamepad2, query: "NetEnt" },
+      { label: "Microgaming", icon: Gamepad2, query: "Microgaming" },
+      { label: "Pragmatic Play", icon: Gamepad2, query: "Pragmatic Play" },
+      { label: "Evolution Gaming", icon: Gamepad2, query: "Evolution Gaming" },
+    ]
+  };
+
+  const handleQuickFilter = (filter: string) => {
+    if (filter.includes(":")) {
+      const [type, value] = filter.split(":");
+      setLocation(`/casinos?${type}=${value}`);
+    } else {
+      setLocation(`/casinos?sort=${filter}`);
+    }
+  };
+
+  const handleSearchSuggestion = (query: string) => {
+    setSearchQuery(query);
+    setLocation(`/casinos?search=${encodeURIComponent(query)}`);
+  };
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      setLocation(`/casinos?search=${encodeURIComponent(searchQuery)}`);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
@@ -124,18 +177,63 @@ export default function Home() {
       <section className="py-8 bg-card shadow-sm border-b">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row gap-6">
-            {/* Search Bar */}
+            {/* Search Bar with Suggestions */}
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
-                <Input
-                  type="text"
-                  placeholder="Search casinos, bonuses, or providers..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 py-3 text-lg"
-                  data-testid="input-search"
-                />
+                <Popover open={showSearchSuggestions} onOpenChange={setShowSearchSuggestions}>
+                  <PopoverTrigger asChild>
+                    <div className="relative">
+                      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+                      <Input
+                        type="text"
+                        placeholder="Search casinos, bonuses, providers... (Click for suggestions)"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onFocus={() => setShowSearchSuggestions(true)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            handleSearch();
+                            setShowSearchSuggestions(false);
+                          }
+                        }}
+                        className="pl-12 py-3 text-lg"
+                        data-testid="input-search"
+                      />
+                      <Button
+                        onClick={handleSearch}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 px-3 bg-turquoise hover:bg-turquoise/90"
+                        size="sm"
+                      >
+                        Search
+                      </Button>
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0" side="bottom" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search suggestions..." />
+                      <CommandList>
+                        <CommandEmpty>No suggestions found.</CommandEmpty>
+                        {Object.entries(searchSuggestions).map(([category, suggestions]) => (
+                          <CommandGroup key={category} heading={category}>
+                            {suggestions.map((suggestion, index) => (
+                              <CommandItem
+                                key={index}
+                                onSelect={() => {
+                                  handleSearchSuggestion(suggestion.query);
+                                  setShowSearchSuggestions(false);
+                                }}
+                                className="flex items-center gap-2 cursor-pointer"
+                              >
+                                <suggestion.icon className="h-4 w-4" />
+                                {suggestion.label}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        ))}
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
             
@@ -146,6 +244,7 @@ export default function Home() {
                   key={index}
                   variant={filter.active ? "default" : "outline"}
                   className={filter.active ? "bg-turquoise hover:bg-turquoise/90" : ""}
+                  onClick={() => handleQuickFilter(filter.filter)}
                   data-testid={`filter-${filter.label.toLowerCase().replace(' ', '-')}`}
                 >
                   <filter.icon className="mr-2 h-4 w-4" />

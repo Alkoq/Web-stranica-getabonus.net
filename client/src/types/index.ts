@@ -3,6 +3,9 @@ export interface CasinoFilters {
   license?: string;
   paymentMethods?: string[];
   features?: string[];
+  gameProviders?: string[];
+  bonusType?: string;
+  establishedYear?: number;
   search?: string;
 }
 
