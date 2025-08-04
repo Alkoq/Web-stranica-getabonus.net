@@ -485,9 +485,14 @@ export default function Home() {
         </section>
 
         {/* About Our AI Bot - Casino Neon Style */}
-        <section className="relative bg-black rounded-xl p-8 overflow-hidden casino-neon-section">
+        <section className="relative bg-black rounded-xl p-8 overflow-hidden" style={{
+          border: '2px solid transparent',
+          background: 'linear-gradient(black, black) padding-box, linear-gradient(45deg, hsl(173, 58%, 39%), hsl(24, 95%, 53%), hsl(173, 58%, 39%)) border-box',
+          boxShadow: '0 0 20px hsl(173, 58%, 39%, 0.3), 0 0 40px hsl(173, 58%, 39%, 0.2)',
+          animation: 'neon-border-pulse 3s ease-in-out infinite alternate'
+        }}>
           {/* Neon border effect */}
-          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-turquoise via-orange to-turquoise opacity-20 blur-sm"></div>
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-turquoise-500 via-orange-500 to-turquoise-500 opacity-20 blur-sm"></div>
           <div className="absolute inset-[2px] bg-black rounded-xl"></div>
           
           <div className="relative z-10 max-w-4xl mx-auto text-center">
@@ -502,7 +507,10 @@ export default function Home() {
                 </div>
               </div>
               
-              <h2 className="text-4xl font-bold mb-4 neon-text-turquoise">
+              <h2 className="text-4xl font-bold mb-4" style={{
+                color: 'hsl(173, 58%, 39%)',
+                textShadow: '0 0 5px hsl(173, 58%, 39%), 0 0 10px hsl(173, 58%, 39%), 0 0 15px hsl(173, 58%, 39%), 0 0 20px hsl(173, 58%, 39%)'
+              }}>
                 🎰 Your Personal Casino Assistant 🎲
               </h2>
               <p className="text-lg text-gray-300 mb-6 max-w-3xl mx-auto">
@@ -557,10 +565,28 @@ export default function Home() {
 
             {/* Neon Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="casino-neon-button-primary" data-testid="button-start-chat">
+              <button 
+                className="font-bold text-lg px-7 py-3 rounded-lg cursor-pointer transition-all duration-300"
+                style={{
+                  background: 'linear-gradient(45deg, hsl(173, 58%, 39%), hsl(173, 58%, 39%, 0.8))',
+                  border: '2px solid hsl(173, 58%, 39%)',
+                  color: 'black',
+                  boxShadow: '0 0 15px hsl(173, 58%, 39%, 0.4)',
+                }}
+                data-testid="button-start-chat"
+              >
                 🚀 Start Chat with AI Bot
               </button>
-              <button className="casino-neon-button-secondary" data-testid="button-learn-more-bot">
+              <button 
+                className="font-bold text-lg px-7 py-3 rounded-lg cursor-pointer transition-all duration-300"
+                style={{
+                  background: 'rgba(0, 0, 0, 0.7)',
+                  border: '2px solid hsl(24, 95%, 53%)',
+                  color: 'hsl(24, 95%, 53%)',
+                  backdropFilter: 'blur(10px)',
+                }}
+                data-testid="button-learn-more-bot"
+              >
                 📚 Learn More About Our Bot
               </button>
             </div>

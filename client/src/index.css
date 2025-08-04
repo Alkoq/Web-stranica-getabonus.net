@@ -176,6 +176,21 @@
     animation: neon-border-pulse 3s ease-in-out infinite alternate;
   }
 
+  @keyframes neon-border-pulse {
+    0%, 100% {
+      box-shadow: 
+        0 0 5px hsl(173, 58%, 39%, 0.5),
+        0 0 10px hsl(173, 58%, 39%, 0.3),
+        0 0 15px hsl(173, 58%, 39%, 0.2);
+    }
+    50% {
+      box-shadow: 
+        0 0 10px hsl(173, 58%, 39%, 0.8),
+        0 0 20px hsl(173, 58%, 39%, 0.5),
+        0 0 30px hsl(173, 58%, 39%, 0.3);
+    }
+  }
+
   .casino-neon-card {
     background: rgba(0, 0, 0, 0.5);
     border: 1px solid hsl(var(--turquoise) / 0.3);
