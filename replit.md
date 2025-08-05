@@ -52,10 +52,20 @@ Preferred communication style: Simple, everyday language.
 - **Navigation**: Complete navigation system with Games section, mobile-optimized hamburger menu (280px width)
 - **Neon Styling**: Casino-themed neon design with turquoise/orange color scheme and glow effects
 - **Enhanced Review System**: 
-  - "Helpful" voting functionality added to casino reviews
+  - "Helpful" voting functionality added to casino reviews (fully functional with API backend)
   - Extended character limits for user reviews (500 chars for casinos, 450 for bonuses)
   - Average rating displays on bonus and game preview cards (Expert + User combined)
   - Detailed review prompts encouraging specific feedback about legitimacy and fairness
+  - Game preview cards now display combined expert+user ratings with star icons
+- **Improved Game Cards**: 
+  - Combined rating system showing expert+user ratings with star icons in top-left corner
+  - RTP values color-coded (green for 97%+, orange for 95-97%, red for <95%)
+  - Enhanced information display: provider, volatility badges, bet ranges, game tags
+  - Neon glow effects and hover animations matching casino theme
+- **Enhanced Bonus Cards**: 
+  - Additional details: minimum deposit, maximum winnings, promotional codes
+  - Improved wagering requirements display with clear formatting
+  - Better visual hierarchy and information organization
 
 ## External Dependencies
 
