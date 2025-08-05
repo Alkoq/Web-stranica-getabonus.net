@@ -791,8 +791,14 @@ export default function Home() {
                 <CarouselItem key={game.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
                   <Card className="hover:shadow-lg transition-shadow h-full carousel-card">
                     <CardContent className="p-4 flex flex-col h-full">
-                      <div className="aspect-[4/3] bg-gradient-to-br from-blue-400 to-green-400 rounded-lg mb-4 flex items-center justify-center">
+                      <div className="aspect-[4/3] bg-gradient-to-br from-blue-400 to-green-400 rounded-lg mb-4 flex items-center justify-center relative">
                         <Gamepad2 className="h-8 w-8 md:h-12 md:w-12 text-white" />
+                        <div className="absolute top-2 left-2">
+                          <div className="flex items-center bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full px-2 py-1 shadow-lg">
+                            <Star className="h-3 w-3 text-white fill-current mr-1" />
+                            <span className="text-xs font-bold">8.2</span>
+                          </div>
+                        </div>
                       </div>
                       <h3 className="font-semibold text-base md:text-lg mb-1 line-clamp-1">{game.name}</h3>
                       <p className="text-sm text-muted-foreground mb-3 line-clamp-1">{game.provider}</p>

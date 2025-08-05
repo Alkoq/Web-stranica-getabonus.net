@@ -80,10 +80,10 @@ export function GameCard({ game, onPlayGame }: GameCardProps) {
                 {game.type.charAt(0).toUpperCase() + game.type.slice(1)}
               </Badge>
             </div>
-            <div className="absolute top-2 left-2" style={{zIndex: 999, backgroundColor: 'red', padding: '8px', borderRadius: '4px'}}>
-              <div className="flex items-center">
-                <Star className="h-4 w-4 text-yellow-400 fill-current mr-1" />
-                <span className="text-white text-sm font-bold">8.2/10</span>
+            <div className="absolute top-2 left-2" style={{zIndex: 10}}>
+              <div className="flex items-center bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full px-2 py-1 shadow-lg">
+                <Star className="h-3 w-3 text-white fill-current mr-1" />
+                <span className="text-xs font-bold">8.2</span>
               </div>
             </div>
             <div className="absolute bottom-2 left-2">
