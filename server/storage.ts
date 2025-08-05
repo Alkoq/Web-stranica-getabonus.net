@@ -42,8 +42,11 @@ export interface IStorage {
 
   // Reviews
   getReviewsByCasino(casinoId: string): Promise<Review[]>;
+  getReviewsByBonusId(bonusId: string): Promise<Review[]>;
+  getReviewsByGameId(gameId: string): Promise<Review[]>;
   getReview(id: string): Promise<Review | undefined>;
   createReview(review: InsertReview): Promise<Review>;
+  addHelpfulVote(reviewId: string): Promise<Review>;
 
   // Expert Reviews
   getExpertReviewsByCasino(casinoId: string): Promise<ExpertReview[]>;
@@ -68,6 +71,11 @@ export interface IStorage {
   getGames(filters?: GameFilters): Promise<Game[]>;
   getGame(id: string): Promise<Game | undefined>;
   createGame(game: InsertGame): Promise<Game>;
+
+  // Rating helpers
+  getUserReviewsAverageRating(casinoId: string): Promise<number>;
+  getCasinoSafetyRating(casinoId: string): Promise<number>;
+  getBonusUserReviewsAverageRating(bonusId: string): Promise<number>;
 
   // Statistics
   getStats(): Promise<{

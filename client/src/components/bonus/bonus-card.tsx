@@ -170,6 +170,18 @@ export function BonusCard({ bonus, casinoName, casinoLogo, affiliateUrl }: Bonus
             <span>Wagering: {bonus.wageringRequirement}</span>
           </div>
         )}
+        {bonus.minDeposit && (
+          <div className="flex items-center text-sm">
+            <span className="mr-2">💰</span>
+            <span>Min Deposit: {bonus.minDeposit}</span>
+          </div>
+        )}
+        {bonus.maxWin && (
+          <div className="flex items-center text-sm">
+            <span className="mr-2">🎯</span>
+            <span>Max Win: {bonus.maxWin}</span>
+          </div>
+        )}
         {bonus.validUntil && (
           <div className="flex items-center text-sm">
             <Clock className="h-4 w-4 mr-2" />
@@ -179,7 +191,7 @@ export function BonusCard({ bonus, casinoName, casinoLogo, affiliateUrl }: Bonus
         {bonus.code && (
           <div className="flex items-center text-sm">
             <span className="mr-2">🎫</span>
-            <span>Code: <strong>{bonus.code}</strong></span>
+            <span>Code: <code className="bg-white/20 px-1 rounded">{bonus.code}</code></span>
           </div>
         )}
       </div>

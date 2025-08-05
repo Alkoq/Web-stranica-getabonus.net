@@ -35,8 +35,12 @@ export const api = {
     fetch('/api/bonuses/featured').then(res => res.json()),
 
   // Reviews
-  getReviews: (casinoId: string) => 
-    fetch(`/api/reviews/casino/${casinoId}`).then(res => res.json()),
+  getReviews: (casinoId?: string, bonusId?: string, gameId?: string) => {
+    if (casinoId) return fetch(`/api/reviews/casino/${casinoId}`).then(res => res.json());
+    if (bonusId) return fetch(`/api/reviews/bonus/${bonusId}`).then(res => res.json());
+    if (gameId) return fetch(`/api/reviews/game/${gameId}`).then(res => res.json());
+    return fetch('/api/reviews').then(res => res.json());
+  },
 
   getReviewsByCasino: (casinoId: string) => 
     fetch(`/api/reviews/casino/${casinoId}`).then(res => res.json()),

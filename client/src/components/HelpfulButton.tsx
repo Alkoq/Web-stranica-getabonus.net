@@ -37,8 +37,11 @@ export function HelpfulButton({
         description: "Your vote has been recorded.",
       });
       
-      // Invalidate relevant queries
+      // Invalidate all review-related queries
       queryClient.invalidateQueries({ queryKey: ["/api/reviews"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/reviews", "casino"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/reviews", "bonus"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/reviews", "game"] });
     },
     onError: () => {
       toast({

@@ -157,6 +157,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/reviews/game/:gameId", async (req, res) => {
+    try {
+      const reviews = await storage.getReviewsByGameId(req.params.gameId);
+      res.json(reviews);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch game reviews" });
+    }
+  });
+
   // Add a new review
   app.post("/api/reviews", async (req, res) => {
     try {
