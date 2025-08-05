@@ -27,6 +27,7 @@ import {
   Gift
 } from "lucide-react";
 import type { Casino, Bonus, Review, ExpertReview, BlogPost, Game } from "@shared/schema";
+import { api } from "@/lib/api";
 
 export default function CasinoDetailPage() {
   const { id } = useParams();
@@ -48,28 +49,45 @@ export default function CasinoDetailPage() {
     enabled: !!id
   });
 
-  // Mock data for demonstration - in real app these would come from API
-  const expertReview: ExpertReview = {
-    id: "expert-1",
-    casinoId: id || "",
-    authorId: "admin-1",
-    bonusesRating: "8.5",
-    bonusesExplanation: "Excellent welcome bonus package with reasonable wagering requirements. Regular promotions for existing players.",
-    designRating: "9.2",
-    designExplanation: "Modern, intuitive interface with excellent mobile optimization. Clean layout makes navigation effortless.",
-    payoutsRating: "8.8",
-    payoutsExplanation: "Fast crypto withdrawals usually processed within 2-4 hours. Good variety of payment methods.",
-    customerSupportRating: "7.5",
-    customerSupportExplanation: "24/7 live chat available but response times can vary. Email support is thorough but slower.",
-    gameSelectionRating: "9.0",
-    gameSelectionExplanation: "Impressive selection of 2000+ games from top providers including NetEnt, Pragmatic Play, and Evolution.",
-    mobileExperienceRating: "8.7",
-    mobileExperienceExplanation: "Fully responsive design works flawlessly on all devices. Dedicated mobile app available.",
-    overallRating: "8.6",
-    summary: "A solid choice for crypto enthusiasts with excellent game variety and fast payouts.",
-    createdAt: new Date(),
-    updatedAt: new Date()
+  // Fetch expert reviews for this casino
+  const { data: expertReviews = [] } = useQuery<ExpertReview[]>({
+    queryKey: ['/api/expert-reviews', id],
+    queryFn: () => api.getExpertReviews(id!),
+    enabled: !!id
+  });
+
+  // Fetch user reviews for this casino
+  const { data: userReviews = [] } = useQuery<Review[]>({
+    queryKey: ['/api/reviews', id],
+    queryFn: () => api.getReviews(id!),
+    enabled: !!id
+  });
+
+  // Calculate ratings from real data
+  const calculateRatings = () => {
+    const expertRating = expertReviews.length > 0 
+      ? expertReviews.reduce((acc, review) => acc + parseFloat(review.overallRating), 0) / expertReviews.length 
+      : 0;
+
+    const userRating = userReviews.length > 0 
+      ? userReviews.reduce((acc, review) => acc + review.overallRating, 0) / userReviews.length 
+      : 0;
+
+    const safetyIndex = () => {
+      if (expertRating > 0 && userRating > 0) {
+        return ((expertRating + userRating) / 2).toFixed(1);
+      } else if (expertRating > 0) {
+        return expertRating.toFixed(1);
+      } else if (userRating > 0) {
+        return userRating.toFixed(1);
+      }
+      return casino?.safetyIndex || '0';
+    };
+
+    return { expertRating, userRating, safetyIndex };
   };
+
+  const { expertRating, userRating, safetyIndex } = calculateRatings();
 
   // Function to auto-generate pros and cons based on ratings
   const generateProsAndCons = (ratings: {
@@ -104,7 +122,8 @@ export default function CasinoDetailPage() {
     return { pros, cons };
   };
 
-  const userReviews: Review[] = [
+  // Remove mock user reviews since we fetch real ones
+  const mockUserReviews: Review[] = [
     {
       id: "review-1",
       casinoId: id || "",
@@ -298,7 +317,7 @@ export default function CasinoDetailPage() {
   
   const [reviewsToShow, setReviewsToShow] = useState(5);
   
-  // Calculate average user ratings
+  // Calculate average user ratings from real data
   const averageUserRatings = useMemo(() => {
     if (userReviews.length === 0) return null;
     
@@ -590,12 +609,20 @@ export default function CasinoDetailPage() {
                     <div className="flex flex-wrap gap-4 mb-6">
                       <div className="flex items-center gap-2">
                         <Shield className="h-5 w-5 text-green-500" />
-                        <span className="font-semibold">Safety: {casino.safetyIndex}</span>
+                        <span className="font-semibold">Safety: {safetyIndex()}</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Star className="h-5 w-5 text-yellow-500" />
-                        <span className="font-semibold">{casino.userRating} ({casino.totalReviews} reviews)</span>
-                      </div>
+                      {expertRating > 0 && (
+                        <div className="flex items-center gap-2">
+                          <Star className="h-5 w-5 text-turquoise" />
+                          <span className="font-semibold">Expert: {expertRating.toFixed(1)}/10</span>
+                        </div>
+                      )}
+                      {userRating > 0 && (
+                        <div className="flex items-center gap-2">
+                          <Users className="h-5 w-5 text-yellow-500" />
+                          <span className="font-semibold">Users: {userRating.toFixed(1)}/10 ({userReviews.length})</span>
+                        </div>
+                      )}
                       <div className="flex items-center gap-2">
                         <Calendar className="h-5 w-5 text-blue-500" />
                         <span>Est. {casino.establishedYear}</span>
@@ -788,47 +815,56 @@ export default function CasinoDetailPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Rating Categories */}
-              <div className="space-y-4">
-                {ratingCategories.map((category) => {
-                  const rating = parseFloat(expertReview[category.key as keyof ExpertReview] as string);
-                  const explanation = expertReview[`${category.key.replace('Rating', 'Explanation')}` as keyof ExpertReview] as string;
-                  
-                  return (
-                    <div key={category.key}>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium flex items-center gap-2">
-                          <span>{category.icon}</span>
-                          {category.label}
-                        </span>
-                        <span className="font-bold text-lg text-turquoise">{rating}</span>
+            {expertReviews.length > 0 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Rating Categories */}
+                <div className="space-y-4">
+                  {expertReviews[0] && Object.entries(expertReviews[0]).filter(([key]) => 
+                    key.endsWith('Rating') && key !== 'overallRating'
+                  ).map(([key, value]) => {
+                    const rating = parseFloat(value as string);
+                    const explanationKey = key.replace('Rating', 'Explanation');
+                    const explanation = expertReviews[0][explanationKey as keyof ExpertReview] as string;
+                    const categoryName = key.replace('Rating', '').replace(/([A-Z])/g, ' $1').trim();
+                    
+                    return (
+                      <div key={key}>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">
+                            {categoryName.charAt(0).toUpperCase() + categoryName.slice(1)}
+                          </span>
+                          <span className="font-bold text-lg text-turquoise">{rating.toFixed(1)}/10</span>
+                        </div>
+                        <Progress value={rating * 10} className="mb-2" />
+                        <p className="text-sm text-muted-foreground">{explanation}</p>
                       </div>
-                      <Progress value={rating * 10} className="mb-2" />
-                      <p className="text-sm text-muted-foreground">{explanation}</p>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
 
-              {/* Overall Rating & Summary */}
-              <div className="space-y-6">
-                <div className="text-center p-6 bg-gradient-to-br from-turquoise/10 to-orange/10 rounded-lg">
-                  <div className="text-4xl font-bold text-turquoise mb-2">
-                    {expertReview.overallRating}
+                {/* Overall Rating & Summary */}
+                <div className="space-y-6">
+                  <div className="text-center p-6 bg-gradient-to-br from-turquoise/10 to-orange/10 rounded-lg">
+                    <div className="text-4xl font-bold text-turquoise mb-2">
+                      {parseFloat(expertReviews[0].overallRating).toFixed(1)}/10
+                    </div>
+                    <div className="text-lg font-semibold mb-2">Overall Rating</div>
+                    <div className="flex justify-center">
+                      <Progress value={parseFloat(expertReviews[0].overallRating) * 10} className="w-32" />
+                    </div>
                   </div>
-                  <div className="text-lg font-semibold mb-2">Overall Rating</div>
-                  <div className="flex justify-center">
-                    <Progress value={parseFloat(expertReview.overallRating) * 10} className="w-32" />
+                  
+                  <div>
+                    <h4 className="font-semibold mb-3 text-orange">Expert Summary</h4>
+                    <p className="text-muted-foreground">{expertReviews[0].summary}</p>
                   </div>
-                </div>
-                
-                <div>
-                  <h4 className="font-semibold mb-3 text-orange">Expert Summary</h4>
-                  <p className="text-muted-foreground">{expertReview.summary}</p>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No expert review available for this casino yet.</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -857,16 +893,15 @@ export default function CasinoDetailPage() {
                   <Progress value={parseFloat(averageUserRatings.overall) * 10} className="mt-2" />
                 </div>
                 
-                {ratingCategories.map((category) => {
-                  // Map category key to averageUserRatings key
-                  let ratingKey = category.key.replace('Rating', '');
-                  // Special case mappings
-                  if (ratingKey === 'bonuses') ratingKey = 'bonuses';
-                  if (ratingKey === 'customerSupport') ratingKey = 'customerSupport';
-                  if (ratingKey === 'gameSelection') ratingKey = 'gameSelection';
-                  if (ratingKey === 'mobileExperience') ratingKey = 'mobileExperience';
-                  
-                  const avgRating = averageUserRatings[ratingKey as keyof typeof averageUserRatings] as string;
+                {[
+                  { key: 'bonuses', label: 'Bonuses', icon: '🎁' },
+                  { key: 'design', label: 'Design', icon: '🎨' },
+                  { key: 'payouts', label: 'Payouts', icon: '💰' },
+                  { key: 'customerSupport', label: 'Support', icon: '🎧' },
+                  { key: 'gameSelection', label: 'Games', icon: '🎮' },
+                  { key: 'mobileExperience', label: 'Mobile', icon: '📱' }
+                ].map((category) => {
+                  const avgRating = averageUserRatings[category.key as keyof typeof averageUserRatings] as string;
                   return (
                     <div key={category.key} className="text-center">
                       <div className="flex items-center justify-center gap-2 mb-2">
