@@ -62,13 +62,19 @@ export default function Blog() {
   const featuredPost = blogPosts.find(post => post.isPublished) || blogPosts[0];
   const trendingPosts = blogPosts.filter(post => post.isPublished).slice(0, 3);
 
-  const formatDate = (date: Date | null) => {
+  const formatDate = (date: string | Date | null) => {
     if (!date) return '';
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    }).format(date);
+    try {
+      const dateObj = typeof date === 'string' ? new Date(date) : date;
+      if (isNaN(dateObj.getTime())) return 'Invalid date';
+      return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }).format(dateObj);
+    } catch (error) {
+      return 'Invalid date';
+    }
   };
 
   return (
