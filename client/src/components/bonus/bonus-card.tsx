@@ -86,18 +86,32 @@ export function BonusCard({ bonus, casinoName, casinoLogo, affiliateUrl }: Bonus
     return 'Ending soon';
   };
 
-  // Calculate average rating from expert and user reviews
-  const getAverageRating = () => {
+  // Calculate combined rating from static expert rating and user reviews
+  const getCombinedRating = () => {
+    // Static expert rating for this bonus (same as in bonus-detail.tsx)
+    const expertRating = 7.9; // Overall expert rating
+    
     if (bonusReviews.length === 0) {
-      return null; // No reviews available
+      // If no user reviews, show only expert rating
+      return {
+        rating: expertRating.toFixed(1),
+        count: 0,
+        type: 'expert'
+      };
     }
 
     // Calculate average user rating
     const userRatingSum = bonusReviews.reduce((sum: number, review: any) => sum + review.overallRating, 0);
     const averageUserRating = userRatingSum / bonusReviews.length;
+    
+    // Combined rating: average of expert rating and user reviews average
+    const combinedRating = (expertRating + averageUserRating) / 2;
 
-    // For now, just return user average. In full implementation, would combine with expert ratings
-    return averageUserRating.toFixed(1);
+    return {
+      rating: combinedRating.toFixed(1),
+      count: bonusReviews.length,
+      type: 'combined'
+    };
   };
 
   return (
@@ -123,12 +137,18 @@ export function BonusCard({ bonus, casinoName, casinoLogo, affiliateUrl }: Bonus
           {getBonusTypeName(bonus.type)}
         </Badge>
         <div className="flex items-center gap-2">
-          {getAverageRating() && (
-            <div className="flex items-center bg-white/20 rounded-full px-2 py-1">
-              <Star className="h-3 w-3 text-yellow-300 mr-1" />
-              <span className="text-sm font-semibold">{getAverageRating()}/10</span>
-            </div>
-          )}
+          {(() => {
+            const ratingData = getCombinedRating();
+            return (
+              <div className="flex items-center bg-white/20 rounded-full px-2 py-1">
+                <Star className="h-3 w-3 text-yellow-300 mr-1" />
+                <span className="text-sm font-semibold">{ratingData.rating}/10</span>
+                {ratingData.count > 0 && (
+                  <span className="text-xs ml-1 opacity-75">({ratingData.count})</span>
+                )}
+              </div>
+            );
+          })()}
           <span className="text-2xl">{getBonusTypeIcon(bonus.type)}</span>
         </div>
       </div>
