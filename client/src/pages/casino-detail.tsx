@@ -26,7 +26,8 @@ import {
   CheckCircle,
   Clock,
   ChevronDown,
-  Gift
+  Gift,
+  ThumbsUp
 } from "lucide-react";
 import type { Casino, Bonus, Review, ExpertReview, BlogPost, Game } from "@shared/schema";
 import { api } from "@/lib/api";
