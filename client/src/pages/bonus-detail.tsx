@@ -446,7 +446,7 @@ export default function BonusDetail() {
                 <CardContent className="space-y-4">
                   <Button 
                     className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3"
-                    onClick={() => window.open(casino.affiliateUrl, '_blank')}
+                    onClick={() => casino.affiliateUrl && window.open(casino.affiliateUrl, '_blank')}
                   >
                     <Gift className="h-5 w-5 mr-2" />
                     Claim Bonus Now
@@ -455,7 +455,7 @@ export default function BonusDetail() {
                   <div className="text-center text-sm text-gray-400 space-y-1">
                     <p className="flex items-center justify-center">
                       <Calendar className="h-4 w-4 mr-1" />
-                      Created: {new Date(bonus.createdAt).toLocaleDateString()}
+                      Created: {bonus.createdAt ? new Date(bonus.createdAt).toLocaleDateString() : 'Unknown'}
                     </p>
                     <p>18+ | T&Cs Apply | Play Responsibly</p>
                   </div>

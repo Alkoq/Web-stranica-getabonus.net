@@ -96,9 +96,7 @@ export default function GameDetail() {
                 Back to Games
               </Button>
             </Link>
-            {game.isFeatured && (
-              <Badge className="bg-orange-500">Featured</Badge>
-            )}
+            {/* Featured badge removed - not in schema */}
           </div>
 
           <div className="grid lg:grid-cols-3 gap-8">
@@ -186,7 +184,7 @@ export default function GameDetail() {
                       <Button 
                         variant="outline" 
                         className="flex-1"
-                        onClick={() => window.open(game.demoUrl, '_blank')}
+                        onClick={() => game.demoUrl && window.open(game.demoUrl, '_blank')}
                       >
                         <Play className="h-4 w-4 mr-2" />
                         Play Demo
@@ -457,7 +455,7 @@ export default function GameDetail() {
                     <Button 
                       variant="outline" 
                       className="w-full"
-                      onClick={() => window.open(game.demoUrl, '_blank')}
+                      onClick={() => game.demoUrl && window.open(game.demoUrl, '_blank')}
                     >
                       <Play className="h-5 w-5 mr-2" />
                       Try Demo
