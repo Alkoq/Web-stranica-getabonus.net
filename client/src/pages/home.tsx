@@ -19,7 +19,7 @@ import { Newsletter } from "@/components/newsletter";
 import { AIChatbot } from "@/components/ai-chatbot";
 import { GameCasinoModal } from "@/components/game/game-casino-modal";
 import { api } from "@/lib/api";
-import type { Casino, Bonus, BlogPost } from "@shared/schema";
+import type { Casino, Bonus, BlogPost, Game } from "@shared/schema";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -66,15 +66,29 @@ export default function Home() {
     queryFn: () => api.getBlogPosts(),
   });
 
-  // Get latest casinos (mock sorting by newest)
+  const { data: allGames = [], isLoading: loadingGames } = useQuery<Game[]>({
+    queryKey: ['/api/games'],
+    queryFn: () => api.getGames(),
+  });
+
+  // Get latest casinos (sorting by newest)
   const latestCasinos = [...allCasinos].slice(0, 15);
 
-  // Mock games data
-  const hotGames = [
-    { id: '1', name: 'Book of Dead', provider: "Play'n GO", rtp: '96.21%', image: '/games/book-of-dead.jpg' },
-    { id: '2', name: 'Starburst', provider: 'NetEnt', rtp: '96.09%', image: '/games/starburst.jpg' },
-    { id: '3', name: 'Gonzo\'s Quest', provider: 'NetEnt', rtp: '95.97%', image: '/games/gonzos-quest.jpg' },
-  ];
+  // Get hot games (highest rated games sorted by RTP)
+  const hotGames = useMemo(() => {
+    if (!allGames.length) return [];
+    return [...allGames].sort((a, b) => {
+      const rtpA = parseFloat(a.rtp?.replace('%', '') || '0');
+      const rtpB = parseFloat(b.rtp?.replace('%', '') || '0');
+      return rtpB - rtpA;
+    }).slice(0, 8);
+  }, [allGames]);
+
+  // Get latest games (newest games - reverse order)
+  const latestGames = useMemo(() => {
+    if (!allGames.length) return [];
+    return [...allGames].reverse().slice(0, 8);
+  }, [allGames]);
 
   const quickFilters = [
     { label: "Top Rated", icon: Star, active: true, filter: "safetyIndex" },
@@ -795,7 +809,7 @@ export default function Home() {
             className="w-full"
           >
             <CarouselContent className="-ml-2 md:-ml-4">
-              {hotGames.slice().reverse().map((game) => (
+              {latestGames.map((game) => (
                 <CarouselItem key={game.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
                   <Link href={`/game/${game.id}`}>
                     <Card className="hover:shadow-lg transition-shadow h-full carousel-card cursor-pointer">
