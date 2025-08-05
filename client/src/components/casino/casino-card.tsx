@@ -26,8 +26,10 @@ export function CasinoCard({ casino, showDetails = true, variant = "list" }: Cas
   });
 
   const renderStars = (rating: number, size: "sm" | "md" = "md") => {
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
+    // Convert rating from 1-10 scale to 1-5 scale for star display
+    const scaledRating = rating / 2;
+    const fullStars = Math.floor(scaledRating);
+    const hasHalfStar = scaledRating % 1 >= 0.5;
     const starSize = size === "sm" ? "h-3 w-3" : "h-4 w-4";
     
     return (
@@ -57,6 +59,18 @@ export function CasinoCard({ casino, showDetails = true, variant = "list" }: Cas
   const userRating = userReviews.length > 0 
     ? userReviews.reduce((acc, review) => acc + review.overallRating, 0) / userReviews.length 
     : 0;
+
+  // Calculate safety index as average of expert and user ratings (if both exist)
+  const calculatedSafetyIndex = () => {
+    if (expertRating > 0 && userRating > 0) {
+      return ((expertRating + userRating) / 2).toFixed(1);
+    } else if (expertRating > 0) {
+      return expertRating.toFixed(1);
+    } else if (userRating > 0) {
+      return userRating.toFixed(1);
+    }
+    return casino.safetyIndex || '0';
+  };
 
   const getSafetyColor = (index: string | null) => {
     const numIndex = parseFloat(index || '0');
@@ -122,8 +136,8 @@ export function CasinoCard({ casino, showDetails = true, variant = "list" }: Cas
           <div className={`flex ${variant === "grid" ? "justify-center flex-col space-y-3" : "items-center"} space-x-4`}>
             {/* Safety Index */}
             <div className="text-center">
-              <div className={`px-3 py-2 rounded-lg ${getSafetyColor(casino.safetyIndex)}`}>
-                <div className="text-xl font-bold">{casino.safetyIndex || '0'}</div>
+              <div className={`px-3 py-2 rounded-lg ${getSafetyColor(calculatedSafetyIndex())}`}>
+                <div className="text-xl font-bold">{calculatedSafetyIndex()}</div>
                 <div className="text-xs flex items-center justify-center">
                   <Shield className="h-3 w-3 mr-1" />
                   Safety
@@ -137,7 +151,7 @@ export function CasinoCard({ casino, showDetails = true, variant = "list" }: Cas
                 <div className="flex flex-col items-center">
                   {renderStars(expertRating, "sm")}
                   <div className="text-xs text-turquoise font-medium mt-1">
-                    Expert: {expertRating.toFixed(1)}/5
+                    Expert: {expertRating.toFixed(1)}/10
                   </div>
                 </div>
               </div>
@@ -149,7 +163,7 @@ export function CasinoCard({ casino, showDetails = true, variant = "list" }: Cas
                 <div className="flex flex-col items-center">
                   {renderStars(userRating, "sm")}
                   <div className="text-xs text-gray-600 dark:text-gray-300 mt-1">
-                    Users: {userRating.toFixed(1)}/5 ({userReviews.length})
+                    Users: {userRating.toFixed(1)}/10 ({userReviews.length})
                   </div>
                 </div>
               </div>
