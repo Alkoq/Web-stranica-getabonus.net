@@ -124,7 +124,7 @@ export function GameCard({ game, onPlayGame }: GameCardProps) {
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">RTP:</span>
-              <span className={`font-medium ${parseFloat(game.rtp) >= 97 ? 'text-green-600' : parseFloat(game.rtp) >= 95 ? 'text-orange-500' : 'text-red-500'}`}>
+              <span className={`font-medium ${parseFloat(game.rtp || '0') >= 97 ? 'text-green-600' : parseFloat(game.rtp || '0') >= 95 ? 'text-orange-500' : 'text-red-500'}`}>
                 {game.rtp}%
               </span>
             </div>
