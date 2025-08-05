@@ -29,46 +29,43 @@ export default function BonusDetail() {
     queryFn: () => api.getBlogPosts(),
   });
 
-  // Mock reviews data - in real app would come from API
-  const mockReviews = [
-    {
-      id: "1",
-      username: "BonusHunter88",
-      rating: 8,
-      comment: "Great bonus with reasonable wagering requirements. I managed to withdraw €500 after meeting the 35x playthrough. The process was smooth and took about 3 days. The bonus games included most slots which was perfect for me. Customer support was helpful when I had questions about the wagering progress. Overall excellent experience and would definitely recommend this bonus to other players.",
-      createdAt: new Date('2024-01-15'),
-      verified: true
-    },
-    {
-      id: "2", 
-      username: "SlotMaster",
-      rating: 6,
-      comment: "Bonus is okay but the terms could be clearer. Game restrictions are a bit limiting as many of my favorite slots don't count towards wagering. The 40x requirement is higher than some competitors. However, the bonus amount is generous and I did manage to complete it after about 2 weeks of regular play. Customer service could be more responsive regarding bonus queries.",
-      createdAt: new Date('2024-01-10'),
-      verified: false
-    },
-    {
-      id: "3",
-      username: "CasinoExpert2024",
-      rating: 9,
-      comment: "Excellent bonus offer! The wagering requirements are fair at 30x and most games contribute 100%. I particularly liked that table games also count, unlike many other bonuses. Completed the wagering in just 5 days and withdrew my winnings without any issues. The bonus was credited instantly after deposit. Highly recommend for serious players.",
-      createdAt: new Date('2024-01-20'),
-      verified: true
-    }
-  ];
+  // Fetch real bonus reviews from API
+  const { data: bonusReviews = [] } = useQuery<Review[]>({
+    queryKey: ['/api/reviews/bonus', bonusId],
+    queryFn: () => bonusId ? fetch(`/api/reviews/bonus/${bonusId}`).then(res => res.json()) : Promise.resolve([]),
+    enabled: !!bonusId,
+  });
 
   const bonus = bonuses.find(b => b.id === bonusId);
   const casino = bonus ? casinos.find(c => c.id === bonus.casinoId) : null;
 
-  // Bonus rating criteria (1-10 scale)
-  const bonusRatings = {
-    value: 8.5, // Bonus amount vs wagering requirements 
-    terms: 7.2, // Clarity and fairness of terms
-    wagering: 6.8, // Wagering requirements reasonableness
-    games: 8.1, // Game selection for bonus use
-    cashout: 7.9, // Withdrawal limits and speed
-    overall: 7.7 // Overall bonus rating
+  // Calculate real ratings from reviews
+  const calculateRatings = () => {
+    if (bonusReviews.length === 0) {
+      return {
+        value: 0,
+        terms: 0, 
+        wagering: 0,
+        games: 0,
+        cashout: 0,
+        overall: 0
+      };
+    }
+
+    const avgRating = bonusReviews.reduce((sum, review) => sum + review.overallRating, 0) / bonusReviews.length;
+    
+    // For detailed breakdown, use overall rating as base (in real app would have separate criteria ratings)
+    return {
+      value: avgRating,
+      terms: avgRating - 0.5,
+      wagering: avgRating - 1.2,
+      games: avgRating + 0.4,
+      cashout: avgRating + 0.2,
+      overall: avgRating
+    };
   };
+
+  const bonusRatings = calculateRatings();
 
   const relatedBlogPosts = relatedPosts.filter(post => 
     post.title.toLowerCase().includes('bonus') ||
@@ -329,39 +326,39 @@ export default function BonusDetail() {
                     <CardHeader>
                       <CardTitle className="flex items-center text-turquoise">
                         <MessageCircle className="h-5 w-5 mr-2" />
-                        User Reviews ({mockReviews.length})
+                        User Reviews ({bonusReviews.length})
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-6">
-                        {mockReviews.map((review) => (
+                        {bonusReviews.map((review) => (
                           <div key={review.id} className="border-b border-border pb-4 last:border-b-0">
                             <div className="flex items-start justify-between mb-2">
                               <div className="flex items-center">
                                 <div className="w-8 h-8 rounded-full bg-gradient-to-r from-turquoise to-blue-500 flex items-center justify-center text-white font-bold text-sm mr-3">
-                                  {review.username.charAt(0)}
+                                  {review.userName?.charAt(0) || 'U'}
                                 </div>
                                 <div>
-                                  <p className="font-semibold">{review.username}</p>
+                                  <p className="font-semibold">{review.userName}</p>
                                   <div className="flex items-center">
-                                    {review.verified && (
+                                    {review.isVerified && (
                                       <Badge variant="secondary" className="text-xs mr-2">
                                         <Shield className="h-3 w-3 mr-1" />
                                         Verified
                                       </Badge>
                                     )}
                                     <span className="text-sm text-muted-foreground">
-                                      {review.createdAt.toLocaleDateString()}
+                                      {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : 'N/A'}
                                     </span>
                                   </div>
                                 </div>
                               </div>
                               <div className="flex items-center">
                                 <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                                <span className="font-semibold">{review.rating}/10</span>
+                                <span className="font-semibold">{review.overallRating}/10</span>
                               </div>
                             </div>
-                            <p className="text-muted-foreground ml-11">{review.comment}</p>
+                            <p className="text-muted-foreground ml-11">{review.content}</p>
                             <div className="flex items-center mt-2 ml-11">
                               <Button variant="ghost" size="sm" className="text-xs">
                                 <ThumbsUp className="h-3 w-3 mr-1" />
