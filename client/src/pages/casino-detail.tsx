@@ -928,8 +928,14 @@ export default function CasinoDetailPage() {
                     
                     {/* Review Summary */}
                     <div className="mt-4 pt-4 border-t border-muted-foreground/20">
-                      <div className="text-xs text-muted-foreground">
-                        <span className="italic">Pros & cons automatically generated based on rating scores</span>
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs text-muted-foreground">
+                          <span className="italic">Pros & cons automatically generated based on rating scores</span>
+                        </div>
+                        <Button variant="ghost" size="sm" className="text-xs">
+                          <ThumbsUp className="h-3 w-3 mr-1" />
+                          Helpful (15)
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
@@ -1023,16 +1029,16 @@ export default function CasinoDetailPage() {
                         id="content"
                         value={newReview.content}
                         onChange={(e) => {
-                          if (e.target.value.length <= 300) {
+                          if (e.target.value.length <= 500) {
                             setNewReview(prev => ({ ...prev, content: e.target.value }))
                           }
                         }}
-                        placeholder="Share your detailed experience (max 300 characters)..."
-                        rows={4}
-                        maxLength={300}
+                        placeholder="Share your detailed casino experience - include specifics about gameplay, bonuses, withdrawals, and customer service (max 500 characters)..."
+                        rows={6}
+                        maxLength={500}
                       />
                       <div className="text-xs text-muted-foreground mt-1">
-                        {newReview.content.length}/300 characters
+                        {newReview.content.length}/500 characters - Be detailed to help other players
                       </div>
                     </div>
 

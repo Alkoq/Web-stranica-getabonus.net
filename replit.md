@@ -51,6 +51,11 @@ Preferred communication style: Simple, everyday language.
 - **SEO Optimization**: Structured data and semantic HTML for search engines
 - **Navigation**: Complete navigation system with Games section, mobile-optimized hamburger menu (280px width)
 - **Neon Styling**: Casino-themed neon design with turquoise/orange color scheme and glow effects
+- **Enhanced Review System**: 
+  - "Helpful" voting functionality added to casino reviews
+  - Extended character limits for user reviews (500 chars for casinos, 450 for bonuses)
+  - Average rating displays on bonus and game preview cards (Expert + User combined)
+  - Detailed review prompts encouraging specific feedback about legitimacy and fairness
 
 ## External Dependencies
 

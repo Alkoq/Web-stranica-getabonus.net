@@ -35,7 +35,7 @@ export default function BonusDetail() {
       id: "1",
       username: "BonusHunter88",
       rating: 8,
-      comment: "Great bonus with reasonable wagering requirements. Managed to withdraw after meeting the playthrough.",
+      comment: "Great bonus with reasonable wagering requirements. I managed to withdraw €500 after meeting the 35x playthrough. The process was smooth and took about 3 days. The bonus games included most slots which was perfect for me. Customer support was helpful when I had questions about the wagering progress. Overall excellent experience and would definitely recommend this bonus to other players.",
       createdAt: new Date('2024-01-15'),
       verified: true
     },
@@ -43,9 +43,17 @@ export default function BonusDetail() {
       id: "2", 
       username: "SlotMaster",
       rating: 6,
-      comment: "Bonus is okay but the terms could be clearer. Game restrictions are a bit limiting.",
+      comment: "Bonus is okay but the terms could be clearer. Game restrictions are a bit limiting as many of my favorite slots don't count towards wagering. The 40x requirement is higher than some competitors. However, the bonus amount is generous and I did manage to complete it after about 2 weeks of regular play. Customer service could be more responsive regarding bonus queries.",
       createdAt: new Date('2024-01-10'),
       verified: false
+    },
+    {
+      id: "3",
+      username: "CasinoExpert2024",
+      rating: 9,
+      comment: "Excellent bonus offer! The wagering requirements are fair at 30x and most games contribute 100%. I particularly liked that table games also count, unlike many other bonuses. Completed the wagering in just 5 days and withdrew my winnings without any issues. The bonus was credited instantly after deposit. Highly recommend for serious players.",
+      createdAt: new Date('2024-01-20'),
+      verified: true
     }
   ];
 

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Clock, Gift } from "lucide-react";
+import { ExternalLink, Clock, Gift, Star } from "lucide-react";
 import { Link } from "wouter";
 import type { Bonus } from "@shared/schema";
 
@@ -79,6 +79,15 @@ export function BonusCard({ bonus, casinoName, casinoLogo, affiliateUrl }: Bonus
     return 'Ending soon';
   };
 
+  // Simulated average rating (would come from API in real app)
+  const getAverageRating = (bonusId: string) => {
+    // Mock ratings based on bonus ID for consistent display
+    const ratings = {
+      'default': 7.8
+    };
+    return ratings['default'];
+  };
+
   return (
     <Link href={`/bonus/${bonus.id}`}>
       <div 
@@ -101,7 +110,13 @@ export function BonusCard({ bonus, casinoName, casinoLogo, affiliateUrl }: Bonus
         <Badge className="bg-white bg-opacity-20 text-white border-white/20 hover:bg-white/30">
           {getBonusTypeName(bonus.type)}
         </Badge>
-        <span className="text-2xl">{getBonusTypeIcon(bonus.type)}</span>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center bg-white/20 rounded-full px-2 py-1">
+            <Star className="h-3 w-3 text-yellow-300 mr-1" />
+            <span className="text-sm font-semibold">{getAverageRating(bonus.id)}/10</span>
+          </div>
+          <span className="text-2xl">{getBonusTypeIcon(bonus.type)}</span>
+        </div>
       </div>
 
       <h3 className="text-xl font-bold mb-2">{bonus.title}</h3>

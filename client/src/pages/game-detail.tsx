@@ -30,7 +30,7 @@ export default function GameDetail() {
       id: "1",
       username: "SlotExpert",
       rating: 9,
-      comment: "Amazing graphics and smooth gameplay. Hit multiple bonus rounds with great payouts!",
+      comment: "Amazing graphics and smooth gameplay. Hit multiple bonus rounds with great payouts! The free spins feature triggers frequently and multipliers can go up to 50x. I've been playing this slot for months and the RTP feels accurate. The soundtrack and animations are top-notch, making long sessions enjoyable. Volatility is medium-high which suits my playing style perfectly.",
       createdAt: new Date('2024-01-20'),
       verified: true
     },
@@ -38,9 +38,17 @@ export default function GameDetail() {
       id: "2", 
       username: "CasinoPlayer22",
       rating: 7,
-      comment: "Good game overall but can be a bit slow during peak times. RTP seems fair.",
+      comment: "Good game overall but can be a bit slow during peak times. RTP seems fair at 96.5% based on my tracking over 1000 spins. The bonus features are engaging but don't trigger as often as I'd like. Graphics are decent but could use some updates. The max win potential is attractive at 5000x. Would recommend for casual players but high rollers might want more excitement.",
       createdAt: new Date('2024-01-18'),
       verified: false
+    },
+    {
+      id: "3",
+      username: "GameTester",
+      rating: 8,
+      comment: "Solid slot with consistent performance. The mathematical model feels balanced and payouts are regular enough to keep you engaged. Bonus rounds are well-designed with good win potential. Mobile version works flawlessly. The only downside is that maximum bet could be higher for VIP players. Overall, a reliable choice for daily gaming sessions.",
+      createdAt: new Date('2024-01-22'),
+      verified: true
     }
   ];
 
