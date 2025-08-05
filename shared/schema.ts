@@ -55,17 +55,19 @@ export const bonuses = pgTable("bonuses", {
 
 export const reviews = pgTable("reviews", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  casinoId: varchar("casino_id").references(() => casinos.id).notNull(),
+  casinoId: varchar("casino_id").references(() => casinos.id),
+  bonusId: varchar("bonus_id").references(() => bonuses.id),
+  gameId: varchar("game_id").references(() => games.id),
   userId: varchar("user_id").references(() => users.id),
   title: text("title").notNull(),
   content: text("content").notNull(),
   overallRating: integer("overall_rating").notNull(), // 1-10 stars
-  bonusesRating: integer("bonuses_rating").notNull(), // 1-10 rating
-  designRating: integer("design_rating").notNull(), // 1-10 rating
-  payoutsRating: integer("payouts_rating").notNull(), // 1-10 rating
-  customerSupportRating: integer("customer_support_rating").notNull(), // 1-10 rating
-  gameSelectionRating: integer("game_selection_rating").notNull(), // 1-10 rating
-  mobileExperienceRating: integer("mobile_experience_rating").notNull(), // 1-10 rating
+  bonusesRating: integer("bonuses_rating"), // 1-10 rating (only for casino reviews)
+  designRating: integer("design_rating"), // 1-10 rating (only for casino reviews)
+  payoutsRating: integer("payouts_rating"), // 1-10 rating (only for casino reviews)
+  customerSupportRating: integer("customer_support_rating"), // 1-10 rating (only for casino reviews)
+  gameSelectionRating: integer("game_selection_rating"), // 1-10 rating (only for casino reviews)
+  mobileExperienceRating: integer("mobile_experience_rating"), // 1-10 rating (only for casino reviews)
   userName: text("user_name"),
   pros: jsonb("pros").$type<string[]>().default([]),
   cons: jsonb("cons").$type<string[]>().default([]),
@@ -177,17 +179,26 @@ export const casinosRelations = relations(casinos, ({ many, one }) => ({
   ratings: many(casinoRatings),
 }));
 
-export const bonusesRelations = relations(bonuses, ({ one }) => ({
+export const bonusesRelations = relations(bonuses, ({ one, many }) => ({
   casino: one(casinos, {
     fields: [bonuses.casinoId],
     references: [casinos.id],
   }),
+  reviews: many(reviews),
 }));
 
 export const reviewsRelations = relations(reviews, ({ one }) => ({
   casino: one(casinos, {
     fields: [reviews.casinoId],
     references: [casinos.id],
+  }),
+  bonus: one(bonuses, {
+    fields: [reviews.bonusId],
+    references: [bonuses.id],
+  }),
+  game: one(games, {
+    fields: [reviews.gameId],
+    references: [games.id],
   }),
   user: one(users, {
     fields: [reviews.userId],
@@ -208,6 +219,7 @@ export const expertReviewsRelations = relations(expertReviews, ({ one }) => ({
 
 export const gamesRelations = relations(games, ({ many }) => ({
   casinoGames: many(casinoGames),
+  reviews: many(reviews),
 }));
 
 export const casinoGamesRelations = relations(casinoGames, ({ one }) => ({

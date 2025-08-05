@@ -1,12 +1,21 @@
 import { useRoute } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Gift, Calendar, Shield, ExternalLink, Star, MessageCircle, ThumbsUp, Clock, Percent, Award, DollarSign, Users, Info } from "lucide-react";
 import { Link } from "wouter";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import type { Bonus, Casino, Review, BlogPost } from "@shared/schema";
 
@@ -369,12 +378,10 @@ export default function BonusDetail() {
                         ))}
                       </div>
 
-                      <div className="mt-6 p-4 bg-muted/20 rounded-lg text-center">
-                        <p className="text-muted-foreground mb-4">Have you tried this bonus?</p>
-                        <Button className="bg-turquoise hover:bg-turquoise/90">
-                          Write a Review
-                        </Button>
-                      </div>
+                      <ReviewForm bonusId={bonusId} onReviewSubmitted={() => {
+                        // Refresh reviews after submission
+                        window.location.reload();
+                      }} />
                     </CardContent>
                   </Card>
                 </TabsContent>
@@ -470,6 +477,166 @@ export default function BonusDetail() {
           </div>
         </div>
       </section>
+    </div>
+  );
+}
+
+// Review Form Component
+function ReviewForm({ bonusId, onReviewSubmitted }: { bonusId?: string; onReviewSubmitted: () => void }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const reviewSchema = z.object({
+    userName: z.string().min(2, "Username must be at least 2 characters"),
+    title: z.string().min(5, "Title must be at least 5 characters"), 
+    content: z.string().min(10, "Review must be at least 10 characters").max(500, "Review cannot exceed 500 characters"),
+    overallRating: z.string(),
+  });
+
+  type ReviewFormData = z.infer<typeof reviewSchema>;
+
+  const form = useForm<ReviewFormData>({
+    resolver: zodResolver(reviewSchema),
+    defaultValues: {
+      userName: "",
+      title: "",
+      content: "",
+      overallRating: "8",
+    },
+  });
+
+  const submitReview = async (values: ReviewFormData) => {
+    if (!bonusId) return;
+    
+    setIsSubmitting(true);
+    try {
+      const reviewData = {
+        ...values,
+        overallRating: parseInt(values.overallRating),
+        bonusId,
+        isPublished: true,
+        isVerified: false,
+      };
+
+      const response = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reviewData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit review');
+      }
+
+      toast({
+        title: "Review submitted!",
+        description: "Thank you for sharing your experience.",
+      });
+
+      form.reset();
+      queryClient.invalidateQueries({ queryKey: ['/api/reviews/bonus', bonusId] });
+      onReviewSubmitted();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit review. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="mt-6 p-6 bg-muted/20 rounded-lg">
+      <h4 className="font-semibold mb-4 text-turquoise">Write a Review</h4>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(submitReview)} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="userName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Your username" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="overallRating"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Rating</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select rating" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {[...Array(10)].map((_, i) => (
+                        <SelectItem key={i + 1} value={(i + 1).toString()}>
+                          {i + 1}/10 {i + 1 >= 8 ? '⭐' : i + 1 >= 6 ? '⚡' : '⚠️'}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Review Title</FormLabel>
+                <FormControl>
+                  <Input placeholder="Summarize your experience" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="content"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Review Details</FormLabel>
+                <FormControl>
+                  <Textarea 
+                    placeholder="Share your detailed experience with this bonus. What worked well? Any issues? Tips for other players? (Max 500 characters)"
+                    className="min-h-[120px]"
+                    {...field}
+                  />
+                </FormControl>
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <FormMessage />
+                  <span>{field.value?.length || 0}/500</span>
+                </div>
+              </FormItem>
+            )}
+          />
+          
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            className="w-full bg-turquoise hover:bg-turquoise/90"
+          >
+            {isSubmitting ? "Submitting..." : "Submit Review"}
+          </Button>
+        </form>
+      </Form>
     </div>
   );
 }
