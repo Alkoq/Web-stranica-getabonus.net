@@ -1,14 +1,24 @@
 import { useRoute } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Play, Star, TrendingUp, Users, ExternalLink, Calendar, Clock, MessageCircle, ThumbsUp, Shield, Award, Gamepad2, Zap, Target, BarChart3 } from "lucide-react";
 import { Link } from "wouter";
 import { api } from "@/lib/api";
-import type { Game, BlogPost } from "@shared/schema";
+import { HelpfulButton } from "@/components/HelpfulButton";
+import { useToast } from "@/hooks/use-toast";
+import type { Game, BlogPost, Review } from "@shared/schema";
 
 export default function GameDetail() {
   const [, params] = useRoute("/game/:id");
@@ -31,33 +41,37 @@ export default function GameDetail() {
     queryFn: () => api.getBlogPosts(),
   });
 
-  // Mock reviews data for games
-  const mockGameReviews = [
-    {
-      id: "1",
-      username: "SlotExpert",
-      rating: 9,
-      comment: "Amazing graphics and smooth gameplay. Hit multiple bonus rounds with great payouts! The free spins feature triggers frequently and multipliers can go up to 50x. I've been playing this slot for months and the RTP feels accurate. The soundtrack and animations are top-notch, making long sessions enjoyable. Volatility is medium-high which suits my playing style perfectly.",
-      createdAt: new Date('2024-01-20'),
-      verified: true
-    },
-    {
-      id: "2", 
-      username: "CasinoPlayer22",
-      rating: 7,
-      comment: "Good game overall but can be a bit slow during peak times. RTP seems fair at 96.5% based on my tracking over 1000 spins. The bonus features are engaging but don't trigger as often as I'd like. Graphics are decent but could use some updates. The max win potential is attractive at 5000x. Would recommend for casual players but high rollers might want more excitement.",
-      createdAt: new Date('2024-01-18'),
-      verified: false
-    },
-    {
-      id: "3",
-      username: "GameTester",
-      rating: 8,
-      comment: "Solid slot with consistent performance. The mathematical model feels balanced and payouts are regular enough to keep you engaged. Bonus rounds are well-designed with good win potential. Mobile version works flawlessly. The only downside is that maximum bet could be higher for VIP players. Overall, a reliable choice for daily gaming sessions.",
-      createdAt: new Date('2024-01-22'),
-      verified: true
+  // Real game reviews from API
+  const { data: gameReviews = [], isLoading: reviewsLoading } = useQuery<Review[]>({
+    queryKey: ['/api/reviews/game', gameId],
+    queryFn: () => fetch(`/api/reviews/game/${gameId}`).then(res => res.json()),
+    enabled: !!gameId,
+  });
+
+  // Calculate combined rating (expert + user reviews)
+  const getCombinedRating = () => {
+    const expertRating = 8.2; // Expert rating for games
+    
+    if (!gameReviews.length) {
+      return {
+        rating: expertRating.toFixed(1),
+        count: 0,
+        type: 'expert'
+      };
     }
-  ];
+
+    const userRatingSum = gameReviews.reduce((sum, review) => sum + review.overallRating, 0);
+    const averageUserRating = userRatingSum / gameReviews.length;
+    const combinedRating = (expertRating + averageUserRating) / 2;
+
+    return {
+      rating: combinedRating.toFixed(1),
+      count: gameReviews.length,
+      type: 'combined'
+    };
+  };
+
+  const ratingData = getCombinedRating();
 
   // Game rating criteria (1-10 scale)
   const gameRatings = {
@@ -66,7 +80,7 @@ export default function GameDetail() {
     rtp: 7.5, // Return to player percentage
     volatility: 8.0, // Risk/reward balance
     features: 8.6, // Bonus features and special elements
-    overall: 8.2 // Overall game rating
+    overall: parseFloat(ratingData.rating) // Combined expert + user rating
   };
 
   const relatedBlogPosts = relatedPosts.filter(post => 
@@ -252,12 +266,12 @@ export default function GameDetail() {
                           <div className="flex items-center">
                             <Star className="h-5 w-5 text-yellow-500 mr-1" />
                             <span className="text-2xl font-bold text-yellow-500">
-                              {gameRatings.overall.toFixed(1)}
+                              {ratingData.rating}
                             </span>
                             <span className="text-muted-foreground">/10</span>
                           </div>
                         </div>
-                        <Progress value={gameRatings.overall * 10} className="h-2" />
+                        <Progress value={parseFloat(ratingData.rating) * 10} className="h-2" />
                       </div>
 
                       {/* Detailed Ratings */}
@@ -354,55 +368,60 @@ export default function GameDetail() {
                     <CardHeader>
                       <CardTitle className="flex items-center text-turquoise">
                         <MessageCircle className="h-5 w-5 mr-2" />
-                        User Reviews ({mockGameReviews.length})
+                        User Reviews ({gameReviews.length})
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-6">
-                        {mockGameReviews.map((review) => (
-                          <div key={review.id} className="border-b border-border pb-4 last:border-b-0">
-                            <div className="flex items-start justify-between mb-2">
-                              <div className="flex items-center">
-                                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-turquoise to-blue-500 flex items-center justify-center text-white font-bold text-sm mr-3">
-                                  {review.username.charAt(0)}
-                                </div>
-                                <div>
-                                  <p className="font-semibold">{review.username}</p>
+                      {reviewsLoading ? (
+                        <div className="text-center py-8">
+                          <div className="animate-pulse">
+                            <MessageCircle className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                            <p className="text-gray-400">Loading reviews...</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="space-y-6">
+                            {gameReviews.map((review: Review) => (
+                              <div key={review.id} className="border-b border-border pb-4 last:border-b-0">
+                                <div className="flex items-start justify-between mb-2">
                                   <div className="flex items-center">
-                                    {review.verified && (
-                                      <Badge variant="secondary" className="text-xs mr-2">
-                                        <Shield className="h-3 w-3 mr-1" />
-                                        Verified
-                                      </Badge>
-                                    )}
-                                    <span className="text-sm text-muted-foreground">
-                                      {review.createdAt.toLocaleDateString()}
-                                    </span>
+                                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-turquoise to-blue-500 flex items-center justify-center text-white font-bold text-sm mr-3">
+                                      {review.userName?.charAt(0) || 'U'}
+                                    </div>
+                                    <div>
+                                      <p className="font-semibold">{review.userName || 'Anonymous'}</p>
+                                      <div className="flex items-center">
+                                        <span className="text-sm text-muted-foreground">
+                                          {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : 'N/A'}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center">
+                                    <Star className="h-4 w-4 text-yellow-500 mr-1" />
+                                    <span className="font-semibold">{review.overallRating}/10</span>
                                   </div>
                                 </div>
+                                <p className="text-muted-foreground ml-11">{review.content}</p>
+                                <div className="flex items-center mt-2 ml-11">
+                                  <HelpfulButton 
+                                    reviewId={review.id} 
+                                    initialHelpfulVotes={review.helpfulVotes || 0}
+                                    variant="ghost"
+                                    size="sm"
+                                  />
+                                </div>
                               </div>
-                              <div className="flex items-center">
-                                <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                                <span className="font-semibold">{review.rating}/10</span>
-                              </div>
-                            </div>
-                            <p className="text-muted-foreground ml-11">{review.comment}</p>
-                            <div className="flex items-center mt-2 ml-11">
-                              <Button variant="ghost" size="sm" className="text-xs">
-                                <ThumbsUp className="h-3 w-3 mr-1" />
-                                Helpful (3)
-                              </Button>
-                            </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
 
-                      <div className="mt-6 p-4 bg-muted/20 rounded-lg text-center">
-                        <p className="text-muted-foreground mb-4">Have you played this game?</p>
-                        <Button className="bg-turquoise hover:bg-turquoise/90">
-                          Write a Review
-                        </Button>
-                      </div>
+                          <GameReviewForm gameId={gameId} onReviewSubmitted={() => {
+                            // Refresh reviews after submission
+                            window.location.reload();
+                          }} />
+                        </>
+                      )}
                     </CardContent>
                   </Card>
                 </TabsContent>
@@ -529,6 +548,181 @@ export default function GameDetail() {
           </div>
         </div>
       </section>
+    </div>
+  );
+}
+
+// Game Review Form Component
+function GameReviewForm({ gameId, onReviewSubmitted }: { gameId?: string; onReviewSubmitted: () => void }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const reviewSchema = z.object({
+    userName: z.string().min(2, "Username must be at least 2 characters"),
+    title: z.string().min(5, "Title must be at least 5 characters"), 
+    content: z.string().min(10, "Review must be at least 10 characters").max(450, "Review cannot exceed 450 characters"),
+    overallRating: z.string(),
+  });
+
+  type GameReviewFormData = z.infer<typeof reviewSchema>;
+
+  const form = useForm<GameReviewFormData>({
+    resolver: zodResolver(reviewSchema),
+    defaultValues: {
+      userName: "",
+      title: "",
+      content: "",
+      overallRating: "8",
+    },
+  });
+
+  const onSubmit = async (data: GameReviewFormData) => {
+    if (!gameId) return;
+    
+    setIsSubmitting(true);
+
+    try {
+      const reviewData = {
+        ...data,
+        overallRating: parseInt(data.overallRating),
+        gameId: gameId,
+      };
+
+      const response = await fetch('/api/reviews/game', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(reviewData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit review');
+      }
+
+      toast({
+        title: "Review submitted successfully!",
+        description: "Thank you for sharing your experience with this game.",
+      });
+
+      // Reset form
+      form.reset();
+      
+      // Invalidate cache and refresh
+      queryClient.invalidateQueries({ queryKey: ['/api/reviews/game', gameId] });
+      onReviewSubmitted();
+
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      toast({
+        title: "Error submitting review",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="mt-8 p-6 bg-muted/20 rounded-lg">
+      <h3 className="text-lg font-semibold mb-4">Write a Review</h3>
+      <p className="text-sm text-muted-foreground mb-6">
+        Share how fair and legitimate this game feels to you. Help other players make informed decisions.
+      </p>
+      
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="userName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Username</FormLabel>
+                <FormControl>
+                  <Input placeholder="Your username" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Review Title</FormLabel>
+                <FormControl>
+                  <Input placeholder="Summarize your game experience" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="overallRating"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Overall Rating</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select rating" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="10">10 - Outstanding</SelectItem>
+                    <SelectItem value="9">9 - Excellent</SelectItem>
+                    <SelectItem value="8">8 - Very Good</SelectItem>
+                    <SelectItem value="7">7 - Good</SelectItem>
+                    <SelectItem value="6">6 - Above Average</SelectItem>
+                    <SelectItem value="5">5 - Average</SelectItem>
+                    <SelectItem value="4">4 - Below Average</SelectItem>
+                    <SelectItem value="3">3 - Poor</SelectItem>
+                    <SelectItem value="2">2 - Very Poor</SelectItem>
+                    <SelectItem value="1">1 - Terrible</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="content"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Your Review</FormLabel>
+                <FormControl>
+                  <Textarea 
+                    placeholder="Share your detailed experience with this game - RTP, fairness, graphics, bonus features, etc. (Max 450 characters)"
+                    className="min-h-[100px]" 
+                    {...field} 
+                  />
+                </FormControl>
+                <div className="text-right text-sm text-muted-foreground">
+                  {field.value?.length || 0}/450
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <Button 
+            type="submit" 
+            className="w-full bg-turquoise hover:bg-turquoise/90"
+            disabled={isSubmitting}
+            data-testid="button-submit-game-review"
+          >
+            {isSubmitting ? "Submitting..." : "Submit Review"}
+          </Button>
+        </form>
+      </Form>
     </div>
   );
 }

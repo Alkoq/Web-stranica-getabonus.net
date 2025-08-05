@@ -15,38 +15,26 @@ interface GameCardProps {
 export function GameCard({ game, onPlayGame }: GameCardProps) {
   console.log('GameCard rendering for:', game.name);
   
-  // Expert rating (mock for now)
-  const expertRating = 8.2;
-  
-  // For testing, just use mock rating first
-  const userRating = 0;
+  // Real game reviews from API
+  const { data: gameReviews = [] } = useQuery<Review[]>({
+    queryKey: ['/api/reviews/game', game.id],
+    queryFn: () => fetch(`/api/reviews/game/${game.id}`).then(res => res.json()),
+  });
 
-  // Calculate combined rating
+  // Calculate combined rating (expert + user reviews)
   const getCombinedRating = () => {
-    if (userRating > 0 && expertRating > 0) {
-      const combined = (expertRating + userRating) / 2;
-      return {
-        rating: combined.toFixed(1),
-        count: gameReviews.length,
-      };
-    } else if (expertRating > 0) {
-      return {
-        rating: expertRating.toFixed(1),
-        count: 0,
-      };
-    } else if (userRating > 0) {
-      return {
-        rating: userRating.toFixed(1),
-        count: gameReviews.length,
-      };
+    const expertRating = 8.2; // Expert rating for games
+    
+    if (gameReviews.length === 0) {
+      return expertRating.toFixed(1);
     }
-    return {
-      rating: "8.2",
-      count: 0,
-    };
-  };
 
-  const ratingData = getCombinedRating();
+    const userRatingSum = gameReviews.reduce((sum, review) => sum + review.overallRating, 0);
+    const averageUserRating = userRatingSum / gameReviews.length;
+    const combinedRating = (expertRating + averageUserRating) / 2;
+
+    return combinedRating.toFixed(1);
+  };
 
   return (
     <Link href={`/game/${game.id}`}>
@@ -83,7 +71,7 @@ export function GameCard({ game, onPlayGame }: GameCardProps) {
             <div className="absolute top-2 left-2" style={{zIndex: 10}}>
               <div className="flex items-center bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full px-2 py-1 shadow-lg">
                 <Star className="h-3 w-3 text-white fill-current mr-1" />
-                <span className="text-xs font-bold">8.2</span>
+                <span className="text-xs font-bold">{getCombinedRating()}</span>
               </div>
             </div>
             <div className="absolute bottom-2 left-2">

@@ -103,11 +103,7 @@ export default function Home() {
       
       if (gameReviews.length === 0) {
         // If no user reviews, show only expert rating
-        return {
-          rating: expertRating.toFixed(1),
-          count: 0,
-          type: 'expert'
-        };
+        return expertRating.toFixed(1);
       }
 
       // Calculate average user rating
@@ -117,18 +113,13 @@ export default function Home() {
       // Combined rating: average of expert rating and user reviews average
       const combinedRating = (expertRating + averageUserRating) / 2;
 
-      return {
-        rating: combinedRating.toFixed(1),
-        count: gameReviews.length,
-        type: 'combined'
-      };
+      return combinedRating.toFixed(1);
     };
 
-    const ratingData = getCombinedRating();
     return (
       <div className="flex items-center bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full px-2 py-1 shadow-lg">
         <Star className="h-3 w-3 text-white fill-current mr-1" />
-        <span className="text-xs font-bold">{ratingData.rating}</span>
+        <span className="text-xs font-bold">{getCombinedRating()}</span>
       </div>
     );
   };
