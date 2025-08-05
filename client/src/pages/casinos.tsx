@@ -47,8 +47,31 @@ export default function Casinos() {
   }, []);
 
   const { data: casinos = [], isLoading, error } = useQuery<Casino[]>({
-    queryKey: ['/api/casinos', { ...filters, search: searchQuery }],
-    queryFn: () => api.getCasinos({ ...filters, search: searchQuery }),
+    queryKey: ['/api/casinos'],
+    queryFn: () => api.getCasinos(),
+  });
+
+  // Fetch all expert and user reviews for calculating ratings
+  const { data: allExpertReviews = [] } = useQuery({
+    queryKey: ['/api/expert-reviews/all'],
+    queryFn: async () => {
+      const reviews = await Promise.all(
+        casinos.map(casino => api.getExpertReviews(casino.id).catch(() => []))
+      );
+      return reviews.flat();
+    },
+    enabled: casinos.length > 0,
+  });
+
+  const { data: allUserReviews = [] } = useQuery({
+    queryKey: ['/api/reviews/all'],
+    queryFn: async () => {
+      const reviews = await Promise.all(
+        casinos.map(casino => api.getReviews(casino.id).catch(() => []))
+      );
+      return reviews.flat();
+    },
+    enabled: casinos.length > 0,
   });
 
   // Search results for suggestions
@@ -77,6 +100,35 @@ export default function Casinos() {
     setCurrentPage(1);
   }, [filters, searchQuery, sortBy]);
 
+  // Helper function to calculate expert rating for a casino
+  const getExpertRating = (casinoId: string) => {
+    const casinoExpertReviews = allExpertReviews.filter((review: any) => review.casinoId === casinoId);
+    if (casinoExpertReviews.length === 0) return 0;
+    return casinoExpertReviews.reduce((acc: number, review: any) => acc + parseFloat(review.overallRating), 0) / casinoExpertReviews.length;
+  };
+
+  // Helper function to calculate user rating for a casino
+  const getUserRating = (casinoId: string) => {
+    const casinoUserReviews = allUserReviews.filter((review: any) => review.casinoId === casinoId);
+    if (casinoUserReviews.length === 0) return 0;
+    return casinoUserReviews.reduce((acc: number, review: any) => acc + review.overallRating, 0) / casinoUserReviews.length;
+  };
+
+  // Helper function to calculate safety index
+  const getSafetyIndex = (casinoId: string) => {
+    const expertRating = getExpertRating(casinoId);
+    const userRating = getUserRating(casinoId);
+    
+    if (expertRating > 0 && userRating > 0) {
+      return (expertRating + userRating) / 2;
+    } else if (expertRating > 0) {
+      return expertRating;
+    } else if (userRating > 0) {
+      return userRating;
+    }
+    return parseFloat(casino.safetyIndex || '0');
+  };
+
   // Apply filters first, then sort
   const filteredCasinos = casinos.filter(casino => {
     // Search query filter
@@ -94,19 +146,19 @@ export default function Casinos() {
 
     // Safety Index filter
     if (filters.minSafetyIndex) {
-      const casinoSafety = parseFloat(casino.safetyIndex || '0');
+      const casinoSafety = getSafetyIndex(casino.id);
       if (casinoSafety < filters.minSafetyIndex) return false;
     }
 
     // Expert Rating filter
     if (filters.minExpertRating) {
-      const expertRating = parseFloat(casino.expertRating || '0');
+      const expertRating = getExpertRating(casino.id);
       if (expertRating < filters.minExpertRating) return false;
     }
 
     // User Rating filter
     if (filters.minUserRating) {
-      const userRating = parseFloat(casino.userRating || '0');
+      const userRating = getUserRating(casino.id);
       if (userRating < filters.minUserRating) return false;
     }
 
@@ -321,6 +373,8 @@ export default function Casinos() {
               onFiltersChange={handleFiltersChange}
               onClearFilters={handleClearFilters}
               casinos={casinos}
+              expertReviews={allExpertReviews}
+              userReviews={allUserReviews}
             />
           </aside>
 
@@ -385,6 +439,8 @@ export default function Casinos() {
                   onFiltersChange={handleFiltersChange}
                   onClearFilters={handleClearFilters}
                   casinos={casinos}
+                  expertReviews={allExpertReviews}
+                  userReviews={allUserReviews}
                 />
               </div>
             )}

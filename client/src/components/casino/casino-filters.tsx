@@ -11,9 +11,11 @@ interface CasinoFiltersProps {
   onFiltersChange: (filters: CasinoFilters) => void;
   onClearFilters: () => void;
   casinos?: any[]; // For counting filter options
+  expertReviews?: any[];
+  userReviews?: any[];
 }
 
-export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilters, casinos = [] }: CasinoFiltersProps) {
+export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilters, casinos = [], expertReviews = [], userReviews = [] }: CasinoFiltersProps) {
   const [localFilters, setLocalFilters] = useState<CasinoFilters>(filters);
 
   const handleFilterChange = (key: keyof CasinoFilters, value: any) => {
@@ -170,22 +172,30 @@ export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilter
                 label: "Excellent (9.0+)", 
                 value: 9.0, 
                 count: casinos.filter(c => {
-                  // Count casinos with expert rating 9.0+
-                  return c.expertRating && parseFloat(c.expertRating) >= 9.0;
+                  const casinoExpertReviews = expertReviews.filter((r: any) => r.casinoId === c.id);
+                  if (casinoExpertReviews.length === 0) return false;
+                  const avgRating = casinoExpertReviews.reduce((acc: number, r: any) => acc + parseFloat(r.overallRating), 0) / casinoExpertReviews.length;
+                  return avgRating >= 9.0;
                 }).length 
               },
               { 
                 label: "Very Good (8.0+)", 
                 value: 8.0, 
                 count: casinos.filter(c => {
-                  return c.expertRating && parseFloat(c.expertRating) >= 8.0;
+                  const casinoExpertReviews = expertReviews.filter((r: any) => r.casinoId === c.id);
+                  if (casinoExpertReviews.length === 0) return false;
+                  const avgRating = casinoExpertReviews.reduce((acc: number, r: any) => acc + parseFloat(r.overallRating), 0) / casinoExpertReviews.length;
+                  return avgRating >= 8.0;
                 }).length 
               },
               { 
                 label: "Good (7.0+)", 
                 value: 7.0, 
                 count: casinos.filter(c => {
-                  return c.expertRating && parseFloat(c.expertRating) >= 7.0;
+                  const casinoExpertReviews = expertReviews.filter((r: any) => r.casinoId === c.id);
+                  if (casinoExpertReviews.length === 0) return false;
+                  const avgRating = casinoExpertReviews.reduce((acc: number, r: any) => acc + parseFloat(r.overallRating), 0) / casinoExpertReviews.length;
+                  return avgRating >= 7.0;
                 }).length 
               },
             ].map((option) => (
@@ -216,21 +226,30 @@ export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilter
                 label: "Excellent (9.0+)", 
                 value: 9.0, 
                 count: casinos.filter(c => {
-                  return c.userRating && parseFloat(c.userRating) >= 9.0;
+                  const casinoUserReviews = userReviews.filter((r: any) => r.casinoId === c.id);
+                  if (casinoUserReviews.length === 0) return false;
+                  const avgRating = casinoUserReviews.reduce((acc: number, r: any) => acc + r.overallRating, 0) / casinoUserReviews.length;
+                  return avgRating >= 9.0;
                 }).length 
               },
               { 
                 label: "Very Good (8.0+)", 
                 value: 8.0, 
                 count: casinos.filter(c => {
-                  return c.userRating && parseFloat(c.userRating) >= 8.0;
+                  const casinoUserReviews = userReviews.filter((r: any) => r.casinoId === c.id);
+                  if (casinoUserReviews.length === 0) return false;
+                  const avgRating = casinoUserReviews.reduce((acc: number, r: any) => acc + r.overallRating, 0) / casinoUserReviews.length;
+                  return avgRating >= 8.0;
                 }).length 
               },
               { 
                 label: "Good (7.0+)", 
                 value: 7.0, 
                 count: casinos.filter(c => {
-                  return c.userRating && parseFloat(c.userRating) >= 7.0;
+                  const casinoUserReviews = userReviews.filter((r: any) => r.casinoId === c.id);
+                  if (casinoUserReviews.length === 0) return false;
+                  const avgRating = casinoUserReviews.reduce((acc: number, r: any) => acc + r.overallRating, 0) / casinoUserReviews.length;
+                  return avgRating >= 7.0;
                 }).length 
               },
             ].map((option) => (
