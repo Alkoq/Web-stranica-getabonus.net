@@ -1,5 +1,5 @@
 import { sql, relations } from "drizzle-orm";
-import { pgTable, text, varchar, integer, decimal, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, decimal, boolean, timestamp, jsonb, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -223,6 +223,17 @@ export const gamesRelations = relations(games, ({ many }) => ({
   reviews: many(reviews),
 }));
 
+// Table to track who voted helpful on which review (prevent multiple votes)
+export const helpfulVotes = pgTable("helpful_votes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  reviewId: varchar("review_id").references(() => reviews.id).notNull(),
+  voterIdentifier: varchar("voter_identifier").notNull(), // IP address or session ID
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  // Unique constraint to prevent duplicate votes from same user on same review
+  index("unique_review_voter").on(table.reviewId, table.voterIdentifier),
+]);
+
 export const casinoGamesRelations = relations(casinoGames, ({ one }) => ({
   casino: one(casinos, {
     fields: [casinoGames.casinoId],
@@ -292,6 +303,12 @@ export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
 export const insertNewsletterSubscriberSchema = createInsertSchema(newsletterSubscribers).omit({
   id: true,
   subscribedAt: true,
+});
+
+export const insertHelpfulVoteSchema = createInsertSchema(helpfulVotes).omit({
+  id: true,
+  createdAt: true,
+});
 });
 
 export const insertComparisonSchema = createInsertSchema(comparisons).omit({
