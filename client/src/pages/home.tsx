@@ -527,10 +527,10 @@ export default function Home() {
           border: '1px solid hsl(24, 95%, 53%, 0.2)',
           boxShadow: '0 0 20px hsl(24, 95%, 53%, 0.1)',
         }}>
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
             <div>
               <h2 
-                className="text-3xl font-bold mb-2"
+                className="text-2xl sm:text-3xl font-bold mb-2"
                 style={{
                   color: 'hsl(24, 95%, 53%)',
                   textShadow: '0 0 10px hsl(24, 95%, 53%, 0.3)'
@@ -541,8 +541,9 @@ export default function Home() {
               <p className="text-gray-600 dark:text-gray-300">Newest additions to our platform</p>
             </div>
             <Link href="/casinos?sort=newest">
-              <Button variant="outline" className="flex items-center gap-2" data-testid="link-see-all-latest-casinos">
-                See All Latest Casinos
+              <Button variant="outline" className="flex items-center gap-2 text-sm whitespace-nowrap" data-testid="link-see-all-latest-casinos">
+                <span className="hidden sm:inline">See All Latest Casinos</span>
+                <span className="sm:hidden">See All</span>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </Link>
@@ -575,10 +576,10 @@ export default function Home() {
           border: '1px solid hsl(173, 58%, 39%, 0.2)',
           boxShadow: '0 0 20px hsl(173, 58%, 39%, 0.1), 0 0 40px hsl(24, 95%, 53%, 0.05)',
         }}>
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
             <div>
               <h2 
-                className="text-3xl font-bold mb-2"
+                className="text-2xl sm:text-3xl font-bold mb-2"
                 style={{
                   background: 'linear-gradient(45deg, hsl(173, 58%, 39%), hsl(24, 95%, 53%))',
                   WebkitBackgroundClip: 'text',
@@ -591,8 +592,9 @@ export default function Home() {
               <p className="text-gray-600 dark:text-gray-300">Best bonus offers available right now</p>
             </div>
             <Link href="/bonuses?sort=value">
-              <Button variant="outline" className="flex items-center gap-2" data-testid="link-see-all-top-bonuses">
-                See All Top Bonuses
+              <Button variant="outline" className="flex items-center gap-2 text-sm whitespace-nowrap" data-testid="link-see-all-top-bonuses">
+                <span className="hidden sm:inline">See All Top Bonuses</span>
+                <span className="sm:hidden">See All</span>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </Link>
@@ -625,10 +627,10 @@ export default function Home() {
           border: '1px solid hsl(24, 95%, 53%, 0.2)',
           boxShadow: '0 0 20px hsl(24, 95%, 53%, 0.1)',
         }}>
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
             <div>
               <h2 
-                className="text-3xl font-bold mb-2"
+                className="text-2xl sm:text-3xl font-bold mb-2"
                 style={{
                   color: 'hsl(24, 95%, 53%)',
                   textShadow: '0 0 10px hsl(24, 95%, 53%, 0.3)'
@@ -639,8 +641,9 @@ export default function Home() {
               <p className="text-gray-600 dark:text-gray-300">Newest bonus offers just added</p>
             </div>
             <Link href="/bonuses?sort=newest">
-              <Button variant="outline" className="flex items-center gap-2" data-testid="link-see-all-latest-bonuses">
-                See All Latest Bonuses
+              <Button variant="outline" className="flex items-center gap-2 text-sm whitespace-nowrap" data-testid="link-see-all-latest-bonuses">
+                <span className="hidden sm:inline">See All Latest Bonuses</span>
+                <span className="sm:hidden">See All</span>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </Link>
@@ -673,10 +676,10 @@ export default function Home() {
           border: '1px solid hsl(24, 95%, 53%, 0.2)',
           boxShadow: '0 0 20px hsl(24, 95%, 53%, 0.1), 0 0 40px hsl(173, 58%, 39%, 0.05)',
         }}>
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
             <div>
               <h2 
-                className="text-3xl font-bold mb-2"
+                className="text-2xl sm:text-3xl font-bold mb-2"
                 style={{
                   background: 'linear-gradient(45deg, hsl(24, 95%, 53%), hsl(173, 58%, 39%))',
                   WebkitBackgroundClip: 'text',
@@ -689,8 +692,9 @@ export default function Home() {
               <p className="text-gray-600 dark:text-gray-300">Most popular games this week</p>
             </div>
             <Link href="/games">
-              <Button variant="outline" className="flex items-center gap-2" data-testid="link-see-all-hot-games">
-                See All Games
+              <Button variant="outline" className="flex items-center gap-2 text-sm whitespace-nowrap" data-testid="link-see-all-hot-games">
+                <span className="hidden sm:inline">See All Games</span>
+                <span className="sm:hidden">See All</span>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </Link>
@@ -847,14 +851,15 @@ export default function Home() {
 
         {/* Latest News */}
         <section>
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Latest News</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Latest News</h2>
               <p className="text-gray-600 dark:text-gray-300">Stay updated with casino industry news</p>
             </div>
             <Link href="/blog">
-              <Button variant="outline" className="flex items-center gap-2" data-testid="link-see-all-news">
-                See All News
+              <Button variant="outline" className="flex items-center gap-2 text-sm whitespace-nowrap" data-testid="link-see-all-news">
+                <span className="hidden sm:inline">See All News</span>
+                <span className="sm:hidden">See All</span>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </Link>
