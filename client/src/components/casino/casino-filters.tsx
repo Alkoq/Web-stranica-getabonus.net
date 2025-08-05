@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +17,11 @@ interface CasinoFiltersProps {
 
 export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilters, casinos = [], expertReviews = [], userReviews = [] }: CasinoFiltersProps) {
   const [localFilters, setLocalFilters] = useState<CasinoFilters>(filters);
+
+  // Update local filters when external filters change (e.g., when cleared)
+  useEffect(() => {
+    setLocalFilters(filters);
+  }, [filters]);
 
   const handleFilterChange = (key: keyof CasinoFilters, value: any) => {
     const updatedFilters = { ...localFilters, [key]: value };
