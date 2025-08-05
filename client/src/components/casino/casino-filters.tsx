@@ -85,58 +85,32 @@ export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilter
     },
   ];
 
-  const licenseOptions = [
-    "Malta Gaming Authority",
-    "Curacao eGaming", 
-    "UK Gambling Commission",
-    "Gibraltar Gambling Commission",
-  ];
+  // Generate dynamic filter options from actual casino data
+  const licenseOptions = Array.from(new Set(
+    casinos.map(c => c.license).filter(Boolean)
+  )).sort();
 
-  const paymentOptions = [
-    "Bitcoin",
-    "Ethereum", 
-    "Litecoin",
-    "Dogecoin",
-    "Credit Cards",
-    "PayPal",
-    "Skrill",
-    "Neteller",
-    "Bank Transfer",
-    "Crypto",
-  ];
+  const paymentOptions = Array.from(new Set(
+    casinos.flatMap(c => c.paymentMethods || [])
+  )).sort();
 
-  const featureOptions = [
-    "Crypto Casino",
-    "Provably Fair",
-    "Mobile Optimized",
-    "VIP Program",
-    "Live Casino",
-    "Sports Betting",
-    "24/7 Support",
-    "Fast Withdrawal",
-    "No KYC",
-  ];
+  const featureOptions = Array.from(new Set(
+    casinos.flatMap(c => c.features || [])
+  )).sort();
 
-  const gameProviderOptions = [
-    "NetEnt",
-    "Microgaming", 
-    "Pragmatic Play",
-    "Evolution Gaming",
-    "Play'n GO",
-    "Quickspin",
-    "Yggdrasil",
-    "Red Tiger",
-    "Push Gaming",
-  ];
+  const gameProviderOptions = Array.from(new Set(
+    casinos.flatMap(c => c.gameProviders || [])
+  )).sort();
 
-  const bonusTypeOptions = [
-    "Welcome Bonus",
-    "No Deposit",
-    "Free Spins",
-    "Reload Bonus",
-    "Cashback",
-    "VIP Bonus",
-  ];
+  // Get bonus types from available bonuses
+  const bonusTypeOptions = Array.from(new Set(
+    bonuses?.map((b: any) => b.type).filter(Boolean) || []
+  )).sort();
+
+  // Generate dynamic established year options from actual casino data
+  const establishedYearOptions = Array.from(new Set(
+    casinos.map(c => c.establishedYear).filter(Boolean)
+  )).sort((a, b) => b - a); // Sort in descending order (newest first)
 
   const getActiveFiltersCount = () => {
     let count = 0;
@@ -300,112 +274,154 @@ export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilter
         </div>
 
         {/* License Filter */}
-        <div>
-          <h4 className="font-semibold text-foreground mb-3">License</h4>
-          <div className="space-y-2">
-            {licenseOptions.map((license) => (
-              <label key={license} className="flex items-center space-x-2 cursor-pointer">
-                <Checkbox
-                  checked={localFilters.license === license}
-                  onCheckedChange={(checked) => {
-                    handleFilterChange('license', checked ? license : undefined);
-                  }}
-                />
-                <span className="text-sm">{license}</span>
-              </label>
-            ))}
+        {licenseOptions.length > 0 && (
+          <div>
+            <h4 className="font-semibold text-foreground mb-3">License</h4>
+            <div className="space-y-2">
+              {licenseOptions.map((license) => (
+                <label key={license} className="flex items-center justify-between cursor-pointer">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={localFilters.license === license}
+                      onCheckedChange={(checked) => {
+                        handleFilterChange('license', checked ? license : undefined);
+                      }}
+                    />
+                    <span className="text-sm">{license}</span>
+                  </div>
+                  <Badge variant="secondary" className="text-xs">
+                    {casinos.filter(c => c.license === license).length}
+                  </Badge>
+                </label>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Payment Methods */}
-        <div>
-          <h4 className="font-semibold text-foreground mb-3">Payment Methods</h4>
-          <div className="space-y-2">
-            {paymentOptions.map((method) => (
-              <label key={method} className="flex items-center space-x-2 cursor-pointer">
-                <Checkbox
-                  checked={localFilters.paymentMethods?.includes(method) || false}
-                  onCheckedChange={(checked) => {
-                    handleArrayFilterChange('paymentMethods', method, !!checked);
-                  }}
-                />
-                <span className="text-sm">{method}</span>
-              </label>
-            ))}
+        {paymentOptions.length > 0 && (
+          <div>
+            <h4 className="font-semibold text-foreground mb-3">Payment Methods</h4>
+            <div className="space-y-2">
+              {paymentOptions.map((method) => (
+                <label key={method} className="flex items-center justify-between cursor-pointer">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={localFilters.paymentMethods?.includes(method) || false}
+                      onCheckedChange={(checked) => {
+                        handleArrayFilterChange('paymentMethods', method, !!checked);
+                      }}
+                    />
+                    <span className="text-sm">{method}</span>
+                  </div>
+                  <Badge variant="secondary" className="text-xs">
+                    {casinos.filter(c => c.paymentMethods?.includes(method)).length}
+                  </Badge>
+                </label>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Features */}
-        <div>
-          <h4 className="font-semibold text-foreground mb-3">Features</h4>
-          <div className="space-y-2">
-            {featureOptions.map((feature) => (
-              <label key={feature} className="flex items-center space-x-2 cursor-pointer">
-                <Checkbox
-                  checked={localFilters.features?.includes(feature) || false}
-                  onCheckedChange={(checked) => {
-                    handleArrayFilterChange('features', feature, !!checked);
-                  }}
-                />
-                <span className="text-sm">{feature}</span>
-              </label>
-            ))}
+        {featureOptions.length > 0 && (
+          <div>
+            <h4 className="font-semibold text-foreground mb-3">Features</h4>
+            <div className="space-y-2">
+              {featureOptions.map((feature) => (
+                <label key={feature} className="flex items-center justify-between cursor-pointer">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={localFilters.features?.includes(feature) || false}
+                      onCheckedChange={(checked) => {
+                        handleArrayFilterChange('features', feature, !!checked);
+                      }}
+                    />
+                    <span className="text-sm">{feature}</span>
+                  </div>
+                  <Badge variant="secondary" className="text-xs">
+                    {casinos.filter(c => c.features?.includes(feature)).length}
+                  </Badge>
+                </label>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Game Providers */}
-        <div>
-          <h4 className="font-semibold text-foreground mb-3">Game Providers</h4>
-          <div className="space-y-2">
-            {gameProviderOptions.map((provider) => (
-              <label key={provider} className="flex items-center space-x-2 cursor-pointer">
-                <Checkbox
-                  checked={localFilters.gameProviders?.includes(provider) || false}
-                  onCheckedChange={(checked) => {
-                    handleArrayFilterChange('gameProviders', provider, !!checked);
-                  }}
-                />
-                <span className="text-sm">{provider}</span>
-              </label>
-            ))}
+        {gameProviderOptions.length > 0 && (
+          <div>
+            <h4 className="font-semibold text-foreground mb-3">Game Providers</h4>
+            <div className="space-y-2">
+              {gameProviderOptions.map((provider) => (
+                <label key={provider} className="flex items-center justify-between cursor-pointer">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={localFilters.gameProviders?.includes(provider) || false}
+                      onCheckedChange={(checked) => {
+                        handleArrayFilterChange('gameProviders', provider, !!checked);
+                      }}
+                    />
+                    <span className="text-sm">{provider}</span>
+                  </div>
+                  <Badge variant="secondary" className="text-xs">
+                    {casinos.filter(c => c.gameProviders?.includes(provider)).length}
+                  </Badge>
+                </label>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Bonus Type */}
-        <div>
-          <h4 className="font-semibold text-foreground mb-3">Bonus Type</h4>
-          <div className="space-y-2">
-            {bonusTypeOptions.map((bonusType) => (
-              <label key={bonusType} className="flex items-center space-x-2 cursor-pointer">
-                <Checkbox
-                  checked={localFilters.bonusType === bonusType}
-                  onCheckedChange={(checked) => {
-                    handleFilterChange('bonusType', checked ? bonusType : undefined);
-                  }}
-                />
-                <span className="text-sm">{bonusType}</span>
-              </label>
-            ))}
+        {bonusTypeOptions.length > 0 && (
+          <div>
+            <h4 className="font-semibold text-foreground mb-3">Bonus Type</h4>
+            <div className="space-y-2">
+              {bonusTypeOptions.map((bonusType) => (
+                <label key={bonusType} className="flex items-center justify-between cursor-pointer">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={localFilters.bonusType === bonusType}
+                      onCheckedChange={(checked) => {
+                        handleFilterChange('bonusType', checked ? bonusType : undefined);
+                      }}
+                    />
+                    <span className="text-sm">{bonusType}</span>
+                  </div>
+                  <Badge variant="secondary" className="text-xs">
+                    {bonuses?.filter((b: any) => b.type === bonusType).length || 0}
+                  </Badge>
+                </label>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Established Year */}
-        <div>
-          <h4 className="font-semibold text-foreground mb-3">Established</h4>
-          <div className="space-y-2">
-            {[2020, 2015, 2010, 2005].map((year) => (
-              <label key={year} className="flex items-center space-x-2 cursor-pointer">
-                <Checkbox
-                  checked={localFilters.establishedYear === year}
-                  onCheckedChange={(checked) => {
-                    handleFilterChange('establishedYear', checked ? year : undefined);
-                  }}
-                />
-                <span className="text-sm">{year}+ and newer</span>
-              </label>
-            ))}
+        {establishedYearOptions.length > 0 && (
+          <div>
+            <h4 className="font-semibold text-foreground mb-3">Established</h4>
+            <div className="space-y-2">
+              {establishedYearOptions.map((year) => (
+                <label key={year} className="flex items-center justify-between cursor-pointer">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={localFilters.establishedYear === year}
+                      onCheckedChange={(checked) => {
+                        handleFilterChange('establishedYear', checked ? year : undefined);
+                      }}
+                    />
+                    <span className="text-sm">{year}</span>
+                  </div>
+                  <Badge variant="secondary" className="text-xs">
+                    {casinos.filter(c => c.establishedYear === year).length}
+                  </Badge>
+                </label>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );
