@@ -98,6 +98,18 @@ export default function Casinos() {
       if (casinoSafety < filters.minSafetyIndex) return false;
     }
 
+    // Expert Rating filter
+    if (filters.minExpertRating) {
+      const expertRating = parseFloat(casino.expertRating || '0');
+      if (expertRating < filters.minExpertRating) return false;
+    }
+
+    // User Rating filter
+    if (filters.minUserRating) {
+      const userRating = parseFloat(casino.userRating || '0');
+      if (userRating < filters.minUserRating) return false;
+    }
+
     // License filter
     if (filters.license && casino.license !== filters.license) {
       return false;

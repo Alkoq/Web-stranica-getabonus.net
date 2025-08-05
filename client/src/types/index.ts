@@ -1,5 +1,7 @@
 export interface CasinoFilters {
   minSafetyIndex?: number;
+  minExpertRating?: number;
+  minUserRating?: number;
   license?: string;
   paymentMethods?: string[];
   features?: string[];

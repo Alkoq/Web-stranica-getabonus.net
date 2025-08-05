@@ -111,6 +111,8 @@ export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilter
   const getActiveFiltersCount = () => {
     let count = 0;
     if (localFilters.minSafetyIndex) count++;
+    if (localFilters.minExpertRating) count++;
+    if (localFilters.minUserRating) count++;
     if (localFilters.license) count++;
     if (localFilters.paymentMethods?.length) count++;
     if (localFilters.features?.length) count++;
@@ -138,7 +140,7 @@ export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilter
       <CardContent className="space-y-6">
         {/* Safety Index Filter */}
         <div>
-          <h4 className="font-semibold text-foreground mb-3">Safety Index</h4>
+          <h4 className="font-semibold text-foreground mb-3">Safety Index (Overall)</h4>
           <div className="space-y-2">
             {safetyIndexOptions.map((option) => (
               <label key={option.value} className="flex items-center justify-between cursor-pointer">
@@ -147,6 +149,97 @@ export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilter
                     checked={localFilters.minSafetyIndex === option.value}
                     onCheckedChange={(checked) => {
                       handleFilterChange('minSafetyIndex', checked ? option.value : undefined);
+                    }}
+                  />
+                  <span className="text-sm">{option.label}</span>
+                </div>
+                <Badge variant="secondary" className="text-xs">
+                  {option.count}
+                </Badge>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Expert Rating Filter */}
+        <div>
+          <h4 className="font-semibold text-foreground mb-3">Expert Rating</h4>
+          <div className="space-y-2">
+            {[
+              { 
+                label: "Excellent (9.0+)", 
+                value: 9.0, 
+                count: casinos.filter(c => {
+                  // Count casinos with expert rating 9.0+
+                  return c.expertRating && parseFloat(c.expertRating) >= 9.0;
+                }).length 
+              },
+              { 
+                label: "Very Good (8.0+)", 
+                value: 8.0, 
+                count: casinos.filter(c => {
+                  return c.expertRating && parseFloat(c.expertRating) >= 8.0;
+                }).length 
+              },
+              { 
+                label: "Good (7.0+)", 
+                value: 7.0, 
+                count: casinos.filter(c => {
+                  return c.expertRating && parseFloat(c.expertRating) >= 7.0;
+                }).length 
+              },
+            ].map((option) => (
+              <label key={option.value} className="flex items-center justify-between cursor-pointer">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    checked={localFilters.minExpertRating === option.value}
+                    onCheckedChange={(checked) => {
+                      handleFilterChange('minExpertRating', checked ? option.value : undefined);
+                    }}
+                  />
+                  <span className="text-sm">{option.label}</span>
+                </div>
+                <Badge variant="secondary" className="text-xs">
+                  {option.count}
+                </Badge>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* User Rating Filter */}
+        <div>
+          <h4 className="font-semibold text-foreground mb-3">User Rating</h4>
+          <div className="space-y-2">
+            {[
+              { 
+                label: "Excellent (9.0+)", 
+                value: 9.0, 
+                count: casinos.filter(c => {
+                  return c.userRating && parseFloat(c.userRating) >= 9.0;
+                }).length 
+              },
+              { 
+                label: "Very Good (8.0+)", 
+                value: 8.0, 
+                count: casinos.filter(c => {
+                  return c.userRating && parseFloat(c.userRating) >= 8.0;
+                }).length 
+              },
+              { 
+                label: "Good (7.0+)", 
+                value: 7.0, 
+                count: casinos.filter(c => {
+                  return c.userRating && parseFloat(c.userRating) >= 7.0;
+                }).length 
+              },
+            ].map((option) => (
+              <label key={option.value} className="flex items-center justify-between cursor-pointer">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    checked={localFilters.minUserRating === option.value}
+                    onCheckedChange={(checked) => {
+                      handleFilterChange('minUserRating', checked ? option.value : undefined);
                     }}
                   />
                   <span className="text-sm">{option.label}</span>
