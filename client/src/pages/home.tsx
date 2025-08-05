@@ -710,8 +710,9 @@ export default function Home() {
             <CarouselContent className="-ml-2 md:-ml-4">
               {hotGames.map((game) => (
                 <CarouselItem key={game.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                  <Card 
-                    className="transition-all duration-300 h-full carousel-card relative overflow-hidden"
+                  <Link href={`/game/${game.id}`}>
+                    <Card 
+                      className="transition-all duration-300 h-full carousel-card relative overflow-hidden cursor-pointer"
                     style={{
                       background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6))',
                       border: '2px solid hsl(173, 58%, 39%, 0.3)',
@@ -755,6 +756,7 @@ export default function Home() {
                       </div>
                     </CardContent>
                   </Card>
+                  </Link>
                 </CarouselItem>
               ))}
             </CarouselContent>
@@ -789,7 +791,8 @@ export default function Home() {
             <CarouselContent className="-ml-2 md:-ml-4">
               {hotGames.slice().reverse().map((game) => (
                 <CarouselItem key={game.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                  <Card className="hover:shadow-lg transition-shadow h-full carousel-card">
+                  <Link href={`/game/${game.id}`}>
+                    <Card className="hover:shadow-lg transition-shadow h-full carousel-card cursor-pointer">
                     <CardContent className="p-4 flex flex-col h-full">
                       <div className="aspect-[4/3] bg-gradient-to-br from-blue-400 to-green-400 rounded-lg mb-4 flex items-center justify-center relative">
                         <Gamepad2 className="h-8 w-8 md:h-12 md:w-12 text-white" />
@@ -823,6 +826,7 @@ export default function Home() {
                       </div>
                     </CardContent>
                   </Card>
+                  </Link>
                 </CarouselItem>
               ))}
             </CarouselContent>
