@@ -147,12 +147,12 @@ export default function CasinoDetailPage() {
     
     userReviews.forEach(review => {
       totals.overall += review.overallRating;
-      totals.bonuses += review.bonusesRating;
-      totals.design += review.designRating;
-      totals.payouts += review.payoutsRating;
-      totals.customerSupport += review.customerSupportRating;
-      totals.gameSelection += review.gameSelectionRating;
-      totals.mobileExperience += review.mobileExperienceRating;
+      totals.bonuses += review.bonusesRating || 0;
+      totals.design += review.designRating || 0;
+      totals.payouts += review.payoutsRating || 0;
+      totals.customerSupport += review.customerSupportRating || 0;
+      totals.gameSelection += review.gameSelectionRating || 0;
+      totals.mobileExperience += review.mobileExperienceRating || 0;
     });
     
     const count = userReviews.length;

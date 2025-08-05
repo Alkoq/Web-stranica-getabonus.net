@@ -124,9 +124,9 @@ export default function Bonuses() {
                   <BonusCard
                     key={bonus.id}
                     bonus={bonus}
-                    casinoName={casino?.name}
-                    casinoLogo={casino?.logoUrl}
-                    affiliateUrl={casino?.affiliateUrl}
+                    casinoName={casino?.name || undefined}
+                    casinoLogo={casino?.logoUrl || undefined}
+                    affiliateUrl={casino?.affiliateUrl || undefined}
                   />
                 );
               })}
@@ -207,9 +207,9 @@ export default function Bonuses() {
                     <BonusCard
                       key={bonus.id}
                       bonus={bonus}
-                      casinoName={casino?.name}
-                      casinoLogo={casino?.logoUrl}
-                      affiliateUrl={casino?.affiliateUrl}
+                      casinoName={casino?.name || undefined}
+                      casinoLogo={casino?.logoUrl || undefined}
+                      affiliateUrl={casino?.affiliateUrl || undefined}
                     />
                   );
                 })}
