@@ -25,9 +25,16 @@ export function HelpfulButton({
 
   const helpfulMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest(`/api/reviews/${reviewId}/helpful`, {
+      const response = await fetch(`/api/reviews/${reviewId}/helpful`, {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
+      if (!response.ok) {
+        throw new Error("Failed to vote");
+      }
+      return await response.json();
     },
     onSuccess: () => {
       setVotes(prev => prev + 1);
