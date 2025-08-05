@@ -1065,9 +1065,11 @@ export default function CasinoDetailPage() {
                   Learn more about crypto casino strategies and tips
                 </CardDescription>
               </div>
-              <Button variant="outline" className="text-orange border-orange hover:bg-orange hover:text-white">
-                View All Articles
-              </Button>
+              <Link href="/blog">
+                <Button variant="outline" className="text-orange border-orange hover:bg-orange hover:text-white">
+                  View All Articles
+                </Button>
+              </Link>
             </div>
           </CardHeader>
           <CardContent>
@@ -1093,9 +1095,11 @@ export default function CasinoDetailPage() {
                       <p className="text-muted-foreground text-sm line-clamp-2">
                         {article.excerpt}
                       </p>
-                      <Button variant="ghost" className="mt-3 p-0 h-auto text-turquoise hover:text-turquoise/80">
-                        Read More <ExternalLink className="h-3 w-3 ml-1" />
-                      </Button>
+                      <Link href={`/blog/${article.slug}`}>
+                        <Button variant="ghost" className="mt-3 p-0 h-auto text-turquoise hover:text-turquoise/80">
+                          Read More <ExternalLink className="h-3 w-3 ml-1" />
+                        </Button>
+                      </Link>
                     </CardContent>
                   </Card>
                 ))}
@@ -1117,9 +1121,11 @@ export default function CasinoDetailPage() {
                   Top games available at this casino
                 </CardDescription>
               </div>
-              <Button variant="outline" className="text-turquoise border-turquoise hover:bg-turquoise hover:text-white">
-                View All Games
-              </Button>
+              <Link href="/games">
+                <Button variant="outline" className="text-turquoise border-turquoise hover:bg-turquoise hover:text-white">
+                  View All Games
+                </Button>
+              </Link>
             </div>
           </CardHeader>
           <CardContent>
@@ -1153,9 +1159,11 @@ export default function CasinoDetailPage() {
                         <Button variant="outline" size="sm" className="flex-1">
                           Demo
                         </Button>
-                        <Button size="sm" className="flex-1 bg-turquoise hover:bg-turquoise/90">
-                          Play
-                        </Button>
+                        <Link href={`/game/${game.id}`} className="flex-1">
+                          <Button size="sm" className="w-full bg-turquoise hover:bg-turquoise/90">
+                            Play
+                          </Button>
+                        </Link>
                       </div>
                     </CardContent>
                   </Card>

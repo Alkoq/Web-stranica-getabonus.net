@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Clock, Gift } from "lucide-react";
+import { Link } from "wouter";
 import type { Bonus } from "@shared/schema";
 
 interface BonusCardProps {
@@ -79,8 +80,9 @@ export function BonusCard({ bonus, casinoName, casinoLogo, affiliateUrl }: Bonus
   };
 
   return (
-    <div 
-      className="text-white rounded-xl p-6 transition-all duration-300 h-full flex flex-col relative overflow-hidden group"
+    <Link href={`/bonus/${bonus.id}`}>
+      <div 
+        className="text-white rounded-xl p-6 transition-all duration-300 h-full flex flex-col relative overflow-hidden group cursor-pointer"
       style={{
         background: `linear-gradient(135deg, ${bonus.type === 'no_deposit' ? 'hsl(24, 95%, 53%)' : bonus.type === 'welcome' ? 'hsl(173, 58%, 39%)' : 'hsl(173, 58%, 39%)'}, ${bonus.type === 'no_deposit' ? 'hsl(24, 95%, 43%)' : bonus.type === 'welcome' ? 'hsl(173, 58%, 29%)' : 'hsl(173, 58%, 29%)'})`,
         border: `2px solid ${bonus.type === 'no_deposit' ? 'hsl(24, 95%, 53%)' : 'hsl(173, 58%, 39%)'}`,
@@ -150,13 +152,14 @@ export function BonusCard({ bonus, casinoName, casinoLogo, affiliateUrl }: Bonus
           </div>
         </div>
         <Button 
-          asChild
           className="bg-white text-current hover:bg-gray-100 transition-colors"
+          onClick={(e: React.MouseEvent) => {
+            e.stopPropagation();
+            window.open(affiliateUrl || '#', '_blank');
+          }}
         >
-          <a href={affiliateUrl || '#'} target="_blank" rel="noopener noreferrer">
-            Claim Now
-            <ExternalLink className="ml-2 h-4 w-4" />
-          </a>
+          Claim Now
+          <ExternalLink className="ml-2 h-4 w-4" />
         </Button>
       </div>
 
@@ -165,6 +168,7 @@ export function BonusCard({ bonus, casinoName, casinoLogo, affiliateUrl }: Bonus
           <p className="text-xs text-white/80">{bonus.terms}</p>
         </div>
       )}
-    </div>
+      </div>
+    </Link>
   );
 }

@@ -18,6 +18,9 @@ import Blog from "@/pages/blog";
 import Login from "@/pages/login";
 import AdminPanel from "@/pages/admin-panel";
 import CasinoDetail from "@/pages/casino-detail";
+import BonusDetail from "@/pages/bonus-detail";
+import GameDetail from "@/pages/game-detail";
+import BlogPostDetail from "@/pages/blog-post";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -30,9 +33,12 @@ function Router() {
           <Route path="/casinos" component={Casinos} />
           <Route path="/casino/:id" component={CasinoDetail} />
           <Route path="/bonuses" component={Bonuses} />
+          <Route path="/bonus/:id" component={BonusDetail} />
           <Route path="/games" component={Games} />
+          <Route path="/game/:id" component={GameDetail} />
           <Route path="/compare" component={Compare} />
           <Route path="/blog" component={Blog} />
+          <Route path="/blog/:slug" component={BlogPostDetail} />
           <Route path="/admin" component={AdminPanel} />
           <Route path="/admin-panel" component={AdminPanel} />
           <Route component={NotFound} />

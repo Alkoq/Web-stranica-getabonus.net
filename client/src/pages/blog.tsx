@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -32,7 +33,7 @@ export default function Blog() {
     const matchesSearch = searchQuery === "" || 
       post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       post.excerpt?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+      (post.tags || []).some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
     
     const matchesCategory = selectedCategory === "all" || post.category === selectedCategory;
     
@@ -230,7 +231,9 @@ export default function Blog() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {sortedPosts.map((post) => (
-                <BlogCard key={post.id} post={post} />
+                <Link href={`/blog/${post.slug}`} key={post.id}>
+                  <BlogCard post={post} />
+                </Link>
               ))}
             </div>
           )}
@@ -257,7 +260,7 @@ export default function Blog() {
         <section className="mt-12">
           <h2 className="text-xl font-semibold text-foreground mb-4">Popular Tags</h2>
           <div className="flex flex-wrap gap-2">
-            {Array.from(new Set(blogPosts.flatMap(post => post.tags))).slice(0, 15).map((tag) => (
+            {Array.from(new Set(blogPosts.flatMap(post => post.tags || []))).slice(0, 15).map((tag) => (
               <Badge key={tag} variant="outline" className="cursor-pointer hover:bg-muted">
                 {tag}
               </Badge>

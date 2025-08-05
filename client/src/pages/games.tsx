@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -125,9 +126,9 @@ export default function Games() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {sortedGames.map((game) => (
-              <Card 
-                key={game.id} 
-                className="hover:shadow-lg transition-shadow cursor-pointer group"
+              <Link href={`/game/${game.id}`} key={game.id}>
+                <Card 
+                  className="hover:shadow-lg transition-shadow cursor-pointer group"
                 style={{
                   border: '2px solid hsl(173, 58%, 39%, 0.3)',
                   boxShadow: '0 0 15px hsl(173, 58%, 39%, 0.2)',
@@ -147,7 +148,7 @@ export default function Games() {
                 <CardHeader className="p-0">
                   <div className="relative">
                     <img 
-                      src={game.imageUrl} 
+                      src={game.imageUrl || 'https://images.unsplash.com/photo-1594736797933-d0d9770d1a15?w=300&h=200&fit=crop'} 
                       alt={game.name}
                       className="w-full h-48 object-cover rounded-t-lg"
                     />
@@ -201,7 +202,10 @@ export default function Games() {
                       variant="outline" 
                       size="sm" 
                       className="flex-1"
-                      onClick={() => window.open(game.demoUrl, '_blank')}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(game.demoUrl || '#', '_blank');
+                      }}
                     >
                       <Play className="h-4 w-4 mr-1" />
                       Demo
@@ -209,7 +213,10 @@ export default function Games() {
                     <Button 
                       size="sm" 
                       className="flex-1 bg-turquoise hover:bg-turquoise/90"
-                      onClick={() => handlePlayGame(game)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePlayGame(game);
+                      }}
                     >
                       <Gamepad2 className="h-4 w-4 mr-1" />
                       Play
@@ -217,6 +224,7 @@ export default function Games() {
                   </div>
                 </CardContent>
               </Card>
+              </Link>
               ))}
             </div>
           )}
