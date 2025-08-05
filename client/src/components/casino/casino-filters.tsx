@@ -10,9 +10,10 @@ interface CasinoFiltersProps {
   filters: CasinoFilters;
   onFiltersChange: (filters: CasinoFilters) => void;
   onClearFilters: () => void;
+  casinos?: any[]; // For counting filter options
 }
 
-export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilters }: CasinoFiltersProps) {
+export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilters, casinos = [] }: CasinoFiltersProps) {
   const [localFilters, setLocalFilters] = useState<CasinoFilters>(filters);
 
   const handleFilterChange = (key: keyof CasinoFilters, value: any) => {
@@ -31,9 +32,27 @@ export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilter
   };
 
   const safetyIndexOptions = [
-    { label: "Very High (9.0+)", value: 9.0, count: 127 },
-    { label: "High (8.0-8.9)", value: 8.0, count: 234 },
-    { label: "Above Average (7.0-7.9)", value: 7.0, count: 156 },
+    { 
+      label: "Very High (9.0+)", 
+      value: 9.0, 
+      count: casinos.filter(c => parseFloat(c.safetyIndex || '0') >= 9.0).length 
+    },
+    { 
+      label: "High (8.0-8.9)", 
+      value: 8.0, 
+      count: casinos.filter(c => {
+        const safety = parseFloat(c.safetyIndex || '0');
+        return safety >= 8.0 && safety < 9.0;
+      }).length 
+    },
+    { 
+      label: "Above Average (7.0-7.9)", 
+      value: 7.0, 
+      count: casinos.filter(c => {
+        const safety = parseFloat(c.safetyIndex || '0');
+        return safety >= 7.0 && safety < 8.0;
+      }).length 
+    },
   ];
 
   const licenseOptions = [

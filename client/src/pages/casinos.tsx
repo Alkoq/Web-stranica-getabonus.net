@@ -77,7 +77,65 @@ export default function Casinos() {
     setCurrentPage(1);
   }, [filters, searchQuery, sortBy]);
 
-  const sortedCasinos = [...casinos].sort((a, b) => {
+  // Apply filters first, then sort
+  const filteredCasinos = casinos.filter(casino => {
+    // Search query filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      const matchesSearch = 
+        casino.name.toLowerCase().includes(query) ||
+        casino.description?.toLowerCase().includes(query) ||
+        casino.features?.some(feature => feature.toLowerCase().includes(query)) ||
+        casino.paymentMethods?.some(method => method.toLowerCase().includes(query)) ||
+        casino.gameProviders?.some(provider => provider.toLowerCase().includes(query));
+      
+      if (!matchesSearch) return false;
+    }
+
+    // Safety Index filter
+    if (filters.minSafetyIndex) {
+      const casinoSafety = parseFloat(casino.safetyIndex || '0');
+      if (casinoSafety < filters.minSafetyIndex) return false;
+    }
+
+    // License filter
+    if (filters.license && casino.license !== filters.license) {
+      return false;
+    }
+
+    // Payment Methods filter
+    if (filters.paymentMethods && filters.paymentMethods.length > 0) {
+      const hasPaymentMethod = filters.paymentMethods.some(method => 
+        casino.paymentMethods?.includes(method)
+      );
+      if (!hasPaymentMethod) return false;
+    }
+
+    // Features filter
+    if (filters.features && filters.features.length > 0) {
+      const hasFeature = filters.features.some(feature => 
+        casino.features?.includes(feature)
+      );
+      if (!hasFeature) return false;
+    }
+
+    // Game Providers filter
+    if (filters.gameProviders && filters.gameProviders.length > 0) {
+      const hasProvider = filters.gameProviders.some(provider => 
+        casino.gameProviders?.includes(provider)
+      );
+      if (!hasProvider) return false;
+    }
+
+    // Established Year filter
+    if (filters.establishedYear && casino.establishedYear && casino.establishedYear < filters.establishedYear) {
+      return false;
+    }
+
+    return true;
+  });
+
+  const sortedCasinos = [...filteredCasinos].sort((a, b) => {
     const [field, direction] = sortBy.split('-');
     const isDesc = direction === 'desc';
     
@@ -250,6 +308,7 @@ export default function Casinos() {
               filters={filters}
               onFiltersChange={handleFiltersChange}
               onClearFilters={handleClearFilters}
+              casinos={casinos}
             />
           </aside>
 
@@ -313,6 +372,7 @@ export default function Casinos() {
                   filters={filters}
                   onFiltersChange={handleFiltersChange}
                   onClearFilters={handleClearFilters}
+                  casinos={casinos}
                 />
               </div>
             )}
