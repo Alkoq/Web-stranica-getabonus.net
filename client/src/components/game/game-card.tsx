@@ -1,15 +1,15 @@
-import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
-import { Star, Play, Gamepad2, Clock, DollarSign } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ExternalLink, Play, Gamepad2, TrendingUp, Clock, Star } from "lucide-react";
+import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import type { Game, Review } from "@shared/schema";
 
 interface GameCardProps {
   game: Game;
-  onPlayGame: (game: Game) => void;
+  onPlayGame?: (game: Game) => void;
 }
 
 export function GameCard({ game, onPlayGame }: GameCardProps) {
@@ -24,8 +24,8 @@ export function GameCard({ game, onPlayGame }: GameCardProps) {
     ? gameReviews.reduce((acc, review) => acc + review.overallRating, 0) / gameReviews.length 
     : 0;
 
-  // For now, we'll use a mock expert rating - in a real app this would come from a games expert review system
-  const expertRating = 8.2; // This would come from an expert reviews table for games
+  // Expert rating (mock for now)
+  const expertRating = 8.2;
 
   // Calculate combined rating
   const getCombinedRating = () => {
@@ -47,31 +47,12 @@ export function GameCard({ game, onPlayGame }: GameCardProps) {
       };
     }
     return {
-      rating: "0.0",
+      rating: "8.2",
       count: 0,
     };
   };
 
-  const getVolatilityColor = (volatility: string | null) => {
-    switch (volatility?.toLowerCase()) {
-      case "high":
-        return "destructive";
-      case "medium":
-        return "default";
-      case "low":
-        return "secondary";
-      default:
-        return "outline";
-    }
-  };
-
-  const getRtpColor = (rtp: string | null) => {
-    if (!rtp) return "text-muted-foreground";
-    const rtpValue = parseFloat(rtp);
-    if (rtpValue >= 97) return "text-green-600";
-    if (rtpValue >= 95) return "text-orange-500";
-    return "text-red-500";
-  };
+  const ratingData = getCombinedRating();
 
   return (
     <Link href={`/game/${game.id}`}>
@@ -106,18 +87,13 @@ export function GameCard({ game, onPlayGame }: GameCardProps) {
               </Badge>
             </div>
             <div className="absolute top-2 left-2">
-              {(() => {
-                const ratingData = getCombinedRating();
-                return (
-                  <div className="flex items-center bg-black/70 rounded px-2 py-1">
-                    <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
-                    <span className="text-white text-sm font-semibold">{ratingData.rating}/10</span>
-                    {ratingData.count > 0 && (
-                      <span className="text-xs ml-1 opacity-75">({ratingData.count})</span>
-                    )}
-                  </div>
-                );
-              })()}
+              <div className="flex items-center bg-black/70 rounded px-2 py-1">
+                <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
+                <span className="text-white text-sm font-semibold">{ratingData.rating}/10</span>
+                {ratingData.count > 0 && (
+                  <span className="text-xs ml-1 opacity-75">({ratingData.count})</span>
+                )}
+              </div>
             </div>
             <div className="absolute bottom-2 left-2">
               <div className="flex items-center space-x-1 bg-black/70 rounded px-2 py-1">
@@ -148,21 +124,21 @@ export function GameCard({ game, onPlayGame }: GameCardProps) {
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">RTP:</span>
-              <span className={`font-medium ${getRtpColor(game.rtp)}`}>{game.rtp}%</span>
+              <span className={`font-medium ${parseFloat(game.rtp) >= 97 ? 'text-green-600' : parseFloat(game.rtp) >= 95 ? 'text-orange-500' : 'text-red-500'}`}>
+                {game.rtp}%
+              </span>
             </div>
             <div className="flex justify-between text-sm items-center">
               <span className="text-muted-foreground">Volatility:</span>
-              <Badge variant={getVolatilityColor(game.volatility)} className="text-xs">
+              <Badge variant={game.volatility === "High" ? "destructive" : game.volatility === "Medium" ? "default" : "secondary"} className="text-xs">
                 {game.volatility || "N/A"}
               </Badge>
             </div>
-            {(game.minBet || game.maxBet) && (
+            {game.minBet && game.maxBet && (
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Bet Range:</span>
                 <span className="font-medium text-xs">
-                  {game.minBet && `$${game.minBet}`}
-                  {game.minBet && game.maxBet && " - "}
-                  {game.maxBet && `$${game.maxBet}`}
+                  ${game.minBet} - ${game.maxBet}
                 </span>
               </div>
             )}
@@ -203,7 +179,7 @@ export function GameCard({ game, onPlayGame }: GameCardProps) {
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                onPlayGame(game);
+                if (onPlayGame) onPlayGame(game);
               }}
               data-testid={`button-play-${game.id}`}
             >
