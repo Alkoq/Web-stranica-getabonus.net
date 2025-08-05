@@ -17,6 +17,7 @@ import { z } from "zod";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
+import { HelpfulButton } from "@/components/HelpfulButton";
 import type { Bonus, Casino, Review, BlogPost } from "@shared/schema";
 
 export default function BonusDetail() {
@@ -45,12 +46,21 @@ export default function BonusDetail() {
     enabled: !!bonusId,
   });
 
+  // Fetch bonus ratings
+  const { data: bonusRatings } = useQuery({
+    queryKey: ['/api/bonuses', bonusId, 'ratings'],
+    queryFn: () => bonusId ? fetch(`/api/bonuses/${bonusId}/ratings`).then(res => res.json()) : Promise.resolve({ userReviewsAverage: 0, totalReviews: 0 }),
+    enabled: !!bonusId,
+  });
+
   const bonus = bonuses.find(b => b.id === bonusId);
   const casino = bonus ? casinos.find(c => c.id === bonus.casinoId) : null;
 
-  // Calculate real ratings from reviews
+  // Calculate real ratings from reviews - use dynamic data
   const calculateRatings = () => {
-    if (bonusReviews.length === 0) {
+    const userAvg = bonusRatings?.userReviewsAverage || 0;
+    
+    if (userAvg === 0) {
       return {
         value: 0,
         terms: 0, 
@@ -61,20 +71,18 @@ export default function BonusDetail() {
       };
     }
 
-    const avgRating = bonusReviews.reduce((sum, review) => sum + review.overallRating, 0) / bonusReviews.length;
-    
-    // For detailed breakdown, use overall rating as base (in real app would have separate criteria ratings)
+    // For detailed breakdown, use overall rating as base
     return {
-      value: avgRating,
-      terms: avgRating - 0.5,
-      wagering: avgRating - 1.2,
-      games: avgRating + 0.4,
-      cashout: avgRating + 0.2,
-      overall: avgRating
+      value: userAvg,
+      terms: Math.max(0, userAvg - 0.5),
+      wagering: Math.max(0, userAvg - 1.2),
+      games: Math.min(10, userAvg + 0.4),
+      cashout: Math.min(10, userAvg + 0.2),
+      overall: userAvg
     };
   };
 
-  const bonusRatings = calculateRatings();
+  const bonusCalculatedRatings = calculateRatings();
 
   const relatedBlogPosts = relatedPosts.filter(post => 
     post.title.toLowerCase().includes('bonus') ||
@@ -233,12 +241,12 @@ export default function BonusDetail() {
                           <div className="flex items-center">
                             <Star className="h-5 w-5 text-yellow-500 mr-1" />
                             <span className="text-2xl font-bold text-yellow-500">
-                              {bonusRatings.overall.toFixed(1)}
+                              {bonusCalculatedRatings.overall.toFixed(1)}
                             </span>
                             <span className="text-muted-foreground">/10</span>
                           </div>
                         </div>
-                        <Progress value={bonusRatings.overall * 10} className="h-2" />
+                        <Progress value={bonusCalculatedRatings.overall * 10} className="h-2" />
                       </div>
 
                       {/* Detailed Ratings */}
@@ -250,9 +258,9 @@ export default function BonusDetail() {
                                 <DollarSign className="h-4 w-4 mr-2 text-green-500" />
                                 <span>Bonus Value</span>
                               </div>
-                              <span className="font-semibold">{bonusRatings.value.toFixed(1)}/10</span>
+                              <span className="font-semibold">{bonusCalculatedRatings.value.toFixed(1)}/10</span>
                             </div>
-                            <Progress value={bonusRatings.value * 10} className="h-2" />
+                            <Progress value={bonusCalculatedRatings.value * 10} className="h-2" />
                             <p className="text-sm text-muted-foreground mt-1">
                               Excellent bonus amount compared to wagering requirements
                             </p>
@@ -264,9 +272,9 @@ export default function BonusDetail() {
                                 <Info className="h-4 w-4 mr-2 text-blue-500" />
                                 <span>Terms Clarity</span>
                               </div>
-                              <span className="font-semibold">{bonusRatings.terms.toFixed(1)}/10</span>
+                              <span className="font-semibold">{bonusCalculatedRatings.terms.toFixed(1)}/10</span>
                             </div>
-                            <Progress value={bonusRatings.terms * 10} className="h-2" />
+                            <Progress value={bonusCalculatedRatings.terms * 10} className="h-2" />
                             <p className="text-sm text-muted-foreground mt-1">
                               Terms are mostly clear but could be more detailed
                             </p>
@@ -278,9 +286,9 @@ export default function BonusDetail() {
                                 <Percent className="h-4 w-4 mr-2 text-orange-500" />
                                 <span>Wagering Requirements</span>
                               </div>
-                              <span className="font-semibold">{bonusRatings.wagering.toFixed(1)}/10</span>
+                              <span className="font-semibold">{bonusCalculatedRatings.wagering.toFixed(1)}/10</span>
                             </div>
-                            <Progress value={bonusRatings.wagering * 10} className="h-2" />
+                            <Progress value={bonusCalculatedRatings.wagering * 10} className="h-2" />
                             <p className="text-sm text-muted-foreground mt-1">
                               Moderate wagering requirements, could be lower
                             </p>
@@ -292,9 +300,9 @@ export default function BonusDetail() {
                                 <Users className="h-4 w-4 mr-2 text-purple-500" />
                                 <span>Game Selection</span>
                               </div>
-                              <span className="font-semibold">{bonusRatings.games.toFixed(1)}/10</span>
+                              <span className="font-semibold">{bonusCalculatedRatings.games.toFixed(1)}/10</span>
                             </div>
-                            <Progress value={bonusRatings.games * 10} className="h-2" />
+                            <Progress value={bonusCalculatedRatings.games * 10} className="h-2" />
                             <p className="text-sm text-muted-foreground mt-1">
                               Good variety of games available for bonus play
                             </p>
@@ -306,9 +314,9 @@ export default function BonusDetail() {
                                 <Clock className="h-4 w-4 mr-2 text-red-500" />
                                 <span>Cashout Speed</span>
                               </div>
-                              <span className="font-semibold">{bonusRatings.cashout.toFixed(1)}/10</span>
+                              <span className="font-semibold">{bonusCalculatedRatings.cashout.toFixed(1)}/10</span>
                             </div>
-                            <Progress value={bonusRatings.cashout * 10} className="h-2" />
+                            <Progress value={bonusCalculatedRatings.cashout * 10} className="h-2" />
                             <p className="text-sm text-muted-foreground mt-1">
                               Reasonable withdrawal limits and processing time
                             </p>
@@ -369,10 +377,12 @@ export default function BonusDetail() {
                             </div>
                             <p className="text-muted-foreground ml-11">{review.content}</p>
                             <div className="flex items-center mt-2 ml-11">
-                              <Button variant="ghost" size="sm" className="text-xs">
-                                <ThumbsUp className="h-3 w-3 mr-1" />
-                                Helpful (5)
-                              </Button>
+                              <HelpfulButton 
+                                reviewId={review.id} 
+                                initialHelpfulVotes={review.helpfulVotes || 0}
+                                variant="ghost"
+                                size="sm"
+                              />
                             </div>
                           </div>
                         ))}

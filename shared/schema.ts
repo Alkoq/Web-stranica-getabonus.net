@@ -71,6 +71,7 @@ export const reviews = pgTable("reviews", {
   userName: text("user_name"),
   pros: jsonb("pros").$type<string[]>().default([]),
   cons: jsonb("cons").$type<string[]>().default([]),
+  helpfulVotes: integer("helpful_votes").default(0),
   isVerified: boolean("is_verified").default(false),
   isPublished: boolean("is_published").default(true),
   createdAt: timestamp("created_at").defaultNow(),

@@ -173,6 +173,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Add helpful vote to review
+  app.post("/api/reviews/:reviewId/helpful", async (req, res) => {
+    try {
+      const reviewId = req.params.reviewId;
+      const updatedReview = await storage.addHelpfulVote(reviewId);
+      res.json(updatedReview);
+    } catch (error) {
+      console.error("Error adding helpful vote:", error);
+      res.status(500).json({ message: "Failed to add helpful vote" });
+    }
+  });
+
+  // Get casino ratings (expert + user average + safety)
+  app.get("/api/casinos/:casinoId/ratings", async (req, res) => {
+    try {
+      const casinoId = req.params.casinoId;
+      const expertReviews = await storage.getExpertReviewsByCasino(casinoId);
+      const userReviewsAverage = await storage.getUserReviewsAverageRating(casinoId);
+      const safetyRating = await storage.getCasinoSafetyRating(casinoId);
+      
+      const expertRating = expertReviews.length > 0 ? parseFloat(expertReviews[0].overallRating.toString()) : 0;
+      
+      res.json({
+        expertRating,
+        userReviewsAverage,
+        safetyRating,
+        totalUserReviews: (await storage.getReviewsByCasino(casinoId)).length
+      });
+    } catch (error) {
+      console.error("Error fetching casino ratings:", error);
+      res.status(500).json({ message: "Failed to fetch casino ratings" });
+    }
+  });
+
+  // Get bonus ratings
+  app.get("/api/bonuses/:bonusId/ratings", async (req, res) => {
+    try {
+      const bonusId = req.params.bonusId;
+      const userReviewsAverage = await storage.getBonusUserReviewsAverageRating(bonusId);
+      const totalReviews = (await storage.getReviewsByBonusId(bonusId)).length;
+      
+      res.json({
+        userReviewsAverage,
+        totalReviews
+      });
+    } catch (error) {
+      console.error("Error fetching bonus ratings:", error);
+      res.status(500).json({ message: "Failed to fetch bonus ratings" });
+    }
+  });
+
+  // Get game ratings
+  app.get("/api/games/:gameId/ratings", async (req, res) => {
+    try {
+      const gameId = req.params.gameId;
+      const userReviewsAverage = await storage.getGameUserReviewsAverageRating(gameId);
+      const totalReviews = (await storage.getReviewsByGameId(gameId)).length;
+      
+      res.json({
+        userReviewsAverage,
+        totalReviews
+      });
+    } catch (error) {
+      console.error("Error fetching game ratings:", error);
+      res.status(500).json({ message: "Failed to fetch game ratings" });
+    }
+  });
+
   // Expert Review routes
   app.get("/api/expert-reviews/casino/:casinoId", async (req, res) => {
     try {

@@ -999,11 +999,70 @@ export class MemStorage implements IStorage {
     const review: Review = {
       ...insertReview,
       id,
+      helpfulVotes: 0,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
     this.reviews.set(id, review);
     return review;
+  }
+
+  async addHelpfulVote(reviewId: string): Promise<Review> {
+    const review = this.reviews.get(reviewId);
+    if (!review) {
+      throw new Error("Review not found");
+    }
+    
+    const updatedReview = {
+      ...review,
+      helpfulVotes: (review.helpfulVotes || 0) + 1,
+      updatedAt: new Date(),
+    };
+    
+    this.reviews.set(reviewId, updatedReview);
+    return updatedReview;
+  }
+
+  // Calculate user reviews average rating for casino
+  async getUserReviewsAverageRating(casinoId: string): Promise<number> {
+    const reviews = await this.getReviewsByCasino(casinoId);
+    if (reviews.length === 0) return 0;
+    
+    const sum = reviews.reduce((acc, review) => acc + review.overallRating, 0);
+    return Math.round((sum / reviews.length) * 10) / 10; // Round to 1 decimal
+  }
+
+  // Calculate user reviews average rating for bonus
+  async getBonusUserReviewsAverageRating(bonusId: string): Promise<number> {
+    const reviews = await this.getReviewsByBonusId(bonusId);
+    if (reviews.length === 0) return 0;
+    
+    const sum = reviews.reduce((acc, review) => acc + review.overallRating, 0);
+    return Math.round((sum / reviews.length) * 10) / 10;
+  }
+
+  // Calculate user reviews average rating for game
+  async getGameUserReviewsAverageRating(gameId: string): Promise<number> {
+    const reviews = await this.getReviewsByGameId(gameId);
+    if (reviews.length === 0) return 0;
+    
+    const sum = reviews.reduce((acc, review) => acc + review.overallRating, 0);
+    return Math.round((sum / reviews.length) * 10) / 10;
+  }
+
+  // Calculate safety rating (average of expert rating and user reviews average)
+  async getCasinoSafetyRating(casinoId: string): Promise<number> {
+    const expertReviews = await this.getExpertReviewsByCasino(casinoId);
+    const userReviewsAverage = await this.getUserReviewsAverageRating(casinoId);
+    
+    if (expertReviews.length === 0 && userReviewsAverage === 0) return 0;
+    
+    const expertRating = expertReviews.length > 0 ? parseFloat(expertReviews[0].overallRating.toString()) : 0;
+    const safetyRating = expertRating > 0 && userReviewsAverage > 0 
+      ? (expertRating + userReviewsAverage) / 2
+      : expertRating > 0 ? expertRating : userReviewsAverage;
+    
+    return Math.round(safetyRating * 10) / 10;
   }
 
   // Expert Review methods
