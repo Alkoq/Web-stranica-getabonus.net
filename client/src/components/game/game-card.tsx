@@ -13,19 +13,13 @@ interface GameCardProps {
 }
 
 export function GameCard({ game, onPlayGame }: GameCardProps) {
-  // Fetch game reviews for ratings
-  const { data: gameReviews = [] } = useQuery<Review[]>({
-    queryKey: ['/api/reviews', 'game', game.id],
-    queryFn: () => api.getReviews(undefined, undefined, game.id),
-  });
-
-  // Calculate average user rating
-  const userRating = gameReviews.length > 0 
-    ? gameReviews.reduce((acc, review) => acc + review.overallRating, 0) / gameReviews.length 
-    : 0;
-
+  console.log('GameCard rendering for:', game.name);
+  
   // Expert rating (mock for now)
   const expertRating = 8.2;
+  
+  // For testing, just use mock rating first
+  const userRating = 0;
 
   // Calculate combined rating
   const getCombinedRating = () => {
@@ -87,12 +81,9 @@ export function GameCard({ game, onPlayGame }: GameCardProps) {
               </Badge>
             </div>
             <div className="absolute top-2 left-2">
-              <div className="flex items-center bg-black/70 rounded px-2 py-1">
-                <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
-                <span className="text-white text-sm font-semibold">{ratingData.rating}/10</span>
-                {ratingData.count > 0 && (
-                  <span className="text-xs ml-1 opacity-75">({ratingData.count})</span>
-                )}
+              <div className="flex items-center bg-red-600 rounded px-2 py-1">
+                <Star className="h-4 w-4 text-yellow-400 fill-current mr-1" />
+                <span className="text-white text-sm font-bold">8.2/10</span>
               </div>
             </div>
             <div className="absolute bottom-2 left-2">
