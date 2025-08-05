@@ -90,6 +90,49 @@ export default function Home() {
     return [...allGames].reverse().slice(0, 8);
   }, [allGames]);
 
+  // Game rating system - same as bonus system
+  const GameRatingCard = ({ gameId }: { gameId: string }) => {
+    const { data: gameReviews = [] } = useQuery({
+      queryKey: ['/api/reviews/game', gameId],
+      queryFn: () => fetch(`/api/reviews/game/${gameId}`).then(res => res.json()),
+    });
+
+    const getCombinedRating = () => {
+      // Static expert rating for games (same as game-detail.tsx)  
+      const expertRating = 8.2;
+      
+      if (gameReviews.length === 0) {
+        // If no user reviews, show only expert rating
+        return {
+          rating: expertRating.toFixed(1),
+          count: 0,
+          type: 'expert'
+        };
+      }
+
+      // Calculate average user rating
+      const userRatingSum = gameReviews.reduce((sum: number, review: any) => sum + review.overallRating, 0);
+      const averageUserRating = userRatingSum / gameReviews.length;
+      
+      // Combined rating: average of expert rating and user reviews average
+      const combinedRating = (expertRating + averageUserRating) / 2;
+
+      return {
+        rating: combinedRating.toFixed(1),
+        count: gameReviews.length,
+        type: 'combined'
+      };
+    };
+
+    const ratingData = getCombinedRating();
+    return (
+      <div className="flex items-center bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full px-2 py-1 shadow-lg">
+        <Star className="h-3 w-3 text-white fill-current mr-1" />
+        <span className="text-xs font-bold">{ratingData.rating}</span>
+      </div>
+    );
+  };
+
   const quickFilters = [
     { label: "Top Rated", icon: Star, active: true, filter: "safetyIndex" },
     { label: "No Deposit", icon: TrendingUp, filter: "bonusType:no_deposit" },
@@ -747,10 +790,7 @@ export default function Home() {
                       <div className="aspect-[4/3] bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg mb-4 flex items-center justify-center relative">
                         <Gamepad2 className="h-8 w-8 md:h-12 md:w-12 text-white" />
                         <div className="absolute top-2 left-2">
-                          <div className="flex items-center bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full px-2 py-1 shadow-lg">
-                            <Star className="h-3 w-3 text-white fill-current mr-1" />
-                            <span className="text-xs font-bold">8.2</span>
-                          </div>
+                          <GameRatingCard gameId={game.id} />
                         </div>
                       </div>
                       <h3 className="font-semibold text-base md:text-lg mb-1 line-clamp-1">{game.name}</h3>
@@ -817,10 +857,7 @@ export default function Home() {
                       <div className="aspect-[4/3] bg-gradient-to-br from-blue-400 to-green-400 rounded-lg mb-4 flex items-center justify-center relative">
                         <Gamepad2 className="h-8 w-8 md:h-12 md:w-12 text-white" />
                         <div className="absolute top-2 left-2">
-                          <div className="flex items-center bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full px-2 py-1 shadow-lg">
-                            <Star className="h-3 w-3 text-white fill-current mr-1" />
-                            <span className="text-xs font-bold">8.2</span>
-                          </div>
+                          <GameRatingCard gameId={game.id} />
                         </div>
                       </div>
                       <h3 className="font-semibold text-base md:text-lg mb-1 line-clamp-1">{game.name}</h3>
