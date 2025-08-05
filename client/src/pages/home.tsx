@@ -765,14 +765,15 @@ export default function Home() {
 
         {/* Latest Games */}
         <section>
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Latest Games</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Latest Games</h2>
               <p className="text-gray-600 dark:text-gray-300">Newest game releases</p>
             </div>
             <Link href="/games?sort=newest">
-              <Button variant="outline" className="flex items-center gap-2" data-testid="link-see-all-latest-games">
-                See All Latest Games
+              <Button variant="outline" className="flex items-center gap-2 text-sm whitespace-nowrap" data-testid="link-see-all-latest-games">
+                <span className="hidden sm:inline">See All Latest Games</span>
+                <span className="sm:hidden">See All</span>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </Link>
