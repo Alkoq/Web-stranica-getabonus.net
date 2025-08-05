@@ -33,8 +33,8 @@ export function HelpfulButton({
       setVotes(prev => prev + 1);
       setHasVoted(true);
       toast({
-        title: "Hvala!",
-        description: "Vaš glas je zabeležen.",
+        title: "Thank you!",
+        description: "Your vote has been recorded.",
       });
       
       // Invalidate relevant queries
@@ -42,8 +42,8 @@ export function HelpfulButton({
     },
     onError: () => {
       toast({
-        title: "Greška",
-        description: "Nije moguće glasati u ovom trenutku.",
+        title: "Error",
+        description: "Unable to vote at this time.",
         variant: "destructive",
       });
     },
@@ -65,7 +65,7 @@ export function HelpfulButton({
     >
       <ThumbsUp className="h-3 w-3" />
       <span className="text-xs">
-        {helpfulMutation.isPending ? "..." : `Korisno (${votes})`}
+        {helpfulMutation.isPending ? "..." : `Helpful (${votes})`}
       </span>
     </Button>
   );

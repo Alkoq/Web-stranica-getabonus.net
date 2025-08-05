@@ -1013,7 +1013,7 @@ export class MemStorage implements IStorage {
       throw new Error("Review not found");
     }
     
-    const updatedReview = {
+    const updatedReview: Review = {
       ...review,
       helpfulVotes: (review.helpfulVotes || 0) + 1,
       updatedAt: new Date(),

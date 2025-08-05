@@ -56,33 +56,26 @@ export default function BonusDetail() {
   const bonus = bonuses.find(b => b.id === bonusId);
   const casino = bonus ? casinos.find(c => c.id === bonus.casinoId) : null;
 
-  // Calculate real ratings from reviews - use dynamic data
-  const calculateRatings = () => {
-    const userAvg = bonusRatings?.userReviewsAverage || 0;
-    
-    if (userAvg === 0) {
-      return {
-        value: 0,
-        terms: 0, 
-        wagering: 0,
-        games: 0,
-        cashout: 0,
-        overall: 0
-      };
-    }
+  // Static expert ratings - these never change
+  const expertRatings = {
+    value: 8.5,
+    terms: 7.8,
+    wagering: 6.2,
+    games: 8.9,
+    cashout: 8.1,
+    overall: 7.9
+  };
 
-    // For detailed breakdown, use overall rating as base
+  // Calculate dynamic user ratings from reviews
+  const calculateUserRatings = () => {
+    const userAvg = bonusRatings?.userReviewsAverage || 0;
     return {
-      value: userAvg,
-      terms: Math.max(0, userAvg - 0.5),
-      wagering: Math.max(0, userAvg - 1.2),
-      games: Math.min(10, userAvg + 0.4),
-      cashout: Math.min(10, userAvg + 0.2),
-      overall: userAvg
+      overall: userAvg,
+      count: bonusRatings?.totalReviews || 0
     };
   };
 
-  const bonusCalculatedRatings = calculateRatings();
+  const userRatings = calculateUserRatings();
 
   const relatedBlogPosts = relatedPosts.filter(post => 
     post.title.toLowerCase().includes('bonus') ||
@@ -241,12 +234,12 @@ export default function BonusDetail() {
                           <div className="flex items-center">
                             <Star className="h-5 w-5 text-yellow-500 mr-1" />
                             <span className="text-2xl font-bold text-yellow-500">
-                              {bonusCalculatedRatings.overall.toFixed(1)}
+                              {expertRatings.overall.toFixed(1)}
                             </span>
                             <span className="text-muted-foreground">/10</span>
                           </div>
                         </div>
-                        <Progress value={bonusCalculatedRatings.overall * 10} className="h-2" />
+                        <Progress value={expertRatings.overall * 10} className="h-2" />
                       </div>
 
                       {/* Detailed Ratings */}
@@ -258,9 +251,9 @@ export default function BonusDetail() {
                                 <DollarSign className="h-4 w-4 mr-2 text-green-500" />
                                 <span>Bonus Value</span>
                               </div>
-                              <span className="font-semibold">{bonusCalculatedRatings.value.toFixed(1)}/10</span>
+                              <span className="font-semibold">{expertRatings.value.toFixed(1)}/10</span>
                             </div>
-                            <Progress value={bonusCalculatedRatings.value * 10} className="h-2" />
+                            <Progress value={expertRatings.value * 10} className="h-2" />
                             <p className="text-sm text-muted-foreground mt-1">
                               Excellent bonus amount compared to wagering requirements
                             </p>
@@ -272,9 +265,9 @@ export default function BonusDetail() {
                                 <Info className="h-4 w-4 mr-2 text-blue-500" />
                                 <span>Terms Clarity</span>
                               </div>
-                              <span className="font-semibold">{bonusCalculatedRatings.terms.toFixed(1)}/10</span>
+                              <span className="font-semibold">{expertRatings.terms.toFixed(1)}/10</span>
                             </div>
-                            <Progress value={bonusCalculatedRatings.terms * 10} className="h-2" />
+                            <Progress value={expertRatings.terms * 10} className="h-2" />
                             <p className="text-sm text-muted-foreground mt-1">
                               Terms are mostly clear but could be more detailed
                             </p>
@@ -286,9 +279,9 @@ export default function BonusDetail() {
                                 <Percent className="h-4 w-4 mr-2 text-orange-500" />
                                 <span>Wagering Requirements</span>
                               </div>
-                              <span className="font-semibold">{bonusCalculatedRatings.wagering.toFixed(1)}/10</span>
+                              <span className="font-semibold">{expertRatings.wagering.toFixed(1)}/10</span>
                             </div>
-                            <Progress value={bonusCalculatedRatings.wagering * 10} className="h-2" />
+                            <Progress value={expertRatings.wagering * 10} className="h-2" />
                             <p className="text-sm text-muted-foreground mt-1">
                               Moderate wagering requirements, could be lower
                             </p>
@@ -300,9 +293,9 @@ export default function BonusDetail() {
                                 <Users className="h-4 w-4 mr-2 text-purple-500" />
                                 <span>Game Selection</span>
                               </div>
-                              <span className="font-semibold">{bonusCalculatedRatings.games.toFixed(1)}/10</span>
+                              <span className="font-semibold">{expertRatings.games.toFixed(1)}/10</span>
                             </div>
-                            <Progress value={bonusCalculatedRatings.games * 10} className="h-2" />
+                            <Progress value={expertRatings.games * 10} className="h-2" />
                             <p className="text-sm text-muted-foreground mt-1">
                               Good variety of games available for bonus play
                             </p>
@@ -314,9 +307,9 @@ export default function BonusDetail() {
                                 <Clock className="h-4 w-4 mr-2 text-red-500" />
                                 <span>Cashout Speed</span>
                               </div>
-                              <span className="font-semibold">{bonusCalculatedRatings.cashout.toFixed(1)}/10</span>
+                              <span className="font-semibold">{expertRatings.cashout.toFixed(1)}/10</span>
                             </div>
-                            <Progress value={bonusCalculatedRatings.cashout * 10} className="h-2" />
+                            <Progress value={expertRatings.cashout * 10} className="h-2" />
                             <p className="text-sm text-muted-foreground mt-1">
                               Reasonable withdrawal limits and processing time
                             </p>
@@ -343,10 +336,25 @@ export default function BonusDetail() {
                     <CardHeader>
                       <CardTitle className="flex items-center text-turquoise">
                         <MessageCircle className="h-5 w-5 mr-2" />
-                        User Reviews ({bonusReviews.length})
+                        User Reviews ({userRatings.count})
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
+                      {userRatings.count > 0 ? (
+                        <div className="mb-6 p-4 bg-muted/20 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-semibold">User Rating Average</h4>
+                            <div className="flex items-center">
+                              <Star className="h-4 w-4 text-yellow-500 mr-1" />
+                              <span className="font-bold text-yellow-500">
+                                {userRatings.overall.toFixed(1)}/10
+                              </span>
+                              <span className="text-muted-foreground ml-1">({userRatings.count} reviews)</span>
+                            </div>
+                          </div>
+                        </div>
+                      ) : null}
+                      
                       <div className="space-y-6">
                         {bonusReviews.map((review) => (
                           <div key={review.id} className="border-b border-border pb-4 last:border-b-0">
