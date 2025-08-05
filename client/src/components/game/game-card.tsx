@@ -69,7 +69,7 @@ export function GameCard({ game, onPlayGame }: GameCardProps) {
         }}
       >
         <CardHeader className="p-0">
-          <div className="relative">
+          <div className="relative" style={{position: 'relative'}}>
             <img 
               src={game.imageUrl || 'https://images.unsplash.com/photo-1594736797933-d0d9770d1a15?w=300&h=200&fit=crop'} 
               alt={game.name}
@@ -80,8 +80,8 @@ export function GameCard({ game, onPlayGame }: GameCardProps) {
                 {game.type.charAt(0).toUpperCase() + game.type.slice(1)}
               </Badge>
             </div>
-            <div className="absolute top-2 left-2">
-              <div className="flex items-center bg-red-600 rounded px-2 py-1">
+            <div className="absolute top-2 left-2" style={{zIndex: 999, backgroundColor: 'red', padding: '8px', borderRadius: '4px'}}>
+              <div className="flex items-center">
                 <Star className="h-4 w-4 text-yellow-400 fill-current mr-1" />
                 <span className="text-white text-sm font-bold">8.2/10</span>
               </div>
