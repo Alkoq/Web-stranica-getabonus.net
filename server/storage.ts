@@ -14,7 +14,9 @@ import {
   type NewsletterSubscriber,
   type InsertNewsletterSubscriber,
   type Comparison,
-  type InsertComparison
+  type InsertComparison,
+  type Game,
+  type InsertGame
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -62,6 +64,11 @@ export interface IStorage {
   createComparison(comparison: InsertComparison): Promise<Comparison>;
   getComparison(id: string): Promise<Comparison | undefined>;
 
+  // Games
+  getGames(filters?: GameFilters): Promise<Game[]>;
+  getGame(id: string): Promise<Game | undefined>;
+  createGame(game: InsertGame): Promise<Game>;
+
   // Statistics
   getStats(): Promise<{
     totalCasinos: number;
@@ -79,6 +86,14 @@ export interface CasinoFilters {
   search?: string;
 }
 
+export interface GameFilters {
+  type?: string;
+  provider?: string;
+  minRtp?: number;
+  volatility?: string;
+  search?: string;
+}
+
 export class MemStorage implements IStorage {
   private users: Map<string, User> = new Map();
   private casinos: Map<string, Casino> = new Map();
@@ -88,6 +103,7 @@ export class MemStorage implements IStorage {
   private blogPosts: Map<string, BlogPost> = new Map();
   private newsletterSubscribers: Map<string, NewsletterSubscriber> = new Map();
   private comparisons: Map<string, Comparison> = new Map();
+  private games: Map<string, Game> = new Map();
 
   constructor() {
     this.initializeData();
@@ -443,6 +459,148 @@ export class MemStorage implements IStorage {
     this.bonuses.set(cloudBetBonus.id, cloudBetBonus);
     this.bonuses.set(bitStarzBonus.id, bitStarzBonus);
     this.bonuses.set(duelbitsBonus.id, duelbitsBonus);
+
+    // Initialize sample games data
+    const sampleGames = [
+      {
+        id: randomUUID(),
+        name: "Book of Dead",
+        description: "Adventure-themed slot with expanding symbols and free spins",
+        provider: "Play'n GO",
+        type: "slot",
+        rtp: "96.21",
+        volatility: "High",
+        minBet: "0.01",
+        maxBet: "100.00",
+        imageUrl: "https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?w=300&h=200&fit=crop",
+        demoUrl: "#",
+        tags: ["adventure", "egypt", "expanding wilds"],
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: randomUUID(),
+        name: "Starburst",
+        description: "Classic arcade-style slot with expanding wilds",
+        provider: "NetEnt",
+        type: "slot",
+        rtp: "96.09",
+        volatility: "Low",
+        minBet: "0.10",
+        maxBet: "100.00",
+        imageUrl: "https://images.unsplash.com/photo-1518709594023-6eab9bab7b23?w=300&h=200&fit=crop",
+        demoUrl: "#",
+        tags: ["classic", "arcade", "wilds"],
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: randomUUID(),
+        name: "Lightning Roulette",
+        description: "Live roulette with random lightning multipliers up to 500x",
+        provider: "Evolution Gaming",
+        type: "live",
+        rtp: "97.30",
+        volatility: "Medium",
+        minBet: "0.20",
+        maxBet: "5000.00",
+        imageUrl: "https://images.unsplash.com/photo-1521130726557-5e7e0c665fd3?w=300&h=200&fit=crop",
+        demoUrl: "#",
+        tags: ["roulette", "live", "multipliers"],
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: randomUUID(),
+        name: "Blackjack Classic",
+        description: "Classic blackjack with optimal strategy hints",
+        provider: "NetEnt",
+        type: "table",
+        rtp: "99.28",
+        volatility: "Low",
+        minBet: "1.00",
+        maxBet: "1000.00",
+        imageUrl: "https://images.unsplash.com/photo-1569819563721-99d144ffa9b1?w=300&h=200&fit=crop",
+        demoUrl: "#",
+        tags: ["blackjack", "strategy", "classic"],
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: randomUUID(),
+        name: "Mega Moolah",
+        description: "Progressive jackpot slot with life-changing wins",
+        provider: "Microgaming",
+        type: "slot",
+        rtp: "88.12",
+        volatility: "Medium",
+        minBet: "0.25",
+        maxBet: "6.25",
+        imageUrl: "https://images.unsplash.com/photo-1607048771931-75af7b9c85ae?w=300&h=200&fit=crop",
+        demoUrl: "#",
+        tags: ["progressive", "jackpot", "safari"],
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: randomUUID(),
+        name: "Crazy Time",
+        description: "Live game show with bonus rounds and multipliers",
+        provider: "Evolution Gaming",
+        type: "live",
+        rtp: "96.08",
+        volatility: "High",
+        minBet: "0.10",
+        maxBet: "2500.00",
+        imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop",
+        demoUrl: "#",
+        tags: ["game show", "bonus rounds", "multipliers"],
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: randomUUID(),
+        name: "European Roulette",
+        description: "Classic European roulette with single zero",
+        provider: "NetEnt",
+        type: "table",
+        rtp: "97.30",
+        volatility: "Medium",
+        minBet: "0.10",
+        maxBet: "5000.00",
+        imageUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=200&fit=crop",
+        demoUrl: "#",
+        tags: ["roulette", "european", "single zero"],
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: randomUUID(),
+        name: "Gates of Olympus",
+        description: "Zeus-themed slot with multipliers and tumbling reels",
+        provider: "Pragmatic Play",
+        type: "slot",
+        rtp: "96.50",
+        volatility: "High",
+        minBet: "0.20",
+        maxBet: "125.00",
+        imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=200&fit=crop",
+        demoUrl: "#",
+        tags: ["mythology", "multipliers", "tumbling reels"],
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ];
+
+    sampleGames.forEach(game => this.games.set(game.id, game));
 
     // Initialize blog posts based on web content
     const blogPost1: BlogPost = {
@@ -881,11 +1039,58 @@ export class MemStorage implements IStorage {
     return this.comparisons.get(id);
   }
 
+  // Game methods
+  async getGames(filters?: GameFilters): Promise<Game[]> {
+    let games = Array.from(this.games.values()).filter(game => game.isActive);
+    
+    if (filters) {
+      if (filters.type) {
+        games = games.filter(game => game.type.toLowerCase() === filters.type!.toLowerCase());
+      }
+      if (filters.provider) {
+        games = games.filter(game => game.provider.toLowerCase().includes(filters.provider!.toLowerCase()));
+      }
+      if (filters.volatility) {
+        games = games.filter(game => game.volatility?.toLowerCase() === filters.volatility!.toLowerCase());
+      }
+      if (filters.minRtp) {
+        games = games.filter(game => game.rtp && parseFloat(game.rtp) >= filters.minRtp!);
+      }
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        games = games.filter(game => 
+          game.name.toLowerCase().includes(searchLower) ||
+          game.provider.toLowerCase().includes(searchLower) ||
+          game.description?.toLowerCase().includes(searchLower) ||
+          game.tags.some(tag => tag.toLowerCase().includes(searchLower))
+        );
+      }
+    }
+    
+    return games.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  async getGame(id: string): Promise<Game | undefined> {
+    return this.games.get(id);
+  }
+
+  async createGame(insertGame: InsertGame): Promise<Game> {
+    const id = randomUUID();
+    const game: Game = {
+      ...insertGame,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.games.set(id, game);
+    return game;
+  }
+
   async getStats() {
     return {
       totalCasinos: this.casinos.size,
       totalBonuses: this.bonuses.size,
-      totalGames: 1200, // Mock value for now
+      totalGames: this.games.size,
       totalUsers: 24500  // Mock value for now
     };
   }

@@ -165,6 +165,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Game routes
+  app.get("/api/games", async (req, res) => {
+    try {
+      const filters = {
+        type: req.query.type as string,
+        provider: req.query.provider as string,
+        minRtp: req.query.minRtp ? parseFloat(req.query.minRtp as string) : undefined,
+        volatility: req.query.volatility as string,
+        search: req.query.search as string,
+      };
+
+      const games = await storage.getGames(filters);
+      res.json(games);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch games" });
+    }
+  });
+
+  app.get("/api/games/:id", async (req, res) => {
+    try {
+      const game = await storage.getGame(req.params.id);
+      if (!game) {
+        return res.status(404).json({ message: "Game not found" });
+      }
+      res.json(game);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch game" });
+    }
+  });
+
   // Blog routes
   app.get("/api/blog", async (req, res) => {
     try {

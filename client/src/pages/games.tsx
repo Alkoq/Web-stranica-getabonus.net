@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Filter, Star, Play, TrendingUp, Clock, Gamepad2 } from "lucide-react";
 import { GameCasinoModal } from "@/components/game/game-casino-modal";
+import { api } from "@/lib/api";
+import type { Game } from "@shared/schema";
 
 export default function Games() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -15,75 +17,33 @@ export default function Games() {
   const [sortBy, setSortBy] = useState("popularity");
   const [filterBy, setFilterBy] = useState("all");
 
-  // Mock games data - in real app this would come from API
-  const games = [
-    {
-      id: "1",
-      name: "Book of Dead",
-      provider: "Play'n GO",
-      category: "Slots",
-      rtp: "96.21%",
-      volatility: "High",
-      rating: 4.8,
-      imageUrl: "https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?w=300&h=200&fit=crop",
-      demoUrl: "#",
-      description: "Adventure-themed slot with expanding symbols and free spins."
-    },
-    {
-      id: "2", 
-      name: "Starburst",
-      provider: "NetEnt",
-      category: "Slots",
-      rtp: "96.09%",
-      volatility: "Low",
-      rating: 4.6,
-      imageUrl: "https://images.unsplash.com/photo-1518709594023-6eab9bab7b23?w=300&h=200&fit=crop",
-      demoUrl: "#",
-      description: "Classic arcade-style slot with expanding wilds."
-    },
-    {
-      id: "3",
-      name: "Lightning Roulette",
-      provider: "Evolution Gaming",
-      category: "Live Casino",
-      rtp: "97.30%", 
-      volatility: "Medium",
-      rating: 4.9,
-      imageUrl: "https://images.unsplash.com/photo-1521130726557-5e7e0c665fd3?w=300&h=200&fit=crop",
-      demoUrl: "#",
-      description: "Live roulette with random lightning multipliers up to 500x."
-    },
-    {
-      id: "4",
-      name: "Blackjack Classic",
-      provider: "NetEnt",
-      category: "Table Games",
-      rtp: "99.28%",
-      volatility: "Low",
-      rating: 4.7,
-      imageUrl: "https://images.unsplash.com/photo-1569819563721-99d144ffa9b1?w=300&h=200&fit=crop",
-      demoUrl: "#",
-      description: "Classic blackjack with optimal strategy hints."
-    },
-  ];
+  // Fetch games from API
+  const { data: games = [], isLoading: loadingGames } = useQuery<Game[]>({
+    queryKey: ['/api/games', { type: filterBy !== 'all' ? filterBy : undefined, search: searchQuery }],
+    queryFn: () => api.getGames({ 
+      type: filterBy !== 'all' ? filterBy : undefined, 
+      search: searchQuery || undefined 
+    }),
+  });
 
   const filteredGames = games.filter(game => {
-    const matchesSearch = game.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         game.provider.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filterBy === "all" || game.category.toLowerCase() === filterBy;
-    return matchesSearch && matchesFilter;
+    const matchesSearch = searchQuery === "" || 
+      game.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      game.provider.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      game.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter = filterBy === "all" || game.type.toLowerCase() === filterBy;
+    return matchesSearch && matchesFilter && game.isActive;
   });
 
   const sortedGames = [...filteredGames].sort((a, b) => {
     switch (sortBy) {
-      case "rating":
-        return b.rating - a.rating;
       case "rtp":
-        return parseFloat(b.rtp) - parseFloat(a.rtp);
+        return parseFloat(b.rtp || '0') - parseFloat(a.rtp || '0');
       case "name":
         return a.name.localeCompare(b.name);
+      case "popularity":
       default:
-        return 0;
+        return a.name.localeCompare(b.name);
     }
   });
 
@@ -158,8 +118,13 @@ export default function Games() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {sortedGames.map((game) => (
+          {loadingGames ? (
+            <div className="flex justify-center items-center py-16">
+              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-turquoise"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {sortedGames.map((game) => (
               <Card 
                 key={game.id} 
                 className="hover:shadow-lg transition-shadow cursor-pointer group"
@@ -188,13 +153,13 @@ export default function Games() {
                     />
                     <div className="absolute top-2 right-2">
                       <Badge variant="secondary" className="bg-black/70 text-white">
-                        {game.category}
+                        {game.type.charAt(0).toUpperCase() + game.type.slice(1)}
                       </Badge>
                     </div>
                     <div className="absolute bottom-2 left-2">
                       <div className="flex items-center space-x-1 bg-black/70 rounded px-2 py-1">
                         <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                        <span className="text-white text-sm">{game.rating}</span>
+                        <span className="text-white text-sm">RTP: {game.rtp}%</span>
                       </div>
                     </div>
                   </div>
@@ -221,7 +186,7 @@ export default function Games() {
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">RTP:</span>
-                      <span className="font-medium text-green-600">{game.rtp}</span>
+                      <span className="font-medium text-green-600">{game.rtp}%</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Volatility:</span>
@@ -252,8 +217,9 @@ export default function Games() {
                   </div>
                 </CardContent>
               </Card>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

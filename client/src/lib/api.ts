@@ -54,6 +54,20 @@ export const api = {
   getExpertReviews: (casinoId: string) => 
     fetch(`/api/expert-reviews/casino/${casinoId}`).then(res => res.json()),
 
+  // Games
+  getGames: (filters?: { type?: string; provider?: string; minRtp?: number; volatility?: string; search?: string }) => {
+    const params = new URLSearchParams();
+    if (filters?.type) params.append('type', filters.type);
+    if (filters?.provider) params.append('provider', filters.provider);
+    if (filters?.minRtp) params.append('minRtp', filters.minRtp.toString());
+    if (filters?.volatility) params.append('volatility', filters.volatility);
+    if (filters?.search) params.append('search', filters.search);
+    return fetch(`/api/games${params.toString() ? `?${params.toString()}` : ''}`).then(res => res.json());
+  },
+
+  getGame: (id: string) => 
+    fetch(`/api/games/${id}`).then(res => res.json()),
+
   // Blog
   getBlogPosts: (published = true) => 
     fetch(`/api/blog?published=${published}`).then(res => res.json()),
