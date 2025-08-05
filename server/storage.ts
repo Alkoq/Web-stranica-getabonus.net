@@ -582,6 +582,77 @@ export class MemStorage implements IStorage {
 
       this.expertReviews.set(stakeExpertReview.id, stakeExpertReview);
       this.expertReviews.set(roobetExpertReview.id, roobetExpertReview);
+
+      // Add some user reviews for first two casinos
+      const stakeUserReview1: Review = {
+        id: randomUUID(),
+        casinoId: casinos[0].id,
+        userId: randomUUID(),
+        title: "Excellent crypto casino experience",
+        content: "Been playing here for over a year. Lightning fast withdrawals and great game selection.",
+        overallRating: 9,
+        bonusesRating: 8,
+        designRating: 9,
+        payoutsRating: 10,
+        customerSupportRating: 8,
+        gameSelectionRating: 9,
+        mobileExperienceRating: 9,
+        userName: "CryptoPlayer23",
+        pros: ["Fast withdrawals", "Great games", "VIP program"],
+        cons: ["Support could be faster"],
+        isVerified: true,
+        isPublished: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const stakeUserReview2: Review = {
+        id: randomUUID(),
+        casinoId: casinos[0].id,
+        userId: randomUUID(),
+        title: "Best crypto casino",
+        content: "Amazing bonuses and provably fair games. Highly recommend!",
+        overallRating: 8,
+        bonusesRating: 9,
+        designRating: 8,
+        payoutsRating: 9,
+        customerSupportRating: 7,
+        gameSelectionRating: 8,
+        mobileExperienceRating: 8,
+        userName: "BitcoinFan",
+        pros: ["Provably fair", "Good bonuses"],
+        cons: ["Limited fiat options"],
+        isVerified: false,
+        isPublished: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const roobetUserReview: Review = {
+        id: randomUUID(),
+        casinoId: casinos[1].id,
+        userId: randomUUID(),
+        title: "Great for streamers",
+        content: "Love the community aspect and original games. Perfect for streaming.",
+        overallRating: 8,
+        bonusesRating: 8,
+        designRating: 9,
+        payoutsRating: 8,
+        customerSupportRating: 8,
+        gameSelectionRating: 7,
+        mobileExperienceRating: 8,
+        userName: "StreamerGuy",
+        pros: ["Original games", "Community features"],
+        cons: ["Limited game providers"],
+        isVerified: true,
+        isPublished: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      this.reviews.set(stakeUserReview1.id, stakeUserReview1);
+      this.reviews.set(stakeUserReview2.id, stakeUserReview2);
+      this.reviews.set(roobetUserReview.id, roobetUserReview);
     }
   }
 
