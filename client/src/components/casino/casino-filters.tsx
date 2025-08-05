@@ -33,17 +33,40 @@ export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilter
     handleFilterChange(key, updatedArray.length > 0 ? updatedArray : undefined);
   };
 
+  // Helper function to calculate safety index for filter counting
+  const calculateSafetyIndex = (casino: any) => {
+    const casinoExpertReviews = expertReviews.filter((r: any) => r.casinoId === casino.id);
+    const casinoUserReviews = userReviews.filter((r: any) => r.casinoId === casino.id);
+    
+    const expertRating = casinoExpertReviews.length > 0 
+      ? casinoExpertReviews.reduce((acc: number, r: any) => acc + parseFloat(r.overallRating), 0) / casinoExpertReviews.length 
+      : 0;
+    
+    const userRating = casinoUserReviews.length > 0 
+      ? casinoUserReviews.reduce((acc: number, r: any) => acc + r.overallRating, 0) / casinoUserReviews.length 
+      : 0;
+    
+    if (expertRating > 0 && userRating > 0) {
+      return (expertRating + userRating) / 2;
+    } else if (expertRating > 0) {
+      return expertRating;
+    } else if (userRating > 0) {
+      return userRating;
+    }
+    return parseFloat(casino.safetyIndex || '0');
+  };
+
   const safetyIndexOptions = [
     { 
       label: "Very High (9.0+)", 
       value: 9.0, 
-      count: casinos.filter(c => parseFloat(c.safetyIndex || '0') >= 9.0).length 
+      count: casinos.filter(c => calculateSafetyIndex(c) >= 9.0).length 
     },
     { 
       label: "High (8.0-8.9)", 
       value: 8.0, 
       count: casinos.filter(c => {
-        const safety = parseFloat(c.safetyIndex || '0');
+        const safety = calculateSafetyIndex(c);
         return safety >= 8.0 && safety < 9.0;
       }).length 
     },
@@ -51,7 +74,7 @@ export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilter
       label: "Above Average (7.0-7.9)", 
       value: 7.0, 
       count: casinos.filter(c => {
-        const safety = parseFloat(c.safetyIndex || '0');
+        const safety = calculateSafetyIndex(c);
         return safety >= 7.0 && safety < 8.0;
       }).length 
     },

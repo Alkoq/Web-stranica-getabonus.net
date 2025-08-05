@@ -115,9 +115,9 @@ export default function Casinos() {
   };
 
   // Helper function to calculate safety index
-  const getSafetyIndex = (casinoId: string) => {
-    const expertRating = getExpertRating(casinoId);
-    const userRating = getUserRating(casinoId);
+  const getSafetyIndex = (casino: Casino) => {
+    const expertRating = getExpertRating(casino.id);
+    const userRating = getUserRating(casino.id);
     
     if (expertRating > 0 && userRating > 0) {
       return (expertRating + userRating) / 2;
@@ -146,7 +146,7 @@ export default function Casinos() {
 
     // Safety Index filter
     if (filters.minSafetyIndex) {
-      const casinoSafety = getSafetyIndex(casino.id);
+      const casinoSafety = getSafetyIndex(casino);
       if (casinoSafety < filters.minSafetyIndex) return false;
     }
 
