@@ -14,9 +14,16 @@ export default function GameDetail() {
   const [, params] = useRoute("/game/:id");
   const gameId = params?.id;
 
-  const { data: games = [] } = useQuery<Game[]>({
-    queryKey: ['/api/games'],
-    queryFn: () => api.getGames(),
+  const { data: game, isLoading: gameLoading, error: gameError } = useQuery<Game>({
+    queryKey: ['/api/games', gameId],
+    queryFn: async () => {
+      const response = await fetch(`/api/games/${gameId}`);
+      if (!response.ok) {
+        throw new Error('Game not found');
+      }
+      return response.json();
+    },
+    enabled: !!gameId,
   });
 
   const { data: relatedPosts = [] } = useQuery<BlogPost[]>({
@@ -52,8 +59,6 @@ export default function GameDetail() {
     }
   ];
 
-  const game = games.find(g => g.id === gameId);
-
   // Game rating criteria (1-10 scale)
   const gameRatings = {
     graphics: 8.8, // Visual quality and design
@@ -73,7 +78,20 @@ export default function GameDetail() {
     ))
   ).slice(0, 3);
 
-  if (!game) {
+  if (gameLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-pulse">
+            <Gamepad2 className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+            <p className="text-gray-400">Loading game details...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (gameError || !game) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white">
         <div className="container mx-auto px-4 py-16">

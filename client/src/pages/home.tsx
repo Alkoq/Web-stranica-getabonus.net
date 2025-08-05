@@ -730,8 +730,14 @@ export default function Home() {
                     }}
                   >
                     <CardContent className="p-4 flex flex-col h-full">
-                      <div className="aspect-[4/3] bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg mb-4 flex items-center justify-center">
+                      <div className="aspect-[4/3] bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg mb-4 flex items-center justify-center relative">
                         <Gamepad2 className="h-8 w-8 md:h-12 md:w-12 text-white" />
+                        <div className="absolute top-2 left-2">
+                          <div className="flex items-center bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full px-2 py-1 shadow-lg">
+                            <Star className="h-3 w-3 text-white fill-current mr-1" />
+                            <span className="text-xs font-bold">8.2</span>
+                          </div>
+                        </div>
                       </div>
                       <h3 className="font-semibold text-base md:text-lg mb-1 line-clamp-1">{game.name}</h3>
                       <p className="text-sm text-muted-foreground mb-3 line-clamp-1">{game.provider}</p>
