@@ -309,7 +309,6 @@ export const insertHelpfulVoteSchema = createInsertSchema(helpfulVotes).omit({
   id: true,
   createdAt: true,
 });
-});
 
 export const insertComparisonSchema = createInsertSchema(comparisons).omit({
   id: true,
