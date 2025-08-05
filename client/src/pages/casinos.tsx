@@ -74,6 +74,12 @@ export default function Casinos() {
     enabled: casinos.length > 0,
   });
 
+  // Fetch all bonuses for filters
+  const { data: allBonuses = [] } = useQuery({
+    queryKey: ['/api/bonuses'],
+    queryFn: () => api.getBonuses(),
+  });
+
   // Search results for suggestions
   const searchResults = useMemo(() => {
     if (searchQuery.length < 2) return [];
@@ -375,6 +381,7 @@ export default function Casinos() {
               casinos={casinos}
               expertReviews={allExpertReviews}
               userReviews={allUserReviews}
+              bonuses={allBonuses}
             />
           </aside>
 
@@ -441,6 +448,7 @@ export default function Casinos() {
                   casinos={casinos}
                   expertReviews={allExpertReviews}
                   userReviews={allUserReviews}
+                  bonuses={allBonuses}
                 />
               </div>
             )}

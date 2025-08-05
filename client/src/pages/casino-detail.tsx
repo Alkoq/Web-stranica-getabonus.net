@@ -1,6 +1,8 @@
 import { useParams, Link } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
+import { queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +33,7 @@ import { api } from "@/lib/api";
 
 export default function CasinoDetailPage() {
   const { id } = useParams();
+  const { toast } = useToast();
   const [newReview, setNewReview] = useState({
     title: "",
     content: "",
@@ -540,6 +543,78 @@ export default function CasinoDetailPage() {
     { key: 'gameSelectionRating', label: 'Games', icon: '🎮' },
     { key: 'mobileExperienceRating', label: 'Mobile', icon: '📱' }
   ];
+
+  // Mutation for creating reviews
+  const createReviewMutation = useMutation({
+    mutationFn: (reviewData: any) => api.createReview(reviewData),
+    onSuccess: () => {
+      // Reset form
+      setNewReview({
+        title: "",
+        content: "",
+        userName: "",
+        overallRating: 5,
+        bonusesRating: 5,
+        designRating: 5,
+        payoutsRating: 5,
+        customerSupportRating: 5,
+        gameSelectionRating: 5,
+        mobileExperienceRating: 5
+      });
+      // Show success message
+      toast({
+        title: "Review Submitted!",
+        description: "Your review has been successfully submitted and will appear shortly.",
+        variant: "default",
+      });
+      // Refresh reviews
+      queryClient.invalidateQueries({ queryKey: ['/api/reviews', id] });
+    },
+    onError: (error: any) => {
+      console.error('Error submitting review:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit your review. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleSubmitReview = () => {
+    if (!id || !newReview.userName.trim() || !newReview.title.trim() || !newReview.content.trim()) {
+      return;
+    }
+
+    // Calculate overall rating as average of all ratings
+    const overallRating = Math.round((
+      newReview.bonusesRating +
+      newReview.designRating +
+      newReview.payoutsRating +
+      newReview.customerSupportRating +
+      newReview.gameSelectionRating +
+      newReview.mobileExperienceRating
+    ) / 6);
+
+    const reviewData = {
+      casinoId: id,
+      title: newReview.title,
+      content: newReview.content,
+      userName: newReview.userName,
+      overallRating: overallRating,
+      bonusesRating: newReview.bonusesRating,
+      designRating: newReview.designRating,
+      payoutsRating: newReview.payoutsRating,
+      customerSupportRating: newReview.customerSupportRating,
+      gameSelectionRating: newReview.gameSelectionRating,
+      mobileExperienceRating: newReview.mobileExperienceRating,
+      pros: [],
+      cons: [],
+      isVerified: false,
+      isPublished: true
+    };
+
+    createReviewMutation.mutate(reviewData);
+  };
 
   if (casinoLoading) {
     return (
@@ -1148,9 +1223,14 @@ export default function CasinoDetailPage() {
                       </div>
                     </div>
 
-                    <Button className="w-full bg-turquoise hover:bg-turquoise/90">
+                    <Button 
+                      className="w-full bg-turquoise hover:bg-turquoise/90"
+                      onClick={handleSubmitReview}
+                      disabled={createReviewMutation.isPending || !newReview.userName.trim() || !newReview.title.trim() || !newReview.content.trim()}
+                      data-testid="button-submit-review"
+                    >
                       <MessageSquare className="h-4 w-4 mr-2" />
-                      Submit Review
+                      {createReviewMutation.isPending ? 'Submitting...' : 'Submit Review'}
                     </Button>
                   </div>
                 </CardContent>

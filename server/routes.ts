@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import jwt from 'jsonwebtoken';
-import { insertNewsletterSubscriberSchema, insertComparisonSchema } from "@shared/schema";
+import { insertNewsletterSubscriberSchema, insertComparisonSchema, insertReviewSchema } from "@shared/schema";
 import { z } from "zod";
 
 // Simple admin credentials (in production use environment variables)
@@ -136,6 +136,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(reviews);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch reviews" });
+    }
+  });
+
+  // Add a new review
+  app.post("/api/reviews", async (req, res) => {
+    try {
+      const validatedData = insertReviewSchema.parse(req.body);
+      const review = await storage.createReview(validatedData);
+      res.status(201).json(review);
+    } catch (error) {
+      console.error("Error creating review:", error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid review data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to create review" });
+      }
     }
   });
 

@@ -41,6 +41,15 @@ export const api = {
   getReviewsByCasino: (casinoId: string) => 
     fetch(`/api/reviews/casino/${casinoId}`).then(res => res.json()),
 
+  createReview: (reviewData: any) => 
+    fetch('/api/reviews', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(reviewData),
+    }).then(res => res.json()),
+
   // Expert Reviews
   getExpertReviews: (casinoId: string) => 
     fetch(`/api/expert-reviews/casino/${casinoId}`).then(res => res.json()),

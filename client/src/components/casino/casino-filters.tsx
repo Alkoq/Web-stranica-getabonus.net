@@ -13,9 +13,10 @@ interface CasinoFiltersProps {
   casinos?: any[]; // For counting filter options
   expertReviews?: any[];
   userReviews?: any[];
+  bonuses?: any[];
 }
 
-export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilters, casinos = [], expertReviews = [], userReviews = [] }: CasinoFiltersProps) {
+export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilters, casinos = [], expertReviews = [], userReviews = [], bonuses = [] }: CasinoFiltersProps) {
   const [localFilters, setLocalFilters] = useState<CasinoFilters>(filters);
 
   // Update local filters when external filters change (e.g., when cleared)
@@ -379,7 +380,7 @@ export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilter
             <h4 className="font-semibold text-foreground mb-3">Bonus Type</h4>
             <div className="space-y-2">
               {bonusTypeOptions.map((bonusType) => (
-                <label key={bonusType} className="flex items-center justify-between cursor-pointer">
+                <label key={String(bonusType)} className="flex items-center justify-between cursor-pointer">
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       checked={localFilters.bonusType === bonusType}
@@ -387,10 +388,10 @@ export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilter
                         handleFilterChange('bonusType', checked ? bonusType : undefined);
                       }}
                     />
-                    <span className="text-sm">{bonusType}</span>
+                    <span className="text-sm">{String(bonusType)}</span>
                   </div>
                   <Badge variant="secondary" className="text-xs">
-                    {bonuses?.filter((b: any) => b.type === bonusType).length || 0}
+                    {bonuses.filter((b: any) => b.type === bonusType).length}
                   </Badge>
                 </label>
               ))}
