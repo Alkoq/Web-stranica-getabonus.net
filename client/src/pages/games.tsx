@@ -182,13 +182,6 @@ export default function Games() {
                   
                   <div className="space-y-2 mb-4">
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Rating:</span>
-                      <div className="flex items-center">
-                        <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
-                        <span className="font-medium">8.2/10</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Provider:</span>
                       <span className="font-medium">{game.provider}</span>
                     </div>

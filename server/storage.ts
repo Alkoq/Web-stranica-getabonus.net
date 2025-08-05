@@ -811,6 +811,43 @@ export class MemStorage implements IStorage {
       this.reviews.set(stakeUserReview1.id, stakeUserReview1);
       this.reviews.set(stakeUserReview2.id, stakeUserReview2);
       this.reviews.set(roobetUserReview.id, roobetUserReview);
+
+      // Add sample bonus and game reviews to demonstrate rating system
+      const stakeBonus = Array.from(this.bonuses.values()).find(b => b.casinoId === casinos[0].id);
+      if (stakeBonus) {
+        const stakeBonusReview: Review = {
+          id: randomUUID(),
+          bonusId: stakeBonus.id,
+          userId: randomUUID(),
+          title: "Excellent welcome bonus",
+          content: "Amazing 560,000 Gold Coins plus $56 Stake Cash. Very fair wagering at 1x!",
+          overallRating: 9,
+          userName: "BonusHunter22",
+          isVerified: true,
+          isPublished: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        this.reviews.set(stakeBonusReview.id, stakeBonusReview);
+      }
+
+      const bookOfDead = Array.from(this.games.values()).find(g => g.name === "Book of Dead");
+      if (bookOfDead) {
+        const bookOfDeadReview: Review = {
+          id: randomUUID(),
+          gameId: bookOfDead.id,
+          userId: randomUUID(),
+          title: "Great adventure slot",
+          content: "Love the expanding symbols and free spins. High volatility but worth it for big wins!",
+          overallRating: 8,
+          userName: "SlotFan99",
+          isVerified: false,
+          isPublished: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        this.reviews.set(bookOfDeadReview.id, bookOfDeadReview);
+      }
     }
   }
 
@@ -938,6 +975,18 @@ export class MemStorage implements IStorage {
   async getReviewsByCasino(casinoId: string): Promise<Review[]> {
     return Array.from(this.reviews.values())
       .filter(review => review.casinoId === casinoId && review.isPublished)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async getReviewsByBonusId(bonusId: string): Promise<Review[]> {
+    return Array.from(this.reviews.values())
+      .filter(review => review.bonusId === bonusId && review.isPublished)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async getReviewsByGameId(gameId: string): Promise<Review[]> {
+    return Array.from(this.reviews.values())
+      .filter(review => review.gameId === gameId && review.isPublished)
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 

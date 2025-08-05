@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Clock, Gift, Star } from "lucide-react";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 import type { Bonus } from "@shared/schema";
 
 interface BonusCardProps {
@@ -12,6 +14,11 @@ interface BonusCardProps {
 }
 
 export function BonusCard({ bonus, casinoName, casinoLogo, affiliateUrl }: BonusCardProps) {
+  // Fetch bonus reviews to calculate average rating
+  const { data: bonusReviews = [] } = useQuery({
+    queryKey: ['/api/reviews/bonus', bonus.id],
+    queryFn: () => fetch(`/api/reviews/bonus/${bonus.id}`).then(res => res.json()),
+  });
   const getBonusTypeColor = (type: string) => {
     switch (type.toLowerCase()) {
       case 'no_deposit':
@@ -79,13 +86,18 @@ export function BonusCard({ bonus, casinoName, casinoLogo, affiliateUrl }: Bonus
     return 'Ending soon';
   };
 
-  // Simulated average rating (would come from API in real app)
-  const getAverageRating = (bonusId: string) => {
-    // Mock ratings based on bonus ID for consistent display
-    const ratings = {
-      'default': 7.8
-    };
-    return ratings['default'];
+  // Calculate average rating from expert and user reviews
+  const getAverageRating = () => {
+    if (bonusReviews.length === 0) {
+      return null; // No reviews available
+    }
+
+    // Calculate average user rating
+    const userRatingSum = bonusReviews.reduce((sum: number, review: any) => sum + review.overallRating, 0);
+    const averageUserRating = userRatingSum / bonusReviews.length;
+
+    // For now, just return user average. In full implementation, would combine with expert ratings
+    return averageUserRating.toFixed(1);
   };
 
   return (
@@ -111,10 +123,12 @@ export function BonusCard({ bonus, casinoName, casinoLogo, affiliateUrl }: Bonus
           {getBonusTypeName(bonus.type)}
         </Badge>
         <div className="flex items-center gap-2">
-          <div className="flex items-center bg-white/20 rounded-full px-2 py-1">
-            <Star className="h-3 w-3 text-yellow-300 mr-1" />
-            <span className="text-sm font-semibold">{getAverageRating(bonus.id)}/10</span>
-          </div>
+          {getAverageRating() && (
+            <div className="flex items-center bg-white/20 rounded-full px-2 py-1">
+              <Star className="h-3 w-3 text-yellow-300 mr-1" />
+              <span className="text-sm font-semibold">{getAverageRating()}/10</span>
+            </div>
+          )}
           <span className="text-2xl">{getBonusTypeIcon(bonus.type)}</span>
         </div>
       </div>
