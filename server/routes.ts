@@ -182,6 +182,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // POST endpoint specifically for game reviews
+  app.post("/api/reviews/game", async (req, res) => {
+    try {
+      const validatedData = insertReviewSchema.parse(req.body);
+      const review = await storage.createReview(validatedData);
+      res.status(201).json(review);
+    } catch (error) {
+      console.error("Error creating game review:", error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid game review data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to create game review" });
+      }
+    }
+  });
+
   // Add helpful vote to review
   app.post("/api/reviews/:reviewId/helpful", async (req, res) => {
     try {

@@ -16,9 +16,12 @@ import {
   type Comparison,
   type InsertComparison,
   type Game,
-  type InsertGame
+  type InsertGame,
+  users, casinos, bonuses, reviews, expertReviews, blogPosts, newsletterSubscribers, comparisons, games
 } from "@shared/schema";
 import { randomUUID } from "crypto";
+import { db } from "./db";
+import { eq, desc, and } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -1212,4 +1215,323 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Database Storage Implementation using Drizzle ORM
+export class DatabaseStorage implements IStorage {
+  // Users
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db.insert(users).values(insertUser).returning();
+    return user;
+  }
+
+  // Casinos
+  async getCasinos(filters?: CasinoFilters): Promise<Casino[]> {
+    const allCasinos = await db.select().from(casinos).where(eq(casinos.isActive, true));
+    
+    if (!filters) {
+      return allCasinos;
+    }
+
+    let filteredCasinos = allCasinos;
+
+    if (filters.safetyIndex) {
+      filteredCasinos = filteredCasinos.filter(casino => casino.safetyIndex === filters.safetyIndex);
+    }
+    
+    if (filters.features && filters.features.length > 0) {
+      filteredCasinos = filteredCasinos.filter(casino => 
+        casino.features && filters.features!.every(feature => casino.features!.includes(feature))
+      );
+    }
+    
+    if (filters.paymentMethods && filters.paymentMethods.length > 0) {
+      filteredCasinos = filteredCasinos.filter(casino => 
+        casino.paymentMethods && filters.paymentMethods!.some(method => casino.paymentMethods!.includes(method))
+      );
+    }
+    
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      filteredCasinos = filteredCasinos.filter(casino => 
+        casino.name.toLowerCase().includes(searchLower) ||
+        casino.description?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    return filteredCasinos;
+  }
+
+  async getFeaturedCasinos(): Promise<Casino[]> {
+    return await db.select().from(casinos).where(and(eq(casinos.isFeatured, true), eq(casinos.isActive, true)));
+  }
+
+  async getCasino(id: string): Promise<Casino | undefined> {
+    const [casino] = await db.select().from(casinos).where(eq(casinos.id, id));
+    return casino || undefined;
+  }
+
+  async createCasino(insertCasino: InsertCasino): Promise<Casino> {
+    const [casino] = await db.insert(casinos).values(insertCasino).returning();
+    return casino;
+  }
+
+  async updateCasino(id: string, updates: Partial<InsertCasino>): Promise<Casino> {
+    const [casino] = await db.update(casinos).set({ ...updates, updatedAt: new Date() }).where(eq(casinos.id, id)).returning();
+    return casino;
+  }
+
+  // Bonuses
+  async getBonuses(casinoId?: string): Promise<Bonus[]> {
+    if (casinoId) {
+      return await db.select().from(bonuses).where(and(eq(bonuses.casinoId, casinoId), eq(bonuses.isActive, true)));
+    }
+    return await db.select().from(bonuses).where(eq(bonuses.isActive, true));
+  }
+
+  async getFeaturedBonuses(): Promise<Bonus[]> {
+    return await db.select().from(bonuses).where(and(eq(bonuses.isFeatured, true), eq(bonuses.isActive, true)));
+  }
+
+  async getBonus(id: string): Promise<Bonus | undefined> {
+    const [bonus] = await db.select().from(bonuses).where(eq(bonuses.id, id));
+    return bonus || undefined;
+  }
+
+  async createBonus(insertBonus: InsertBonus): Promise<Bonus> {
+    const [bonus] = await db.insert(bonuses).values(insertBonus).returning();
+    return bonus;
+  }
+
+  // Reviews
+  async getReviewsByCasino(casinoId: string): Promise<Review[]> {
+    return await db.select().from(reviews)
+      .where(and(eq(reviews.casinoId, casinoId), eq(reviews.isPublished, true)))
+      .orderBy(desc(reviews.createdAt));
+  }
+
+  async getReviewsByBonusId(bonusId: string): Promise<Review[]> {
+    return await db.select().from(reviews)
+      .where(and(eq(reviews.bonusId, bonusId), eq(reviews.isPublished, true)))
+      .orderBy(desc(reviews.createdAt));
+  }
+
+  async getReviewsByGameId(gameId: string): Promise<Review[]> {
+    return await db.select().from(reviews)
+      .where(and(eq(reviews.gameId, gameId), eq(reviews.isPublished, true)))
+      .orderBy(desc(reviews.createdAt));
+  }
+
+  async getReview(id: string): Promise<Review | undefined> {
+    const [review] = await db.select().from(reviews).where(eq(reviews.id, id));
+    return review || undefined;
+  }
+
+  async createReview(insertReview: InsertReview): Promise<Review> {
+    const reviewData = {
+      ...insertReview,
+      id: randomUUID(),
+      helpfulVotes: 0,
+      isPublished: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    const [review] = await db.insert(reviews).values(reviewData).returning();
+    return review;
+  }
+
+  async addHelpfulVote(reviewId: string): Promise<Review> {
+    const [review] = await db.select().from(reviews).where(eq(reviews.id, reviewId));
+    if (!review) {
+      throw new Error("Review not found");
+    }
+
+    const [updatedReview] = await db.update(reviews)
+      .set({ 
+        helpfulVotes: (review.helpfulVotes || 0) + 1,
+        updatedAt: new Date()
+      })
+      .where(eq(reviews.id, reviewId))
+      .returning();
+    
+    return updatedReview;
+  }
+
+  // Calculate user reviews average rating for casino
+  async getUserReviewsAverageRating(casinoId: string): Promise<number> {
+    const casinoReviews = await this.getReviewsByCasino(casinoId);
+    if (casinoReviews.length === 0) return 0;
+    
+    const sum = casinoReviews.reduce((acc, review) => acc + review.overallRating, 0);
+    return Math.round((sum / casinoReviews.length) * 10) / 10;
+  }
+
+  // Calculate user reviews average rating for bonus
+  async getBonusUserReviewsAverageRating(bonusId: string): Promise<number> {
+    const bonusReviews = await this.getReviewsByBonusId(bonusId);
+    if (bonusReviews.length === 0) return 0;
+    
+    const sum = bonusReviews.reduce((acc, review) => acc + review.overallRating, 0);
+    return Math.round((sum / bonusReviews.length) * 10) / 10;
+  }
+
+  // Calculate user reviews average rating for game
+  async getGameUserReviewsAverageRating(gameId: string): Promise<number> {
+    const gameReviews = await this.getReviewsByGameId(gameId);
+    if (gameReviews.length === 0) return 0;
+    
+    const sum = gameReviews.reduce((acc, review) => acc + review.overallRating, 0);
+    return Math.round((sum / gameReviews.length) * 10) / 10;
+  }
+
+  async getCasinoSafetyRating(casinoId: string): Promise<number> {
+    const casino = await this.getCasino(casinoId);
+    if (!casino) return 0;
+    
+    // Map safety index to numeric ratings
+    const safetyMap: { [key: string]: number } = {
+      'Vrlo visok': 10,
+      'Visok': 8,
+      'Umeren': 6,
+      'Nizak': 4,
+      'Vrlo nizak': 2
+    };
+    
+    return safetyMap[casino.safetyIndex] || 6;
+  }
+
+  // Expert Reviews
+  async getExpertReviewsByCasino(casinoId: string): Promise<ExpertReview[]> {
+    return await db.select().from(expertReviews)
+      .where(eq(expertReviews.casinoId, casinoId))
+      .orderBy(desc(expertReviews.createdAt));
+  }
+
+  async getExpertReview(id: string): Promise<ExpertReview | undefined> {
+    const [review] = await db.select().from(expertReviews).where(eq(expertReviews.id, id));
+    return review || undefined;
+  }
+
+  async createExpertReview(insertReview: InsertExpertReview): Promise<ExpertReview> {
+    const [review] = await db.insert(expertReviews).values(insertReview).returning();
+    return review;
+  }
+
+  // Blog Posts
+  async getBlogPosts(published = true): Promise<BlogPost[]> {
+    if (published) {
+      return await db.select().from(blogPosts)
+        .where(eq(blogPosts.isPublished, true))
+        .orderBy(desc(blogPosts.publishedAt));
+    }
+    return await db.select().from(blogPosts).orderBy(desc(blogPosts.createdAt));
+  }
+
+  async getBlogPost(id: string): Promise<BlogPost | undefined> {
+    const [post] = await db.select().from(blogPosts).where(eq(blogPosts.id, id));
+    return post || undefined;
+  }
+
+  async getBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
+    const [post] = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug));
+    return post || undefined;
+  }
+
+  async createBlogPost(insertBlogPost: InsertBlogPost): Promise<BlogPost> {
+    const [post] = await db.insert(blogPosts).values(insertBlogPost).returning();
+    return post;
+  }
+
+  // Newsletter
+  async subscribeNewsletter(insertSubscriber: InsertNewsletterSubscriber): Promise<NewsletterSubscriber> {
+    const [subscriber] = await db.insert(newsletterSubscribers).values(insertSubscriber).returning();
+    return subscriber;
+  }
+
+  async getNewsletterSubscriber(email: string): Promise<NewsletterSubscriber | undefined> {
+    const [subscriber] = await db.select().from(newsletterSubscribers).where(eq(newsletterSubscribers.email, email));
+    return subscriber || undefined;
+  }
+
+  // Comparisons
+  async createComparison(insertComparison: InsertComparison): Promise<Comparison> {
+    const [comparison] = await db.insert(comparisons).values(insertComparison).returning();
+    return comparison;
+  }
+
+  async getComparison(id: string): Promise<Comparison | undefined> {
+    const [comparison] = await db.select().from(comparisons).where(eq(comparisons.id, id));
+    return comparison || undefined;
+  }
+
+  // Games
+  async getGames(filters?: GameFilters): Promise<Game[]> {
+    let query = db.select().from(games).where(eq(games.isActive, true));
+    let allGames = await query;
+    
+    if (filters) {
+      if (filters.type) {
+        allGames = allGames.filter(game => game.type.toLowerCase() === filters.type!.toLowerCase());
+      }
+      if (filters.provider) {
+        allGames = allGames.filter(game => game.provider.toLowerCase().includes(filters.provider!.toLowerCase()));
+      }
+      if (filters.volatility) {
+        allGames = allGames.filter(game => game.volatility?.toLowerCase() === filters.volatility!.toLowerCase());
+      }
+      if (filters.minRtp) {
+        allGames = allGames.filter(game => game.rtp && parseFloat(game.rtp) >= filters.minRtp!);
+      }
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        allGames = allGames.filter(game => 
+          game.name.toLowerCase().includes(searchLower) ||
+          game.provider.toLowerCase().includes(searchLower) ||
+          game.description?.toLowerCase().includes(searchLower) ||
+          game.tags.some(tag => tag.toLowerCase().includes(searchLower))
+        );
+      }
+    }
+    
+    return allGames.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  async getGame(id: string): Promise<Game | undefined> {
+    const [game] = await db.select().from(games).where(eq(games.id, id));
+    return game || undefined;
+  }
+
+  async createGame(insertGame: InsertGame): Promise<Game> {
+    const [game] = await db.insert(games).values(insertGame).returning();
+    return game;
+  }
+
+  async getStats() {
+    const [casinoCount] = await db.select({ count: casinos.id }).from(casinos);
+    const [bonusCount] = await db.select({ count: bonuses.id }).from(bonuses);
+    const [gameCount] = await db.select({ count: games.id }).from(games);
+    
+    return {
+      totalCasinos: casinoCount ? 1 : 0,
+      totalBonuses: bonusCount ? 1 : 0,
+      totalGames: gameCount ? 1 : 0,
+      totalUsers: 24500  // Mock value for now
+    };
+  }
+}
+
+export const storage = new DatabaseStorage();
