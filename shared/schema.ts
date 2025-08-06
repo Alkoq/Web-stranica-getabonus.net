@@ -107,12 +107,24 @@ export const blogPosts = pgTable("blog_posts", {
   slug: text("slug").notNull().unique(),
   excerpt: text("excerpt"),
   content: text("content").notNull(),
-  featuredImage: text("featured_image"),
+  featuredImage: text("featured_image"), // Main preview image
+  contentMedia: jsonb("content_media").$type<Array<{
+    type: 'image' | 'youtube';
+    url: string;
+    position: number; // Position in content (character index)
+    caption?: string;
+    alt?: string; // For images
+    videoId?: string; // For YouTube videos
+  }>>().default([]), // Embeddable media in content
   authorId: varchar("author_id").references(() => users.id),
   category: text("category").notNull(),
   tags: jsonb("tags").$type<string[]>().default([]),
   readTime: integer("read_time"), // minutes
+  metaDescription: text("meta_description"), // SEO description
+  relatedCasinos: jsonb("related_casinos").$type<string[]>().default([]), // Casino IDs
+  relatedGames: jsonb("related_games").$type<string[]>().default([]), // Game IDs
   isPublished: boolean("is_published").default(false),
+  isFeatured: boolean("is_featured").default(false),
   publishedAt: timestamp("published_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

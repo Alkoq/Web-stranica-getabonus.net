@@ -23,7 +23,15 @@ const blogFormSchema = z.object({
   author: z.string().min(2, "Autor je obavezan"),
   category: z.string().min(1, "Kategorija je obavezna"),
   tags: z.array(z.string()).default([]),
-  imageUrl: z.string().url("Molimo unesite valjan URL").optional().or(z.literal("")),
+  featuredImage: z.string().url("Molimo unesite valjan URL").optional().or(z.literal("")),
+  contentMedia: z.array(z.object({
+    type: z.enum(['image', 'youtube']),
+    url: z.string(),
+    position: z.number(),
+    caption: z.string().optional(),
+    alt: z.string().optional(),
+    videoId: z.string().optional(),
+  })).default([]),
   metaDescription: z.string().min(20, "Meta opis mora imati najmanje 20 karaktera"),
   relatedCasinos: z.array(z.string()).default([]), // casino IDs
   relatedGames: z.array(z.string()).default([]), // game IDs
@@ -67,6 +75,9 @@ export function BlogForm({ isOpen, onOpenChange, blogPost, onSuccess }: BlogForm
   const [casinos, setCasinos] = useState<Casino[]>([]);
   const [games, setGames] = useState<Game[]>([]);
   const [newTag, setNewTag] = useState("");
+  const [newMediaUrl, setNewMediaUrl] = useState("");
+  const [newMediaType, setNewMediaType] = useState<'image' | 'youtube'>('image');
+  const [newMediaCaption, setNewMediaCaption] = useState("");
   const { toast } = useToast();
   
   const form = useForm<BlogFormData>({
@@ -79,7 +90,8 @@ export function BlogForm({ isOpen, onOpenChange, blogPost, onSuccess }: BlogForm
       author: blogPost?.author || "",
       category: blogPost?.category || "",
       tags: blogPost?.tags || [],
-      imageUrl: blogPost?.imageUrl || "",
+      featuredImage: blogPost?.featuredImage || "",
+      contentMedia: blogPost?.contentMedia || [],
       metaDescription: blogPost?.metaDescription || "",
       relatedCasinos: blogPost?.relatedCasinos || [],
       relatedGames: blogPost?.relatedGames || [],
@@ -140,6 +152,70 @@ export function BlogForm({ isOpen, onOpenChange, blogPost, onSuccess }: BlogForm
       ? current.filter(id => id !== gameId)
       : [...current, gameId];
     form.setValue("relatedGames", newRelatedGames);
+  };
+
+  const addMediaToContent = () => {
+    if (!newMediaUrl.trim()) return;
+    
+    const textArea = document.querySelector('[data-testid="textarea-blog-content"]') as HTMLTextAreaElement;
+    const cursorPosition = textArea?.selectionStart || form.getValues("content").length;
+    
+    let url = newMediaUrl;
+    let videoId = "";
+    
+    // Extract YouTube video ID if it's a YouTube URL
+    if (newMediaType === 'youtube') {
+      const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/;
+      const match = newMediaUrl.match(youtubeRegex);
+      if (match) {
+        videoId = match[1];
+        url = `https://www.youtube.com/embed/${videoId}`;
+      }
+    }
+    
+    const newMedia = {
+      type: newMediaType,
+      url: url,
+      position: cursorPosition,
+      caption: newMediaCaption.trim() || undefined,
+      alt: newMediaType === 'image' ? newMediaCaption.trim() || undefined : undefined,
+      videoId: newMediaType === 'youtube' ? videoId || undefined : undefined,
+    };
+    
+    const currentMedia = form.getValues("contentMedia");
+    form.setValue("contentMedia", [...currentMedia, newMedia]);
+    
+    // Insert placeholder in content
+    const placeholder = newMediaType === 'image' 
+      ? `[SLIKA:${currentMedia.length}]`
+      : `[VIDEO:${currentMedia.length}]`;
+    
+    const currentContent = form.getValues("content");
+    const newContent = currentContent.slice(0, cursorPosition) + 
+                      `\n\n${placeholder}\n\n` + 
+                      currentContent.slice(cursorPosition);
+    
+    form.setValue("content", newContent);
+    
+    // Reset form
+    setNewMediaUrl("");
+    setNewMediaCaption("");
+    setNewMediaType('image');
+  };
+
+  const removeMediaFromContent = (index: number) => {
+    const currentMedia = form.getValues("contentMedia");
+    const updatedMedia = currentMedia.filter((_, i) => i !== index);
+    form.setValue("contentMedia", updatedMedia);
+    
+    // Remove placeholder from content
+    const currentContent = form.getValues("content");
+    const placeholder = currentMedia[index].type === 'image' 
+      ? `[SLIKA:${index}]`
+      : `[VIDEO:${index}]`;
+    
+    const newContent = currentContent.replace(new RegExp(`\\n*${placeholder}\\n*`, 'g'), '\n\n');
+    form.setValue("content", newContent);
   };
 
   // Auto-generate slug from title
@@ -443,16 +519,17 @@ export function BlogForm({ isOpen, onOpenChange, blogPost, onSuccess }: BlogForm
               </TabsContent>
 
               {/* Medija */}
-              <TabsContent value="media" className="space-y-4">
+              <TabsContent value="media" className="space-y-6">
+                {/* Istaknuta slika za preview */}
                 <FormField
                   control={form.control}
-                  name="imageUrl"
+                  name="featuredImage"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Glavna Slika</FormLabel>
+                      <FormLabel className="text-base font-semibold">Istaknuta Slika (za preview-e)</FormLabel>
                       <FormControl>
                         <div className="flex gap-2">
-                          <Input placeholder="https://example.com/blog-image.jpg" {...field} data-testid="input-blog-image" />
+                          <Input placeholder="https://example.com/featured-image.jpg" {...field} data-testid="input-blog-featured-image" />
                           <Button type="button" variant="outline" size="sm">
                             <Upload className="h-4 w-4" />
                           </Button>
@@ -463,17 +540,105 @@ export function BlogForm({ isOpen, onOpenChange, blogPost, onSuccess }: BlogForm
                         <div className="mt-2">
                           <img 
                             src={field.value} 
-                            alt="Preview" 
-                            className="max-w-xs max-h-32 object-cover rounded border"
+                            alt="Featured Preview" 
+                            className="max-w-sm max-h-40 object-cover rounded border"
                             onError={(e) => {
                               e.currentTarget.style.display = 'none';
                             }}
                           />
                         </div>
                       )}
+                      <div className="text-sm text-muted-foreground">
+                        Ova slika će se prikazati na kartama blog postova i u preview-ima
+                      </div>
                     </FormItem>
                   )}
                 />
+
+                {/* Dodavanje medija u sadržaj */}
+                <div className="border rounded-lg p-4 space-y-4">
+                  <h3 className="text-lg font-semibold">Dodaj Sliku/Video u Sadržaj</h3>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium">Tip Medija</label>
+                      <Select value={newMediaType} onValueChange={(value: 'image' | 'youtube') => setNewMediaType(value)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="image">Slika</SelectItem>
+                          <SelectItem value="youtube">YouTube Video</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm font-medium">URL</label>
+                      <Input
+                        placeholder={newMediaType === 'image' ? "https://example.com/image.jpg" : "https://youtube.com/watch?v=..."}
+                        value={newMediaUrl}
+                        onChange={(e) => setNewMediaUrl(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">Opis/Caption (opciono)</label>
+                    <Input
+                      placeholder="Opis slike ili naslova videa"
+                      value={newMediaCaption}
+                      onChange={(e) => setNewMediaCaption(e.target.value)}
+                    />
+                  </div>
+
+                  <Button
+                    type="button"
+                    onClick={addMediaToContent}
+                    disabled={!newMediaUrl.trim()}
+                    className="w-full"
+                  >
+                    Dodaj na Poziciju Kursora
+                  </Button>
+
+                  <div className="text-sm text-muted-foreground">
+                    <p><strong>Kako koristiti:</strong></p>
+                    <p>1. Postavite kursor u sadržaju na mesto gde želite da ubacite medij</p>
+                    <p>2. Izaberite tip (slika/video) i unesite URL</p>
+                    <p>3. Kliknite "Dodaj na Poziciju Kursora"</p>
+                    <p>4. Placeholder će biti ubačen u tekst (npr. [SLIKA:0] ili [VIDEO:0])</p>
+                  </div>
+                </div>
+
+                {/* Lista dodeljenih medija */}
+                {form.watch("contentMedia") && form.watch("contentMedia").length > 0 && (
+                  <div className="border rounded-lg p-4 space-y-3">
+                    <h3 className="text-lg font-semibold">Mediji u Sadržaju</h3>
+                    <div className="space-y-2">
+                      {(form.watch("contentMedia") || []).map((media, index) => (
+                        <div key={index} className="flex items-center justify-between p-2 border rounded">
+                          <div className="flex items-center gap-3">
+                            <Badge variant={media.type === 'image' ? 'default' : 'secondary'}>
+                              {media.type === 'image' ? 'SLIKA' : 'VIDEO'}:{index}
+                            </Badge>
+                            <div className="text-sm">
+                              <div className="font-medium">{media.url}</div>
+                              {media.caption && <div className="text-muted-foreground">{media.caption}</div>}
+                            </div>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => removeMediaFromContent(index)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </TabsContent>
 
               {/* Povezani sadržaj */}
