@@ -120,6 +120,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Casino games route
+  app.get("/api/casino-games/:casinoId", async (req, res) => {
+    try {
+      const games = await storage.getGamesByCasinoId(req.params.casinoId);
+      res.json(games);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch casino games" });
+    }
+  });
+
   app.get("/api/bonuses/featured", async (req, res) => {
     try {
       const bonuses = await storage.getFeaturedBonuses();

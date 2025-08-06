@@ -74,6 +74,20 @@ export default function CasinoDetailPage() {
     enabled: !!id
   });
 
+  // Fetch games for this casino
+  const { data: casinoGames = [] } = useQuery<Game[]>({
+    queryKey: ['/api/casino-games', id],
+    queryFn: () => fetch(`/api/casino-games/${id}`).then(res => res.json()),
+    enabled: !!id
+  });
+
+  // Fetch real blog posts (instead of mock)
+  const { data: allBlogPosts = [] } = useQuery({
+    queryKey: ['/api/blog'],
+    queryFn: () => fetch('/api/blog').then(res => res.json()),
+    enabled: !!id
+  });
+
   // Calculate ratings from real data
   const calculateRatings = () => {
     const expertRating = expertReviews.length > 0 
@@ -174,177 +188,10 @@ export default function CasinoDetailPage() {
     };
   }, [userReviews]);
 
-  const relatedArticles: BlogPost[] = [
-    {
-      id: "article-1",
-      title: "Complete Guide to Crypto Casino Bonuses",
-      slug: "crypto-casino-bonuses-guide",
-      excerpt: "Learn how to maximize your crypto casino bonuses and understand wagering requirements.",
-      content: "",
-      featuredImage: "https://images.unsplash.com/photo-1621752411083-bb1b8c0e0300?w=400&h=200&fit=crop",
-      authorId: "admin-1",
-      category: "Guides",
-      tags: ["bonuses", "crypto", "strategy"],
-      readTime: 8,
-      isPublished: true,
-      publishedAt: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: "article-2",
-      title: "Best Crypto Payment Methods for Online Casinos",
-      slug: "best-crypto-payment-methods",
-      excerpt: "Discover the fastest and most secure crypto payment options for online gambling.",
-      content: "",
-      featuredImage: "https://images.unsplash.com/photo-1640170298593-a16197bd04dc?w=400&h=200&fit=crop",
-      authorId: "admin-1",
-      category: "Crypto",
-      tags: ["crypto", "payments", "security"],
-      readTime: 6,
-      isPublished: true,
-      publishedAt: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: "article-3",
-      title: "How to Choose a Safe Crypto Casino",
-      slug: "safe-crypto-casino-guide",
-      excerpt: "Essential tips for identifying trustworthy crypto casinos and avoiding scams.",
-      content: "",
-      featuredImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=200&fit=crop",
-      authorId: "admin-1",
-      category: "Safety",
-      tags: ["safety", "crypto", "tips"],
-      readTime: 10,
-      isPublished: true,
-      publishedAt: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: "article-4",
-      title: "Crypto Casino vs Traditional Casino: Pros and Cons",
-      slug: "crypto-vs-traditional-casinos",
-      excerpt: "Compare the advantages and disadvantages of crypto casinos versus traditional online casinos.",
-      content: "",
-      featuredImage: "https://images.unsplash.com/photo-1620335527347-9bd4b27e9658?w=400&h=200&fit=crop",
-      authorId: "admin-1",
-      category: "Comparison",
-      tags: ["comparison", "crypto", "traditional"],
-      readTime: 7,
-      isPublished: true,
-      publishedAt: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-  ];
+  // Use real blog posts instead of mock data
+  const relatedArticles = allBlogPosts.slice(0, 3); // Show first 3 blog posts
 
-  const casinoGames: Game[] = [
-    {
-      id: "game-1",
-      name: "Book of Dead",
-      description: "Adventure-themed slot with expanding symbols",
-      provider: "Play'n GO",
-      type: "slot",
-      rtp: "96.21",
-      volatility: "High",
-      minBet: "0.01",
-      maxBet: "100.00",
-      imageUrl: "https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?w=300&h=200&fit=crop",
-      demoUrl: "#",
-      tags: ["adventure", "egypt", "expanding wilds"],
-      isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: "game-2",
-      name: "Lightning Roulette", 
-      description: "Live roulette with random multipliers",
-      provider: "Evolution Gaming",
-      type: "live",
-      rtp: "97.30",
-      volatility: "Medium",
-      minBet: "0.20",
-      maxBet: "5000.00",
-      imageUrl: "https://images.unsplash.com/photo-1521130726557-5e7e0c665fd3?w=300&h=200&fit=crop",
-      demoUrl: "#",
-      tags: ["roulette", "live", "multipliers"],
-      isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: "game-3",
-      name: "Sweet Bonanza",
-      description: "Colorful fruit slot with tumbling reels",
-      provider: "Pragmatic Play",
-      type: "slot",
-      rtp: "96.51",
-      volatility: "High",
-      minBet: "0.20",
-      maxBet: "125.00",
-      imageUrl: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=300&h=200&fit=crop",
-      demoUrl: "#",
-      tags: ["fruit", "tumbling", "high volatility"],
-      isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: "game-4",
-      name: "Crazy Time",
-      description: "Live game show with bonus rounds",
-      provider: "Evolution Gaming", 
-      type: "live",
-      rtp: "96.08",
-      volatility: "Medium",
-      minBet: "0.10",
-      maxBet: "2500.00",
-      imageUrl: "https://images.unsplash.com/photo-1594736797933-d0d9770d1a15?w=300&h=200&fit=crop",
-      demoUrl: "#",
-      tags: ["game show", "bonus rounds", "live"],
-      isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: "game-5",
-      name: "Gates of Olympus",
-      description: "Greek mythology themed slot with multipliers",
-      provider: "Pragmatic Play",
-      type: "slot", 
-      rtp: "96.50",
-      volatility: "High",
-      minBet: "0.20",
-      maxBet: "125.00",
-      imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=200&fit=crop",
-      demoUrl: "#",
-      tags: ["mythology", "multipliers", "zeus"],
-      isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: "game-6",
-      name: "Blackjack Premium",
-      description: "Classic blackjack with perfect strategy guide",
-      provider: "NetEnt",
-      type: "table",
-      rtp: "99.50",
-      volatility: "Low",
-      minBet: "1.00",
-      maxBet: "1000.00",
-      imageUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=200&fit=crop",
-      demoUrl: "#",
-      tags: ["blackjack", "strategy", "classic"],
-      isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-  ];
+
 
   const handleRatingChange = (category: string, value: number) => {
     setNewReview(prev => ({
@@ -1125,7 +972,7 @@ export default function CasinoDetailPage() {
           <CardContent>
             <div className="relative">
               <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                {[...casinoGames, ...casinoGames.slice(0, 8)].slice(0, 10).map((game, index) => (
+                {casinoGames.slice(0, 10).map((game, index) => (
                   <Card key={`${game.id}-${index}`} className="flex-shrink-0 w-72 hover:shadow-lg transition-shadow">
                     <div className="aspect-video overflow-hidden rounded-t-lg">
                       <img
