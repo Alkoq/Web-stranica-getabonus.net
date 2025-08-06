@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
-import { insertNewsletterSubscriberSchema, insertComparisonSchema, insertReviewSchema, insertAdminSchema } from "@shared/schema";
+import { insertNewsletterSubscriberSchema, insertComparisonSchema, insertReviewSchema, insertAdminSchema, insertCasinoSchema, insertBonusSchema, insertGameSchema, insertBlogPostSchema } from "@shared/schema";
 import { z } from "zod";
 
 const JWT_SECRET = process.env.JWT_SECRET || 'getabonus-jwt-secret-key-2024';
@@ -600,28 +600,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Casino management
   app.post('/api/admin/casinos', authenticateAdmin, async (req: any, res) => {
     try {
-      // Add casino creation logic here
-      res.json({ success: false, message: 'Casino creation not yet implemented' });
+      const validatedData = insertCasinoSchema.parse(req.body);
+      const casino = await storage.createCasino(validatedData);
+      res.json({ success: true, casino });
     } catch (error) {
       console.error('Error creating casino:', error);
-      res.status(500).json({ success: false, message: 'Greška servera' });
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ success: false, message: 'Neispravni podaci', errors: error.errors });
+      } else {
+        res.status(500).json({ success: false, message: 'Greška servera' });
+      }
     }
   });
 
   app.put('/api/admin/casinos/:id', authenticateAdmin, async (req: any, res) => {
     try {
-      // Add casino update logic here
-      res.json({ success: false, message: 'Casino update not yet implemented' });
+      const casinoId = req.params.id;
+      const updates = req.body;
+      
+      // Validacija podataka (parcijalna)
+      const validatedData = insertCasinoSchema.partial().parse(updates);
+      const casino = await storage.updateCasino(casinoId, validatedData);
+      
+      res.json({ success: true, casino });
     } catch (error) {
       console.error('Error updating casino:', error);
-      res.status(500).json({ success: false, message: 'Greška servera' });
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ success: false, message: 'Neispravni podaci', errors: error.errors });
+      } else {
+        res.status(500).json({ success: false, message: 'Greška servera' });
+      }
     }
   });
 
   app.delete('/api/admin/casinos/:id', authenticateAdmin, async (req: any, res) => {
     try {
-      // Add casino deletion logic here
-      res.json({ success: false, message: 'Casino deletion not yet implemented' });
+      const casinoId = req.params.id;
+      const casino = await storage.getCasino(casinoId);
+      
+      if (!casino) {
+        return res.status(404).json({ success: false, message: 'Kazino nije pronađen' });
+      }
+      
+      await storage.updateCasino(casinoId, { isActive: false });
+      res.json({ success: true, message: 'Kazino je uspešno deaktiviran' });
     } catch (error) {
       console.error('Error deleting casino:', error);
       res.status(500).json({ success: false, message: 'Greška servera' });
@@ -631,28 +653,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Bonus management
   app.post('/api/admin/bonuses', authenticateAdmin, async (req: any, res) => {
     try {
-      // Add bonus creation logic here
-      res.json({ success: false, message: 'Bonus creation not yet implemented' });
+      const validatedData = insertBonusSchema.parse(req.body);
+      const bonus = await storage.createBonus(validatedData);
+      res.json({ success: true, bonus });
     } catch (error) {
       console.error('Error creating bonus:', error);
-      res.status(500).json({ success: false, message: 'Greška servera' });
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ success: false, message: 'Neispravni podaci', errors: error.errors });
+      } else {
+        res.status(500).json({ success: false, message: 'Greška servera' });
+      }
     }
   });
 
   app.put('/api/admin/bonuses/:id', authenticateAdmin, async (req: any, res) => {
     try {
-      // Add bonus update logic here
-      res.json({ success: false, message: 'Bonus update not yet implemented' });
+      const bonusId = req.params.id;
+      const updates = req.body;
+      
+      const validatedData = insertBonusSchema.partial().parse(updates);
+      const bonus = await storage.updateBonus(bonusId, validatedData);
+      
+      res.json({ success: true, bonus });
     } catch (error) {
       console.error('Error updating bonus:', error);
-      res.status(500).json({ success: false, message: 'Greška servera' });
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ success: false, message: 'Neispravni podaci', errors: error.errors });
+      } else {
+        res.status(500).json({ success: false, message: 'Greška servera' });
+      }
     }
   });
 
   app.delete('/api/admin/bonuses/:id', authenticateAdmin, async (req: any, res) => {
     try {
-      // Add bonus deletion logic here
-      res.json({ success: false, message: 'Bonus deletion not yet implemented' });
+      const bonusId = req.params.id;
+      const bonus = await storage.getBonus(bonusId);
+      
+      if (!bonus) {
+        return res.status(404).json({ success: false, message: 'Bonus nije pronađen' });
+      }
+      
+      await storage.updateBonus(bonusId, { isActive: false });
+      res.json({ success: true, message: 'Bonus je uspešno deaktiviran' });
     } catch (error) {
       console.error('Error deleting bonus:', error);
       res.status(500).json({ success: false, message: 'Greška servera' });
@@ -662,28 +705,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Game management
   app.post('/api/admin/games', authenticateAdmin, async (req: any, res) => {
     try {
-      // Add game creation logic here
-      res.json({ success: false, message: 'Game creation not yet implemented' });
+      const validatedData = insertGameSchema.parse(req.body);
+      const game = await storage.createGame(validatedData);
+      res.json({ success: true, game });
     } catch (error) {
       console.error('Error creating game:', error);
-      res.status(500).json({ success: false, message: 'Greška servera' });
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ success: false, message: 'Neispravni podaci', errors: error.errors });
+      } else {
+        res.status(500).json({ success: false, message: 'Greška servera' });
+      }
     }
   });
 
   app.put('/api/admin/games/:id', authenticateAdmin, async (req: any, res) => {
     try {
-      // Add game update logic here
-      res.json({ success: false, message: 'Game update not yet implemented' });
+      const gameId = req.params.id;
+      const updates = req.body;
+      
+      const validatedData = insertGameSchema.partial().parse(updates);
+      const game = await storage.updateGame(gameId, validatedData);
+      
+      res.json({ success: true, game });
     } catch (error) {
       console.error('Error updating game:', error);
-      res.status(500).json({ success: false, message: 'Greška servera' });
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ success: false, message: 'Neispravni podaci', errors: error.errors });
+      } else {
+        res.status(500).json({ success: false, message: 'Greška servera' });
+      }
     }
   });
 
   app.delete('/api/admin/games/:id', authenticateAdmin, async (req: any, res) => {
     try {
-      // Add game deletion logic here
-      res.json({ success: false, message: 'Game deletion not yet implemented' });
+      const gameId = req.params.id;
+      const game = await storage.getGame(gameId);
+      
+      if (!game) {
+        return res.status(404).json({ success: false, message: 'Igra nije pronađena' });
+      }
+      
+      await storage.updateGame(gameId, { isActive: false });
+      res.json({ success: true, message: 'Igra je uspešno deaktivirana' });
     } catch (error) {
       console.error('Error deleting game:', error);
       res.status(500).json({ success: false, message: 'Greška servera' });
@@ -693,18 +757,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Blog management
   app.post('/api/admin/blog', authenticateAdmin, async (req: any, res) => {
     try {
-      // Add blog post creation logic here
-      res.json({ success: false, message: 'Blog post creation not yet implemented' });
+      const validatedData = insertBlogPostSchema.parse(req.body);
+      const blogPost = await storage.createBlogPost(validatedData);
+      res.json({ success: true, blogPost });
     } catch (error) {
       console.error('Error creating blog post:', error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ success: false, message: 'Neispravni podaci', errors: error.errors });
+      } else {
+        res.status(500).json({ success: false, message: 'Greška servera' });
+      }
+    }
+  });
+
+  app.put('/api/admin/blog/:id', authenticateAdmin, async (req: any, res) => {
+    try {
+      const blogId = req.params.id;
+      const updates = req.body;
+      
+      const validatedData = insertBlogPostSchema.partial().parse(updates);
+      const blogPost = await storage.updateBlogPost(blogId, validatedData);
+      
+      res.json({ success: true, blogPost });
+    } catch (error) {
+      console.error('Error updating blog post:', error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ success: false, message: 'Neispravni podaci', errors: error.errors });
+      } else {
+        res.status(500).json({ success: false, message: 'Greška servera' });
+      }
+    }
+  });
+
+  app.delete('/api/admin/blog/:id', authenticateAdmin, async (req: any, res) => {
+    try {
+      const blogId = req.params.id;
+      const blogPost = await storage.getBlogPost(blogId);
+      
+      if (!blogPost) {
+        return res.status(404).json({ success: false, message: 'Blog post nije pronađen' });
+      }
+      
+      await storage.updateBlogPost(blogId, { isPublished: false });
+      res.json({ success: true, message: 'Blog post je uspešno deaktiviran' });
+    } catch (error) {
+      console.error('Error deleting blog post:', error);
       res.status(500).json({ success: false, message: 'Greška servera' });
     }
   });
 
   app.put('/api/admin/blog/:id', authenticateAdmin, async (req: any, res) => {
     try {
-      // Add blog post update logic here
-      res.json({ success: false, message: 'Blog post update not yet implemented' });
+      const blogId = req.params.id;
+      const updates = req.body;
+      
+      const validatedData = insertBlogPostSchema.partial().parse(updates);
+      const blogPost = await storage.updateBlogPost(blogId, validatedData);
+      
+      res.json({ success: true, blogPost });
     } catch (error) {
       console.error('Error updating blog post:', error);
       res.status(500).json({ success: false, message: 'Greška servera' });
@@ -713,8 +823,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/admin/blog/:id', authenticateAdmin, async (req: any, res) => {
     try {
-      // Add blog post deletion logic here
-      res.json({ success: false, message: 'Blog post deletion not yet implemented' });
+      const blogId = req.params.id;
+      const blogPost = await storage.getBlogPost(blogId);
+      
+      if (!blogPost) {
+        return res.status(404).json({ success: false, message: 'Blog post nije pronađen' });
+      }
+      
+      await storage.updateBlogPost(blogId, { isPublished: false });
+      res.json({ success: true, message: 'Blog post je uspešno deaktiviran' });
     } catch (error) {
       console.error('Error deleting blog post:', error);
       res.status(500).json({ success: false, message: 'Greška servera' });

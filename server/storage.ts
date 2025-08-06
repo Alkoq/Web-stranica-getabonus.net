@@ -300,6 +300,19 @@ export class MemStorage implements IStorage {
     }
   }
 
+  async updateBonus(id: string, updates: Partial<InsertBonus>): Promise<Bonus> {
+    try {
+      const result = await db.update(bonuses)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(bonuses.id, id))
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error('Error updating bonus:', error);
+      throw error;
+    }
+  }
+
   // Game methods - dinamički iz PostgreSQL baze
   async getGames(filters?: GameFilters): Promise<Game[]> {
     try {
@@ -341,6 +354,19 @@ export class MemStorage implements IStorage {
       return result[0];
     } catch (error) {
       console.error('Error creating game:', error);
+      throw error;
+    }
+  }
+
+  async updateGame(id: string, updates: Partial<InsertGame>): Promise<Game> {
+    try {
+      const result = await db.update(games)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(games.id, id))
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error('Error updating game:', error);
       throw error;
     }
   }
@@ -510,6 +536,19 @@ export class MemStorage implements IStorage {
       return result[0];
     } catch (error) {
       console.error('Error creating blog post:', error);
+      throw error;
+    }
+  }
+
+  async updateBlogPost(id: string, updates: Partial<InsertBlogPost>): Promise<BlogPost> {
+    try {
+      const result = await db.update(blogPosts)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(blogPosts.id, id))
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error('Error updating blog post:', error);
       throw error;
     }
   }
