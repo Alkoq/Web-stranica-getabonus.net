@@ -184,6 +184,18 @@ export const casinoRatings = pgTable("casino_ratings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Admin users table for admin panel access
+export const admins = pgTable("admins", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  username: varchar("username").unique().notNull(),
+  password: varchar("password").notNull(), // This will be hashed
+  role: varchar("role").notNull().default("admin"), // 'owner' or 'admin'
+  createdBy: varchar("created_by").references(() => admins.id), // Who created this admin (null for owner)
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 export const casinosRelations = relations(casinos, ({ many, one }) => ({
   bonuses: many(bonuses),
@@ -277,6 +289,14 @@ export const usersRelations = relations(users, ({ many }) => ({
   blogPosts: many(blogPosts),
 }));
 
+export const adminsRelations = relations(admins, ({ one, many }) => ({
+  creator: one(admins, {
+    fields: [admins.createdBy],
+    references: [admins.id],
+  }),
+  createdAdmins: many(admins),
+}));
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -349,6 +369,12 @@ export const insertCasinoRatingSchema = createInsertSchema(casinoRatings).omit({
   updatedAt: true,
 });
 
+export const insertAdminSchema = createInsertSchema(admins).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -385,3 +411,6 @@ export type InsertCasinoGame = z.infer<typeof insertCasinoGameSchema>;
 
 export type CasinoRating = typeof casinoRatings.$inferSelect;
 export type InsertCasinoRating = z.infer<typeof insertCasinoRatingSchema>;
+
+export type Admin = typeof admins.$inferSelect;
+export type InsertAdmin = z.infer<typeof insertAdminSchema>;

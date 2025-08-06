@@ -2,26 +2,46 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import jwt from 'jsonwebtoken';
-import { insertNewsletterSubscriberSchema, insertComparisonSchema, insertReviewSchema } from "@shared/schema";
+import * as bcrypt from 'bcryptjs';
+import { insertNewsletterSubscriberSchema, insertComparisonSchema, insertReviewSchema, insertAdminSchema } from "@shared/schema";
 import { z } from "zod";
-
-// Simple admin credentials (in production use environment variables)
-const ADMIN_CREDENTIALS = {
-  username: 'admin',
-  password: 'getabonus2024!'
-};
 
 const JWT_SECRET = process.env.JWT_SECRET || 'getabonus-jwt-secret-key-2024';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
   // Authentication routes
-  app.post('/api/auth/login', (req, res) => {
-    const { username, password } = req.body;
-    
-    if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+  app.post('/api/auth/login', async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      // Find admin by username
+      const admin = await storage.getAdminByUsername(username);
+      
+      if (!admin || !admin.isActive) {
+        return res.status(401).json({ 
+          success: false, 
+          message: 'Neispravni podaci za prijavu' 
+        });
+      }
+      
+      // Verify password
+      const isPasswordValid = await bcrypt.compare(password, admin.password);
+      
+      if (!isPasswordValid) {
+        return res.status(401).json({ 
+          success: false, 
+          message: 'Neispravni podaci za prijavu' 
+        });
+      }
+      
       const token = jwt.sign(
-        { username, isAdmin: true },
+        { 
+          id: admin.id,
+          username: admin.username, 
+          role: admin.role,
+          isAdmin: true 
+        },
         JWT_SECRET,
         { expiresIn: '24h' }
       );
@@ -29,17 +49,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         success: true, 
         token,
+        user: {
+          id: admin.id,
+          username: admin.username,
+          role: admin.role
+        },
         message: 'Uspješna prijava'
       });
-    } else {
-      res.status(401).json({ 
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).json({ 
         success: false, 
-        message: 'Neispravni podaci za prijavu' 
+        message: 'Greška servera' 
       });
     }
   });
 
-  app.get('/api/auth/verify', (req, res) => {
+  app.get('/api/auth/verify', async (req, res) => {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
 
@@ -49,11 +75,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       const decoded = jwt.verify(token, JWT_SECRET) as any;
-      if (decoded.isAdmin) {
-        res.json({ success: true, user: decoded });
-      } else {
-        res.status(403).json({ success: false, message: 'Nemate admin privilegije' });
+      
+      if (!decoded.isAdmin) {
+        return res.status(403).json({ success: false, message: 'Nemate admin privilegije' });
       }
+      
+      // Verify admin still exists and is active
+      const admin = await storage.getAdmin(decoded.id);
+      if (!admin || !admin.isActive) {
+        return res.status(401).json({ success: false, message: 'Admin nalog nije aktivan' });
+      }
+      
+      res.json({ 
+        success: true, 
+        user: {
+          id: admin.id,
+          username: admin.username,
+          role: admin.role
+        }
+      });
     } catch (error) {
       res.status(401).json({ success: false, message: 'Nevažeći token' });
     }
@@ -437,6 +477,122 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(comparison);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch comparison" });
+    }
+  });
+
+  // Admin authentication middleware
+  const authenticateAdmin = async (req: any, res: any, next: any) => {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+      return res.status(401).json({ success: false, message: 'Token nije pronađen' });
+    }
+
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as any;
+      
+      if (!decoded.isAdmin) {
+        return res.status(403).json({ success: false, message: 'Nemate admin privilegije' });
+      }
+      
+      // Verify admin still exists and is active
+      const admin = await storage.getAdmin(decoded.id);
+      if (!admin || !admin.isActive) {
+        return res.status(401).json({ success: false, message: 'Admin nalog nije aktivan' });
+      }
+      
+      req.admin = admin;
+      next();
+    } catch (error) {
+      res.status(401).json({ success: false, message: 'Nevažeći token' });
+    }
+  };
+
+  // Admin management routes (only owner can manage admins)
+  app.get('/api/admin/admins', authenticateAdmin, async (req: any, res) => {
+    try {
+      if (req.admin.role !== 'owner') {
+        return res.status(403).json({ success: false, message: 'Samo vlasnik može upravljati administratorima' });
+      }
+      
+      const admins = await storage.getAdmins();
+      res.json({ success: true, admins });
+    } catch (error) {
+      console.error('Error fetching admins:', error);
+      res.status(500).json({ success: false, message: 'Greška servera' });
+    }
+  });
+
+  app.post('/api/admin/admins', authenticateAdmin, async (req: any, res) => {
+    try {
+      if (req.admin.role !== 'owner') {
+        return res.status(403).json({ success: false, message: 'Samo vlasnik može dodavati administratore' });
+      }
+      
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ success: false, message: 'Korisničko ime i password su obavezni' });
+      }
+      
+      // Check if username already exists
+      const existingAdmin = await storage.getAdminByUsername(username);
+      if (existingAdmin) {
+        return res.status(400).json({ success: false, message: 'Korisničko ime već postoji' });
+      }
+      
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
+      const adminData = {
+        username,
+        password: hashedPassword,
+        role: 'admin' as const,
+        createdBy: req.admin.id,
+        isActive: true
+      };
+      
+      const newAdmin = await storage.createAdmin(adminData);
+      
+      res.json({ 
+        success: true, 
+        admin: {
+          id: newAdmin.id,
+          username: newAdmin.username,
+          role: newAdmin.role,
+          createdAt: newAdmin.createdAt
+        },
+        message: 'Administrator je uspešno kreiran'
+      });
+    } catch (error) {
+      console.error('Error creating admin:', error);
+      res.status(500).json({ success: false, message: 'Greška servera' });
+    }
+  });
+
+  app.delete('/api/admin/admins/:id', authenticateAdmin, async (req: any, res) => {
+    try {
+      if (req.admin.role !== 'owner') {
+        return res.status(403).json({ success: false, message: 'Samo vlasnik može brisati administratore' });
+      }
+      
+      const adminId = req.params.id;
+      
+      // Don't allow deleting yourself
+      if (adminId === req.admin.id) {
+        return res.status(400).json({ success: false, message: 'Ne možete obrisati svoj nalog' });
+      }
+      
+      const success = await storage.deleteAdmin(adminId);
+      if (success) {
+        res.json({ success: true, message: 'Administrator je uspešno obrisan' });
+      } else {
+        res.status(404).json({ success: false, message: 'Administrator nije pronađen' });
+      }
+    } catch (error) {
+      console.error('Error deleting admin:', error);
+      res.status(500).json({ success: false, message: 'Greška servera' });
     }
   });
 

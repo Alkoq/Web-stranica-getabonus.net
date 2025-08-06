@@ -19,7 +19,9 @@ import {
   type InsertComparison,
   type Game,
   type InsertGame,
-  users, casinos, bonuses, reviews, expertReviews, blogPosts, newsletterSubscribers, userInteractions, comparisons, games
+  type Admin,
+  type InsertAdmin,
+  users, casinos, bonuses, reviews, expertReviews, blogPosts, newsletterSubscribers, userInteractions, comparisons, games, admins
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
@@ -99,6 +101,14 @@ export interface IStorage {
     totalGames: number;
     totalUsers: number;
   }>;
+
+  // Admins
+  getAdmin(id: string): Promise<Admin | undefined>;
+  getAdminByUsername(username: string): Promise<Admin | undefined>;
+  createAdmin(admin: InsertAdmin): Promise<Admin>;
+  getAdmins(): Promise<Admin[]>;
+  updateAdmin(id: string, updates: Partial<InsertAdmin>): Promise<Admin>;
+  deleteAdmin(id: string): Promise<boolean>;
 }
 
 export interface CasinoFilters {
@@ -676,6 +686,66 @@ export class MemStorage implements IStorage {
         totalGames: "0",
         happyUsers: "0",
       };
+    }
+  }
+
+  // Admin methods
+  async getAdmin(id: string): Promise<Admin | undefined> {
+    try {
+      const result = await db.select().from(admins).where(eq(admins.id, id)).limit(1);
+      return result[0] || undefined;
+    } catch (error) {
+      console.error('Error getting admin:', error);
+      return undefined;
+    }
+  }
+
+  async getAdminByUsername(username: string): Promise<Admin | undefined> {
+    try {
+      const result = await db.select().from(admins).where(eq(admins.username, username)).limit(1);
+      return result[0] || undefined;
+    } catch (error) {
+      console.error('Error getting admin by username:', error);
+      return undefined;
+    }
+  }
+
+  async createAdmin(admin: InsertAdmin): Promise<Admin> {
+    try {
+      const result = await db.insert(admins).values(admin).returning();
+      return result[0];
+    } catch (error) {
+      console.error('Error creating admin:', error);
+      throw error;
+    }
+  }
+
+  async getAdmins(): Promise<Admin[]> {
+    try {
+      return await db.select().from(admins).where(eq(admins.isActive, true)).orderBy(desc(admins.createdAt));
+    } catch (error) {
+      console.error('Error getting admins:', error);
+      return [];
+    }
+  }
+
+  async updateAdmin(id: string, updates: Partial<InsertAdmin>): Promise<Admin> {
+    try {
+      const result = await db.update(admins).set(updates).where(eq(admins.id, id)).returning();
+      return result[0];
+    } catch (error) {
+      console.error('Error updating admin:', error);
+      throw error;
+    }
+  }
+
+  async deleteAdmin(id: string): Promise<boolean> {
+    try {
+      await db.update(admins).set({ isActive: false }).where(eq(admins.id, id));
+      return true;
+    } catch (error) {
+      console.error('Error deleting admin:', error);
+      return false;
     }
   }
 }

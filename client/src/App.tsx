@@ -17,6 +17,7 @@ import Compare from "@/pages/compare";
 import Blog from "@/pages/blog";
 import Login from "@/pages/login";
 import AdminPanel from "@/pages/admin-panel";
+import AdminLogin from "@/pages/admin-login";
 import CasinoDetail from "@/pages/casino-detail";
 import BonusDetail from "@/pages/bonus-detail";
 import GameDetail from "@/pages/game-detail";
@@ -25,27 +26,34 @@ import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1">
-        <Switch>
-          <Route path="/" component={Home} />
-          <Route path="/casinos" component={Casinos} />
-          <Route path="/casino/:id" component={CasinoDetail} />
-          <Route path="/bonuses" component={Bonuses} />
-          <Route path="/bonus/:id" component={BonusDetail} />
-          <Route path="/games" component={Games} />
-          <Route path="/game/:id" component={GameDetail} />
-          <Route path="/compare" component={Compare} />
-          <Route path="/blog" component={Blog} />
-          <Route path="/blog/:slug" component={BlogPostDetail} />
-          <Route path="/admin" component={AdminPanel} />
-          <Route path="/admin-panel" component={AdminPanel} />
-          <Route component={NotFound} />
-        </Switch>
-      </main>
-      <Footer />
-    </div>
+    <Switch>
+      {/* Admin routes without header/footer */}
+      <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/admin" component={AdminPanel} />
+      
+      {/* Regular site routes with header/footer */}
+      <Route>
+        <div className="min-h-screen flex flex-col">
+          <Header />
+          <main className="flex-1">
+            <Switch>
+              <Route path="/" component={Home} />
+              <Route path="/casinos" component={Casinos} />
+              <Route path="/casino/:id" component={CasinoDetail} />
+              <Route path="/bonuses" component={Bonuses} />
+              <Route path="/bonus/:id" component={BonusDetail} />
+              <Route path="/games" component={Games} />
+              <Route path="/game/:id" component={GameDetail} />
+              <Route path="/compare" component={Compare} />
+              <Route path="/blog" component={Blog} />
+              <Route path="/blog/:slug" component={BlogPostDetail} />
+              <Route component={NotFound} />
+            </Switch>
+          </main>
+          <Footer />
+        </div>
+      </Route>
+    </Switch>
   );
 }
 
