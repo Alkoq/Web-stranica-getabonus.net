@@ -203,8 +203,11 @@ export default function AdminPanel() {
 
   // Form handlers
   const handleOpenCasinoForm = (casino?: Casino) => {
+    console.log('Otvaram casino formu:', casino);
+    console.log('casinoFormOpen pre:', casinoFormOpen);
     setEditingItem(casino);
     setCasinoFormOpen(true);
+    console.log('casinoFormOpen posle: true');
   };
 
   const handleOpenBonusForm = (bonus?: Bonus) => {
@@ -833,74 +836,46 @@ export default function AdminPanel() {
         </Tabs>
       </div>
 
-      {/* Forms Dialogs */}
-      <Dialog open={casinoFormOpen} onOpenChange={setCasinoFormOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {editingItem ? 'Uredi Kazino' : 'Dodaj Novi Kazino'}
-            </DialogTitle>
-          </DialogHeader>
-          <CasinoForm 
-            casino={editingItem}
-            onSuccess={() => {
-              setCasinoFormOpen(false);
-              handleFormSuccess();
-            }}
-          />
-        </DialogContent>
-      </Dialog>
+      {/* Forms */}
+      <CasinoForm 
+        isOpen={casinoFormOpen}
+        onOpenChange={setCasinoFormOpen}
+        casino={editingItem}
+        onSuccess={() => {
+          setCasinoFormOpen(false);
+          handleFormSuccess();
+        }}
+      />
 
-      <Dialog open={bonusFormOpen} onOpenChange={setBonusFormOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {editingItem ? 'Uredi Bonus' : 'Dodaj Novi Bonus'}
-            </DialogTitle>
-          </DialogHeader>
-          <BonusForm 
-            bonus={editingItem}
-            onSuccess={() => {
-              setBonusFormOpen(false);
-              handleFormSuccess();
-            }}
-          />
-        </DialogContent>
-      </Dialog>
+      <BonusForm 
+        isOpen={bonusFormOpen}
+        onOpenChange={setBonusFormOpen}
+        bonus={editingItem}
+        onSuccess={() => {
+          setBonusFormOpen(false);
+          handleFormSuccess();
+        }}
+      />
 
-      <Dialog open={gameFormOpen} onOpenChange={setGameFormOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {editingItem ? 'Uredi Igru' : 'Dodaj Novu Igru'}
-            </DialogTitle>
-          </DialogHeader>
-          <GameForm 
-            game={editingItem}
-            onSuccess={() => {
-              setGameFormOpen(false);
-              handleFormSuccess();
-            }}
-          />
-        </DialogContent>
-      </Dialog>
+      <GameForm 
+        isOpen={gameFormOpen}
+        onOpenChange={setGameFormOpen}
+        game={editingItem}
+        onSuccess={() => {
+          setGameFormOpen(false);
+          handleFormSuccess();
+        }}
+      />
 
-      <Dialog open={blogFormOpen} onOpenChange={setBlogFormOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {editingItem ? 'Uredi Blog Post' : 'Dodaj Novi Blog Post'}
-            </DialogTitle>
-          </DialogHeader>
-          <BlogForm 
-            blogPost={editingItem}
-            onSuccess={() => {
-              setBlogFormOpen(false);
-              handleFormSuccess();
-            }}
-          />
-        </DialogContent>
-      </Dialog>
+      <BlogForm 
+        isOpen={blogFormOpen}
+        onOpenChange={setBlogFormOpen}
+        blogPost={editingItem}
+        onSuccess={() => {
+          setBlogFormOpen(false);
+          handleFormSuccess();
+        }}
+      />
     </div>
   );
 }
