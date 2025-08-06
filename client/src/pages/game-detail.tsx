@@ -48,26 +48,20 @@ export default function GameDetail() {
     enabled: !!gameId,
   });
 
-  // Calculate combined rating (expert + user reviews)
+  // Get combined rating from API (expert + user average)
+  const { data: apiRatingData } = useQuery<{ combinedRating: number }>({
+    queryKey: ['/api/games/rating', gameId],
+    queryFn: () => fetch(`/api/games/${gameId}/rating`).then(res => res.json()),
+    enabled: !!gameId,
+  });
+
   const getCombinedRating = () => {
-    const expertRating = 8.2; // Expert rating for games
+    const combinedRating = apiRatingData?.combinedRating || 0;
     
-    if (!gameReviews.length) {
-      return {
-        rating: expertRating.toFixed(1),
-        count: 0,
-        type: 'expert'
-      };
-    }
-
-    const userRatingSum = gameReviews.reduce((sum, review) => sum + review.overallRating, 0);
-    const averageUserRating = userRatingSum / gameReviews.length;
-    const combinedRating = (expertRating + averageUserRating) / 2;
-
     return {
       rating: combinedRating.toFixed(1),
       count: gameReviews.length,
-      type: 'combined'
+      type: gameReviews.length > 0 ? 'combined' : 'expert'
     };
   };
 

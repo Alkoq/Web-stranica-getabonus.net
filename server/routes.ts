@@ -157,12 +157,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/reviews/game/:gameId", async (req, res) => {
+  // Get combined game rating (expert + user average)
+  app.get("/api/games/:gameId/rating", async (req, res) => {
     try {
-      const reviews = await storage.getReviewsByGameId(req.params.gameId);
-      res.json(reviews);
+      const combinedRating = await storage.getCombinedGameRating(req.params.gameId);
+      res.json({ combinedRating });
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch game reviews" });
+      console.error("Error fetching combined game rating:", error);
+      res.status(500).json({ message: "Failed to fetch game rating" });
     }
   });
 

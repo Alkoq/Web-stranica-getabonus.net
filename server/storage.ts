@@ -21,7 +21,7 @@ import {
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -1396,6 +1396,36 @@ export class DatabaseStorage implements IStorage {
     
     const sum = gameReviews.reduce((acc, review) => acc + review.overallRating, 0);
     return Math.round((sum / gameReviews.length) * 10) / 10;
+  }
+
+  // Get expert game review
+  async getExpertGameReview(gameId: string): Promise<{ overall_rating: number } | null> {
+    const result = await db.execute(sql`
+      SELECT overall_rating 
+      FROM expert_game_reviews 
+      WHERE game_id = ${gameId} 
+      LIMIT 1
+    `);
+    
+    return result.rows[0] as { overall_rating: number } || null;
+  }
+
+  // Get combined game rating (expert + user average)
+  async getCombinedGameRating(gameId: string): Promise<number> {
+    const expertReview = await this.getExpertGameReview(gameId);
+    const userAverageRating = await this.getGameUserReviewsAverageRating(gameId);
+    
+    if (!expertReview) {
+      return userAverageRating; // Samo user rating ako nema expert review
+    }
+    
+    if (userAverageRating === 0) {
+      return parseFloat(expertReview.overall_rating.toString()); // Samo expert rating ako nema user reviews
+    }
+    
+    // Kombinovani rating - prosek expert i user ratinga
+    const combinedRating = (parseFloat(expertReview.overall_rating.toString()) + userAverageRating) / 2;
+    return Math.round(combinedRating * 10) / 10;
   }
 
   async getCasinoSafetyRating(casinoId: string): Promise<number> {
