@@ -596,6 +596,131 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin content management routes
+  // Casino management
+  app.post('/api/admin/casinos', authenticateAdmin, async (req: any, res) => {
+    try {
+      // Add casino creation logic here
+      res.json({ success: false, message: 'Casino creation not yet implemented' });
+    } catch (error) {
+      console.error('Error creating casino:', error);
+      res.status(500).json({ success: false, message: 'Greška servera' });
+    }
+  });
+
+  app.put('/api/admin/casinos/:id', authenticateAdmin, async (req: any, res) => {
+    try {
+      // Add casino update logic here
+      res.json({ success: false, message: 'Casino update not yet implemented' });
+    } catch (error) {
+      console.error('Error updating casino:', error);
+      res.status(500).json({ success: false, message: 'Greška servera' });
+    }
+  });
+
+  app.delete('/api/admin/casinos/:id', authenticateAdmin, async (req: any, res) => {
+    try {
+      // Add casino deletion logic here
+      res.json({ success: false, message: 'Casino deletion not yet implemented' });
+    } catch (error) {
+      console.error('Error deleting casino:', error);
+      res.status(500).json({ success: false, message: 'Greška servera' });
+    }
+  });
+
+  // Bonus management
+  app.post('/api/admin/bonuses', authenticateAdmin, async (req: any, res) => {
+    try {
+      // Add bonus creation logic here
+      res.json({ success: false, message: 'Bonus creation not yet implemented' });
+    } catch (error) {
+      console.error('Error creating bonus:', error);
+      res.status(500).json({ success: false, message: 'Greška servera' });
+    }
+  });
+
+  app.put('/api/admin/bonuses/:id', authenticateAdmin, async (req: any, res) => {
+    try {
+      // Add bonus update logic here
+      res.json({ success: false, message: 'Bonus update not yet implemented' });
+    } catch (error) {
+      console.error('Error updating bonus:', error);
+      res.status(500).json({ success: false, message: 'Greška servera' });
+    }
+  });
+
+  app.delete('/api/admin/bonuses/:id', authenticateAdmin, async (req: any, res) => {
+    try {
+      // Add bonus deletion logic here
+      res.json({ success: false, message: 'Bonus deletion not yet implemented' });
+    } catch (error) {
+      console.error('Error deleting bonus:', error);
+      res.status(500).json({ success: false, message: 'Greška servera' });
+    }
+  });
+
+  // Game management
+  app.post('/api/admin/games', authenticateAdmin, async (req: any, res) => {
+    try {
+      // Add game creation logic here
+      res.json({ success: false, message: 'Game creation not yet implemented' });
+    } catch (error) {
+      console.error('Error creating game:', error);
+      res.status(500).json({ success: false, message: 'Greška servera' });
+    }
+  });
+
+  app.put('/api/admin/games/:id', authenticateAdmin, async (req: any, res) => {
+    try {
+      // Add game update logic here
+      res.json({ success: false, message: 'Game update not yet implemented' });
+    } catch (error) {
+      console.error('Error updating game:', error);
+      res.status(500).json({ success: false, message: 'Greška servera' });
+    }
+  });
+
+  app.delete('/api/admin/games/:id', authenticateAdmin, async (req: any, res) => {
+    try {
+      // Add game deletion logic here
+      res.json({ success: false, message: 'Game deletion not yet implemented' });
+    } catch (error) {
+      console.error('Error deleting game:', error);
+      res.status(500).json({ success: false, message: 'Greška servera' });
+    }
+  });
+
+  // Blog management
+  app.post('/api/admin/blog', authenticateAdmin, async (req: any, res) => {
+    try {
+      // Add blog post creation logic here
+      res.json({ success: false, message: 'Blog post creation not yet implemented' });
+    } catch (error) {
+      console.error('Error creating blog post:', error);
+      res.status(500).json({ success: false, message: 'Greška servera' });
+    }
+  });
+
+  app.put('/api/admin/blog/:id', authenticateAdmin, async (req: any, res) => {
+    try {
+      // Add blog post update logic here
+      res.json({ success: false, message: 'Blog post update not yet implemented' });
+    } catch (error) {
+      console.error('Error updating blog post:', error);
+      res.status(500).json({ success: false, message: 'Greška servera' });
+    }
+  });
+
+  app.delete('/api/admin/blog/:id', authenticateAdmin, async (req: any, res) => {
+    try {
+      // Add blog post deletion logic here
+      res.json({ success: false, message: 'Blog post deletion not yet implemented' });
+    } catch (error) {
+      console.error('Error deleting blog post:', error);
+      res.status(500).json({ success: false, message: 'Greška servera' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
