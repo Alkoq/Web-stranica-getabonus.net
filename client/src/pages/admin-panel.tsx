@@ -13,6 +13,10 @@ import { Shield, Users, UserPlus, LogOut, Trash2, Crown, Plus, Edit, Building2, 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { CasinoForm } from "@/components/admin/casino-form";
+import { BonusForm } from "@/components/admin/bonus-form";
+import { GameForm } from "@/components/admin/game-form";
+import { BlogForm } from "@/components/admin/blog-form";
 
 const createAdminSchema = z.object({
   username: z.string().min(3, "Korisničko ime mora imati najmanje 3 karaktera"),
@@ -103,6 +107,14 @@ export default function AdminPanel() {
   const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  
+  // Form states
+  const [casinoFormOpen, setCasinoFormOpen] = useState(false);
+  const [bonusFormOpen, setBonusFormOpen] = useState(false);
+  const [gameFormOpen, setGameFormOpen] = useState(false);
+  const [blogFormOpen, setBlogFormOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<any>(null);
+  
   const { toast } = useToast();
   const [location, setLocation] = useLocation();
 
@@ -187,6 +199,36 @@ export default function AdminPanel() {
     } catch (error) {
       console.error('Error loading blog posts:', error);
     }
+  };
+
+  // Form handlers
+  const handleOpenCasinoForm = (casino?: Casino) => {
+    setEditingItem(casino);
+    setCasinoFormOpen(true);
+  };
+
+  const handleOpenBonusForm = (bonus?: Bonus) => {
+    setEditingItem(bonus);
+    setBonusFormOpen(true);
+  };
+
+  const handleOpenGameForm = (game?: Game) => {
+    setEditingItem(game);
+    setGameFormOpen(true);
+  };
+
+  const handleOpenBlogForm = (blogPost?: BlogPost) => {
+    setEditingItem(blogPost);
+    setBlogFormOpen(true);
+  };
+
+  const handleFormSuccess = () => {
+    // Refresh data after successful form submission
+    loadCasinos();
+    loadBonuses();
+    loadGames();
+    loadBlogPosts();
+    setEditingItem(null);
   };
 
   const onCreateAdmin = async (data: CreateAdminForm) => {
@@ -385,7 +427,11 @@ export default function AdminPanel() {
                       Dodajte, uređujte ili uklanjajte kazina
                     </CardDescription>
                   </div>
-                  <Button className="bg-turquoise hover:bg-turquoise/90">
+                  <Button 
+                    className="bg-turquoise hover:bg-turquoise/90"
+                    onClick={() => handleOpenCasinoForm()}
+                    data-testid="button-add-casino"
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Dodaj Kazino
                   </Button>
@@ -422,7 +468,12 @@ export default function AdminPanel() {
                         </TableCell>
                         <TableCell>
                           <div className="flex space-x-2">
-                            <Button variant="outline" size="sm">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleOpenCasinoForm(casino)}
+                              data-testid={`button-edit-casino-${casino.id}`}
+                            >
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button variant="destructive" size="sm">
@@ -449,7 +500,11 @@ export default function AdminPanel() {
                       Dodajte, uređujte ili uklanjajte bonuse
                     </CardDescription>
                   </div>
-                  <Button className="bg-turquoise hover:bg-turquoise/90">
+                  <Button 
+                    className="bg-turquoise hover:bg-turquoise/90"
+                    onClick={() => handleOpenBonusForm()}
+                    data-testid="button-add-bonus"
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Dodaj Bonus
                   </Button>
@@ -481,7 +536,12 @@ export default function AdminPanel() {
                         </TableCell>
                         <TableCell>
                           <div className="flex space-x-2">
-                            <Button variant="outline" size="sm">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleOpenBonusForm(bonus)}
+                              data-testid={`button-edit-bonus-${bonus.id}`}
+                            >
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button variant="destructive" size="sm">
@@ -508,7 +568,11 @@ export default function AdminPanel() {
                       Dodajte, uređujte ili uklanjajte igre
                     </CardDescription>
                   </div>
-                  <Button className="bg-turquoise hover:bg-turquoise/90">
+                  <Button 
+                    className="bg-turquoise hover:bg-turquoise/90"
+                    onClick={() => handleOpenGameForm()}
+                    data-testid="button-add-game"
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Dodaj Igru
                   </Button>
@@ -543,7 +607,12 @@ export default function AdminPanel() {
                         </TableCell>
                         <TableCell>
                           <div className="flex space-x-2">
-                            <Button variant="outline" size="sm">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleOpenGameForm(game)}
+                              data-testid={`button-edit-game-${game.id}`}
+                            >
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button variant="destructive" size="sm">
@@ -570,7 +639,11 @@ export default function AdminPanel() {
                       Dodajte, uređujte ili uklanjajte blog postove
                     </CardDescription>
                   </div>
-                  <Button className="bg-turquoise hover:bg-turquoise/90">
+                  <Button 
+                    className="bg-turquoise hover:bg-turquoise/90"
+                    onClick={() => handleOpenBlogForm()}
+                    data-testid="button-add-blog"
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Dodaj Post
                   </Button>
@@ -600,7 +673,12 @@ export default function AdminPanel() {
                         </TableCell>
                         <TableCell>
                           <div className="flex space-x-2">
-                            <Button variant="outline" size="sm">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleOpenBlogForm(post)}
+                              data-testid={`button-edit-blog-${post.id}`}
+                            >
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button variant="destructive" size="sm">
@@ -754,6 +832,75 @@ export default function AdminPanel() {
           )}
         </Tabs>
       </div>
+
+      {/* Forms Dialogs */}
+      <Dialog open={casinoFormOpen} onOpenChange={setCasinoFormOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {editingItem ? 'Uredi Kazino' : 'Dodaj Novi Kazino'}
+            </DialogTitle>
+          </DialogHeader>
+          <CasinoForm 
+            casino={editingItem}
+            onSuccess={() => {
+              setCasinoFormOpen(false);
+              handleFormSuccess();
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={bonusFormOpen} onOpenChange={setBonusFormOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {editingItem ? 'Uredi Bonus' : 'Dodaj Novi Bonus'}
+            </DialogTitle>
+          </DialogHeader>
+          <BonusForm 
+            bonus={editingItem}
+            onSuccess={() => {
+              setBonusFormOpen(false);
+              handleFormSuccess();
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={gameFormOpen} onOpenChange={setGameFormOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {editingItem ? 'Uredi Igru' : 'Dodaj Novu Igru'}
+            </DialogTitle>
+          </DialogHeader>
+          <GameForm 
+            game={editingItem}
+            onSuccess={() => {
+              setGameFormOpen(false);
+              handleFormSuccess();
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={blogFormOpen} onOpenChange={setBlogFormOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {editingItem ? 'Uredi Blog Post' : 'Dodaj Novi Blog Post'}
+            </DialogTitle>
+          </DialogHeader>
+          <BlogForm 
+            blogPost={editingItem}
+            onSuccess={() => {
+              setBlogFormOpen(false);
+              handleFormSuccess();
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
