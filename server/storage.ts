@@ -1615,8 +1615,24 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getCasinosByGameId(gameId: string): Promise<Casino[]> {
-    // For now, return all active casinos since casino-games relationship isn't fully implemented
-    const results = await db.select().from(casinos).where(eq(casinos.isActive, true));
+    // Get the game to check if it's Book of Ra
+    const [game] = await db.select().from(games).where(eq(games.id, gameId));
+    
+    if (game && (game.name.toLowerCase().includes('book of ra') || game.name.toLowerCase().includes('book of dead'))) {
+      // For Book of Ra, prioritize Novomatic Casino
+      const allCasinos = await db.select().from(casinos).where(eq(casinos.isActive, true));
+      const novomaticCasino = allCasinos.find(casino => casino.name.includes('Novomatic'));
+      const otherCasinos = allCasinos.filter(casino => 
+        !casino.name.includes('Novomatic') && casino.isFeatured
+      ).slice(0, 2);
+      
+      return novomaticCasino ? [novomaticCasino, ...otherCasinos] : allCasinos.slice(0, 3);
+    }
+    
+    // For other games, return first 3 featured casinos
+    const results = await db.select().from(casinos)
+      .where(and(eq(casinos.isActive, true), eq(casinos.isFeatured, true)))
+      .limit(3);
     return results;
   }
 
