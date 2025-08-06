@@ -78,6 +78,9 @@ export interface IStorage {
   // Get games associated with a casino
   getGamesByCasinoId(casinoId: string): Promise<Game[]>;
 
+  // Add helpful vote to a review
+  addHelpfulVote(reviewId: string): Promise<Review>;
+
   // Rating helpers
   getUserReviewsAverageRating(casinoId: string): Promise<number>;
   getCasinoSafetyRating(casinoId: string): Promise<number>;

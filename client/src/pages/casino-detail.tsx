@@ -29,6 +29,7 @@ import {
   Gift,
   ThumbsUp
 } from "lucide-react";
+import { HelpfulButton } from "@/components/HelpfulButton";
 import type { Casino, Bonus, Review, ExpertReview, BlogPost, Game } from "@shared/schema";
 import { api } from "@/lib/api";
 
@@ -767,10 +768,12 @@ export default function CasinoDetailPage() {
                         <div className="text-xs text-muted-foreground">
                           <span className="italic">Pros & cons automatically generated based on rating scores</span>
                         </div>
-                        <Button variant="ghost" size="sm" className="text-xs">
-                          <ThumbsUp className="h-3 w-3 mr-1" />
-                          Helpful (15)
-                        </Button>
+                        <HelpfulButton 
+                          reviewId={review.id} 
+                          initialHelpfulVotes={review.helpfulVotes || 0}
+                          variant="ghost"
+                          size="sm"
+                        />
                       </div>
                     </div>
                   </CardContent>
