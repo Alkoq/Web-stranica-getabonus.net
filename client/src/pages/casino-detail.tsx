@@ -67,6 +67,13 @@ export default function CasinoDetailPage() {
     enabled: !!id
   });
 
+  // Fetch bonuses for this casino
+  const { data: casinoBonuses = [] } = useQuery<Bonus[]>({
+    queryKey: ['/api/bonuses', id],
+    queryFn: () => fetch(`/api/bonuses?casinoId=${id}`).then(res => res.json()),
+    enabled: !!id
+  });
+
   // Calculate ratings from real data
   const calculateRatings = () => {
     const expertRating = expertReviews.length > 0 
@@ -599,38 +606,7 @@ export default function CasinoDetailPage() {
           </CardHeader>
           <CardContent>
             <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-4">
-              {[
-                {
-                  id: "bonus-1",
-                  title: "Welcome Bonus",
-                  amount: "100% up to $500",
-                  type: "welcome",
-                  description: "First deposit bonus with 35x wagering",
-                  code: "WELCOME100",
-                  validUntil: "2024-12-31",
-                  affiliateUrl: casino.affiliateUrl
-                },
-                {
-                  id: "bonus-2", 
-                  title: "Free Spins",
-                  amount: "50 Free Spins",
-                  type: "free-spins",
-                  description: "No deposit required, valid for 7 days",
-                  code: undefined, // No code needed
-                  validUntil: "2024-12-31",
-                  affiliateUrl: casino.affiliateUrl
-                },
-                {
-                  id: "bonus-3",
-                  title: "Reload Bonus",
-                  amount: "50% up to $200",
-                  type: "reload",
-                  description: "Weekly reload bonus for existing players",
-                  code: "RELOAD50",
-                  validUntil: "2024-12-31",
-                  affiliateUrl: casino.affiliateUrl
-                }
-              ].map((bonus) => (
+              {casinoBonuses.length > 0 ? casinoBonuses.map((bonus) => (
                 <Card key={bonus.id} className="flex-shrink-0 w-80 border-turquoise/30 hover:border-turquoise/60 transition-colors cursor-pointer">
                   <CardContent className="p-6">
                     <div className="space-y-4">
@@ -663,14 +639,14 @@ export default function CasinoDetailPage() {
                         )}
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Clock className="h-4 w-4" />
-                          <span>Valid until: {new Date(bonus.validUntil).toLocaleDateString()}</span>
+                          <span>Valid until: {bonus.validUntil ? new Date(bonus.validUntil).toLocaleDateString() : 'No expiration'}</span>
                         </div>
                       </div>
                       
                       <Button 
                         className="w-full btn-neon-turquoise" 
                         size="sm"
-                        onClick={() => window.open(bonus.affiliateUrl || casino.websiteUrl, '_blank')}
+                        onClick={() => window.open(casino?.affiliateUrl || casino?.websiteUrl, '_blank')}
                       >
                         <ExternalLink className="h-4 w-4 mr-2" />
                         {bonus.code ? 'Claim with Code' : 'Claim Bonus'}
@@ -678,7 +654,12 @@ export default function CasinoDetailPage() {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              )) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Gift className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No bonuses available for this casino at the moment.</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
