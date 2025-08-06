@@ -8,19 +8,52 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Slider } from "@/components/ui/slider";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { X, Upload, Star } from "lucide-react";
 
 const casinoFormSchema = z.object({
+  // Osnovna polja kazina
   name: z.string().min(2, "Naziv mora imati najmanje 2 karaktera"),
   description: z.string().min(10, "Opis mora imati najmanje 10 karaktera"),
-  url: z.string().url("Molimo unesite valjan URL"),
-  licenseInfo: z.string().min(5, "Informacije o licenci su obavezne"),
-  establishedYear: z.number().min(1990).max(new Date().getFullYear()),
+  websiteUrl: z.string().url("Molimo unesite valjan URL"),
+  affiliateUrl: z.string().url("Molimo unesite valjan affiliate URL").optional().or(z.literal("")),
   logoUrl: z.string().url("Molimo unesite valjan URL za logo").optional().or(z.literal("")),
-  trustScore: z.number().min(0).max(10),
-  minDeposit: z.number().min(0),
-  maxWithdrawal: z.number().min(0),
-  withdrawalTimeframe: z.string().min(3, "Vremenski okvir povlačenja je obavezan"),
+  
+  // Osnovne informacije
+  establishedYear: z.number().min(1990).max(new Date().getFullYear()),
+  license: z.string().min(3, "Informacije o licenci su obavezne"),
+  safetyIndex: z.number().min(0).max(10),
+  
+  // Arrays za funkcionalnosti
+  paymentMethods: z.array(z.string()).default([]),
+  supportedCurrencies: z.array(z.string()).default([]),
+  gameProviders: z.array(z.string()).default([]),
+  features: z.array(z.string()).default([]),
+  
+  // Expert Review ocene (6 kategorija)
+  bonusesRating: z.number().min(0).max(10),
+  bonusesExplanation: z.string().min(10, "Objašnjenje bonusa je obavezno"),
+  designRating: z.number().min(0).max(10),
+  designExplanation: z.string().min(10, "Objašnjenje dizajna je obavezno"),
+  payoutsRating: z.number().min(0).max(10),
+  payoutsExplanation: z.string().min(10, "Objašnjenje isplata je obavezno"),
+  customerSupportRating: z.number().min(0).max(10),
+  customerSupportExplanation: z.string().min(10, "Objašnjenje podrške je obavezno"),
+  gameSelectionRating: z.number().min(0).max(10),
+  gameSelectionExplanation: z.string().min(10, "Objašnjenje igara je obavezno"),
+  mobileExperienceRating: z.number().min(0).max(10),
+  mobileExperienceExplanation: z.string().min(10, "Objašnjenje mobilnog iskustva je obavezno"),
+  
+  // Expert review summary
+  overallRating: z.number().min(0).max(10),
+  expertSummary: z.string().min(20, "Rezime expert review-a je obavezan"),
+  
+  // Status polja
   isActive: z.boolean().default(true),
   isFeatured: z.boolean().default(false),
 });
@@ -36,21 +69,52 @@ interface CasinoFormProps {
 
 export function CasinoForm({ isOpen, onOpenChange, casino, onSuccess }: CasinoFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [newPaymentMethod, setNewPaymentMethod] = useState("");
+  const [newCurrency, setNewCurrency] = useState("");
+  const [newProvider, setNewProvider] = useState("");
+  const [newFeature, setNewFeature] = useState("");
   const { toast } = useToast();
   
   const form = useForm<CasinoFormData>({
     resolver: zodResolver(casinoFormSchema),
     defaultValues: {
+      // Osnovna polja
       name: casino?.name || "",
       description: casino?.description || "",
-      url: casino?.url || "",
-      licenseInfo: casino?.licenseInfo || "",
-      establishedYear: casino?.establishedYear || new Date().getFullYear(),
+      websiteUrl: casino?.websiteUrl || "",
+      affiliateUrl: casino?.affiliateUrl || "",
       logoUrl: casino?.logoUrl || "",
-      trustScore: casino?.trustScore || 5,
-      minDeposit: casino?.minDeposit || 10,
-      maxWithdrawal: casino?.maxWithdrawal || 5000,
-      withdrawalTimeframe: casino?.withdrawalTimeframe || "24-48 sati",
+      
+      // Osnovne informacije
+      establishedYear: casino?.establishedYear || new Date().getFullYear(),
+      license: casino?.license || "",
+      safetyIndex: casino?.safetyIndex || 5,
+      
+      // Arrays
+      paymentMethods: casino?.paymentMethods || [],
+      supportedCurrencies: casino?.supportedCurrencies || [],
+      gameProviders: casino?.gameProviders || [],
+      features: casino?.features || [],
+      
+      // Expert Review ocene (uzmi iz expertReview objekta ako postoji)
+      bonusesRating: casino?.expertReview?.bonusesRating || 5,
+      bonusesExplanation: casino?.expertReview?.bonusesExplanation || "",
+      designRating: casino?.expertReview?.designRating || 5,
+      designExplanation: casino?.expertReview?.designExplanation || "",
+      payoutsRating: casino?.expertReview?.payoutsRating || 5,
+      payoutsExplanation: casino?.expertReview?.payoutsExplanation || "",
+      customerSupportRating: casino?.expertReview?.customerSupportRating || 5,
+      customerSupportExplanation: casino?.expertReview?.customerSupportExplanation || "",
+      gameSelectionRating: casino?.expertReview?.gameSelectionRating || 5,
+      gameSelectionExplanation: casino?.expertReview?.gameSelectionExplanation || "",
+      mobileExperienceRating: casino?.expertReview?.mobileExperienceRating || 5,
+      mobileExperienceExplanation: casino?.expertReview?.mobileExperienceExplanation || "",
+      
+      // Expert review summary
+      overallRating: casino?.expertReview?.overallRating || 5,
+      expertSummary: casino?.expertReview?.summary || "",
+      
+      // Status
       isActive: casino?.isActive ?? true,
       isFeatured: casino?.isFeatured ?? false,
     },
@@ -105,245 +169,674 @@ export function CasinoForm({ isOpen, onOpenChange, casino, onSuccess }: CasinoFo
     }
   };
 
+  // Funkcije za dodavanje stavki u arrays
+  const addPaymentMethod = () => {
+    if (newPaymentMethod.trim()) {
+      const current = form.getValues("paymentMethods");
+      form.setValue("paymentMethods", [...current, newPaymentMethod.trim()]);
+      setNewPaymentMethod("");
+    }
+  };
+
+  const addCurrency = () => {
+    if (newCurrency.trim()) {
+      const current = form.getValues("supportedCurrencies");
+      form.setValue("supportedCurrencies", [...current, newCurrency.trim()]);
+      setNewCurrency("");
+    }
+  };
+
+  const addProvider = () => {
+    if (newProvider.trim()) {
+      const current = form.getValues("gameProviders");
+      form.setValue("gameProviders", [...current, newProvider.trim()]);
+      setNewProvider("");
+    }
+  };
+
+  const addFeature = () => {
+    if (newFeature.trim()) {
+      const current = form.getValues("features");
+      form.setValue("features", [...current, newFeature.trim()]);
+      setNewFeature("");
+    }
+  };
+
+  const removeItem = (field: string, index: number) => {
+    const current = form.getValues(field as any);
+    form.setValue(field as any, current.filter((_: any, i: number) => i !== index));
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {casino ? "Uredi Kazino" : "Dodaj Novi Kazino"}
           </DialogTitle>
           <DialogDescription>
             {casino 
-              ? "Ažurirajte informacije o kazinu" 
-              : "Dodajte novi kazino u bazu podataka"
+              ? "Ažurirajte sva polja kazina uključujući expert review ocene" 
+              : "Dodajte novi kazino sa svim podacima uključujući expert review"
             }
           </DialogDescription>
         </DialogHeader>
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Naziv Kazina</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Stake Casino" {...field} data-testid="input-casino-name" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>URL Kazina</FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://stake.com" {...field} data-testid="input-casino-url" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <Tabs defaultValue="basic" className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="basic">Osnovno</TabsTrigger>
+                <TabsTrigger value="features">Funkcionalnosti</TabsTrigger>
+                <TabsTrigger value="expert">Expert Review</TabsTrigger>
+                <TabsTrigger value="status">Status</TabsTrigger>
+              </TabsList>
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Opis</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Detaljan opis kazina..."
-                      className="min-h-[100px]"
-                      {...field} 
-                      data-testid="textarea-casino-description"
+              {/* Osnovni podaci */}
+              <TabsContent value="basic" className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Naziv Kazina</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Stake Casino" {...field} data-testid="input-casino-name" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="establishedYear"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Godina Osnivanja</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            {...field} 
+                            onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            data-testid="input-casino-year"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Opis</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Detaljan opis kazina..."
+                          className="min-h-[100px]"
+                          {...field} 
+                          data-testid="textarea-casino-description"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="websiteUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Website URL</FormLabel>
+                        <FormControl>
+                          <Input placeholder="https://stake.com" {...field} data-testid="input-casino-url" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="affiliateUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Affiliate URL (opciono)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="https://affiliate.stake.com" {...field} data-testid="input-casino-affiliate" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="logoUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Logo URL</FormLabel>
+                        <FormControl>
+                          <div className="flex gap-2">
+                            <Input placeholder="https://example.com/logo.png" {...field} data-testid="input-casino-logo" />
+                            <Button type="button" variant="outline" size="sm">
+                              <Upload className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="license"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Licenca</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Curacao eGaming" {...field} data-testid="input-casino-license" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="safetyIndex"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Safety Index: {field.value}/10</FormLabel>
+                      <FormControl>
+                        <Slider
+                          min={0}
+                          max={10}
+                          step={0.1}
+                          value={[field.value]}
+                          onValueChange={(value) => field.onChange(value[0])}
+                          className="w-full"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </TabsContent>
+
+              {/* Funkcionalnosti */}
+              <TabsContent value="features" className="space-y-6">
+                {/* Payment Methods */}
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold">Načini Plaćanja</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Dodaj način plaćanja"
+                      value={newPaymentMethod}
+                      onChange={(e) => setNewPaymentMethod(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addPaymentMethod())}
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <Button type="button" onClick={addPaymentMethod} variant="outline">
+                      Dodaj
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {form.watch("paymentMethods").map((method, index) => (
+                      <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                        {method}
+                        <X className="h-3 w-3 cursor-pointer" onClick={() => removeItem("paymentMethods", index)} />
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="licenseInfo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Informacije o Licenci</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Curacao eGaming" {...field} data-testid="input-casino-license" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                {/* Currencies */}
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold">Podržane Valute</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Dodaj valutu (USD, EUR, BTC...)"
+                      value={newCurrency}
+                      onChange={(e) => setNewCurrency(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCurrency())}
+                    />
+                    <Button type="button" onClick={addCurrency} variant="outline">
+                      Dodaj
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {form.watch("supportedCurrencies").map((currency, index) => (
+                      <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                        {currency}
+                        <X className="h-3 w-3 cursor-pointer" onClick={() => removeItem("supportedCurrencies", index)} />
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
 
-              <FormField
-                control={form.control}
-                name="establishedYear"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Godina Osnivanja</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        {...field} 
-                        onChange={(e) => field.onChange(parseInt(e.target.value))}
-                        data-testid="input-casino-year"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                {/* Game Providers */}
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold">Game Provideri</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Dodaj providera (NetEnt, Microgaming...)"
+                      value={newProvider}
+                      onChange={(e) => setNewProvider(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addProvider())}
+                    />
+                    <Button type="button" onClick={addProvider} variant="outline">
+                      Dodaj
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {form.watch("gameProviders").map((provider, index) => (
+                      <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                        {provider}
+                        <X className="h-3 w-3 cursor-pointer" onClick={() => removeItem("gameProviders", index)} />
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
 
-            <FormField
-              control={form.control}
-              name="logoUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>URL Logoa (opciono)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://example.com/logo.png" {...field} data-testid="input-casino-logo" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                {/* Features */}
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold">Funkcionalnosti</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Dodaj funkcionalnost (Live Chat, Mobile App...)"
+                      value={newFeature}
+                      onChange={(e) => setNewFeature(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addFeature())}
+                    />
+                    <Button type="button" onClick={addFeature} variant="outline">
+                      Dodaj
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {form.watch("features").map((feature, index) => (
+                      <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                        {feature}
+                        <X className="h-3 w-3 cursor-pointer" onClick={() => removeItem("features", index)} />
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </TabsContent>
 
-            <div className="grid grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="trustScore"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Trust Score (0-10)</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        min="0" 
-                        max="10" 
-                        step="0.1"
-                        {...field} 
-                        onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                        data-testid="input-casino-trust-score"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Expert Review */}
+              <TabsContent value="expert" className="space-y-6">
+                <div className="space-y-6">
+                  {/* Bonuses Rating */}
+                  <div className="space-y-3">
+                    <Label className="text-base font-semibold flex items-center gap-2">
+                      <Star className="h-4 w-4" />
+                      Bonusi: {form.watch("bonusesRating")}/10
+                    </Label>
+                    <FormField
+                      control={form.control}
+                      name="bonusesRating"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Slider
+                              min={0}
+                              max={10}
+                              step={0.1}
+                              value={[field.value]}
+                              onValueChange={(value) => field.onChange(value[0])}
+                              className="w-full"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="bonusesExplanation"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Objašnjenje ocene za bonuse..."
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-              <FormField
-                control={form.control}
-                name="minDeposit"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Minimalni Depozit</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        min="0"
-                        {...field} 
-                        onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                        data-testid="input-casino-min-deposit"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  <Separator />
 
-              <FormField
-                control={form.control}
-                name="maxWithdrawal"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Maksimalno Povlačenje</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        min="0"
-                        {...field} 
-                        onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                        data-testid="input-casino-max-withdrawal"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                  {/* Design Rating */}
+                  <div className="space-y-3">
+                    <Label className="text-base font-semibold flex items-center gap-2">
+                      <Star className="h-4 w-4" />
+                      Dizajn: {form.watch("designRating")}/10
+                    </Label>
+                    <FormField
+                      control={form.control}
+                      name="designRating"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Slider
+                              min={0}
+                              max={10}
+                              step={0.1}
+                              value={[field.value]}
+                              onValueChange={(value) => field.onChange(value[0])}
+                              className="w-full"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="designExplanation"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Objašnjenje ocene za dizajn..."
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-            <FormField
-              control={form.control}
-              name="withdrawalTimeframe"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Vremenski Okvir Povlačenja</FormLabel>
-                  <FormControl>
-                    <Input placeholder="24-48 sati" {...field} data-testid="input-casino-withdrawal-timeframe" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                  <Separator />
 
-            <div className="flex space-x-6">
-              <FormField
-                control={form.control}
-                name="isActive"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                    <div className="space-y-0.5">
-                      <FormLabel>Aktivno</FormLabel>
-                      <div className="text-sm text-muted-foreground">
-                        Da li je kazino aktivan na sajtu
-                      </div>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        data-testid="switch-casino-active"
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+                  {/* Payouts Rating */}
+                  <div className="space-y-3">
+                    <Label className="text-base font-semibold flex items-center gap-2">
+                      <Star className="h-4 w-4" />
+                      Isplate: {form.watch("payoutsRating")}/10
+                    </Label>
+                    <FormField
+                      control={form.control}
+                      name="payoutsRating"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Slider
+                              min={0}
+                              max={10}
+                              step={0.1}
+                              value={[field.value]}
+                              onValueChange={(value) => field.onChange(value[0])}
+                              className="w-full"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="payoutsExplanation"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Objašnjenje ocene za isplate..."
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-              <FormField
-                control={form.control}
-                name="isFeatured"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                    <div className="space-y-0.5">
-                      <FormLabel>Istaknuto</FormLabel>
-                      <div className="text-sm text-muted-foreground">
-                        Da li je kazino istaknut
-                      </div>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        data-testid="switch-casino-featured"
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
+                  <Separator />
 
+                  {/* Customer Support Rating */}
+                  <div className="space-y-3">
+                    <Label className="text-base font-semibold flex items-center gap-2">
+                      <Star className="h-4 w-4" />
+                      Korisnička Podrška: {form.watch("customerSupportRating")}/10
+                    </Label>
+                    <FormField
+                      control={form.control}
+                      name="customerSupportRating"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Slider
+                              min={0}
+                              max={10}
+                              step={0.1}
+                              value={[field.value]}
+                              onValueChange={(value) => field.onChange(value[0])}
+                              className="w-full"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="customerSupportExplanation"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Objašnjenje ocene za korisničku podršku..."
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <Separator />
+
+                  {/* Game Selection Rating */}
+                  <div className="space-y-3">
+                    <Label className="text-base font-semibold flex items-center gap-2">
+                      <Star className="h-4 w-4" />
+                      Izbor Igara: {form.watch("gameSelectionRating")}/10
+                    </Label>
+                    <FormField
+                      control={form.control}
+                      name="gameSelectionRating"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Slider
+                              min={0}
+                              max={10}
+                              step={0.1}
+                              value={[field.value]}
+                              onValueChange={(value) => field.onChange(value[0])}
+                              className="w-full"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="gameSelectionExplanation"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Objašnjenje ocene za izbor igara..."
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <Separator />
+
+                  {/* Mobile Experience Rating */}
+                  <div className="space-y-3">
+                    <Label className="text-base font-semibold flex items-center gap-2">
+                      <Star className="h-4 w-4" />
+                      Mobilno Iskustvo: {form.watch("mobileExperienceRating")}/10
+                    </Label>
+                    <FormField
+                      control={form.control}
+                      name="mobileExperienceRating"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Slider
+                              min={0}
+                              max={10}
+                              step={0.1}
+                              value={[field.value]}
+                              onValueChange={(value) => field.onChange(value[0])}
+                              className="w-full"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="mobileExperienceExplanation"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Objašnjenje ocene za mobilno iskustvo..."
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <Separator />
+
+                  {/* Overall Rating & Summary */}
+                  <div className="space-y-3">
+                    <Label className="text-base font-semibold flex items-center gap-2">
+                      <Star className="h-4 w-4" />
+                      Ukupna Ocena: {form.watch("overallRating")}/10
+                    </Label>
+                    <FormField
+                      control={form.control}
+                      name="overallRating"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Slider
+                              min={0}
+                              max={10}
+                              step={0.1}
+                              value={[field.value]}
+                              onValueChange={(value) => field.onChange(value[0])}
+                              className="w-full"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="expertSummary"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Expert Review Rezime</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Ukupan rezime expert review-a..."
+                              className="min-h-[100px]"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Status */}
+              <TabsContent value="status" className="space-y-4">
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="isActive"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Aktivan</FormLabel>
+                          <div className="text-sm text-muted-foreground">
+                            Da li je kazino aktivan i dostupan korisnicima
+                          </div>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="isFeatured"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Istaknuto</FormLabel>
+                          <div className="text-sm text-muted-foreground">
+                            Da li se kazino prikazuje kao istaknuto na sajtu
+                          </div>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
+
+            <Separator />
+            
             <DialogFooter>
               <Button
                 type="button"
@@ -358,7 +851,7 @@ export function CasinoForm({ isOpen, onOpenChange, casino, onSuccess }: CasinoFo
                 disabled={isLoading}
                 data-testid="button-save-casino"
               >
-                {isLoading ? "Čuva..." : casino ? "Ažuriraj" : "Kreiraj"}
+                {isLoading ? "Čuvanje..." : casino ? "Ažuriraj Kazino" : "Kreiraj Kazino"}
               </Button>
             </DialogFooter>
           </form>
