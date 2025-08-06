@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -6,25 +6,40 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import { Upload, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const gameFormSchema = z.object({
   name: z.string().min(2, "Naziv mora imati najmanje 2 karaktera"),
+  description: z.string().optional(),
   provider: z.string().min(2, "Provider je obavezan"),
   category: z.string().min(1, "Kategorija je obavezna"),
   rtp: z.number().min(0).max(100),
   volatility: z.string().min(1, "Volatilnost je obavezna"),
   minBet: z.number().min(0),
   maxBet: z.number().min(0),
+  paylines: z.number().min(0).optional(),
+  maxMultiplier: z.number().min(0).optional(),
+  tags: z.array(z.string()).default([]),
   demoUrl: z.string().url("Molimo unesite valjan URL").optional().or(z.literal("")),
   imageUrl: z.string().url("Molimo unesite valjan URL").optional().or(z.literal("")),
+  availableAt: z.array(z.string()).default([]), // casino IDs
   isActive: z.boolean().default(true),
   isFeatured: z.boolean().default(false),
 });
 
 type GameFormData = z.infer<typeof gameFormSchema>;
+
+interface Casino {
+  id: string;
+  name: string;
+}
 
 interface GameFormProps {
   isOpen: boolean;
@@ -56,24 +71,68 @@ const gameProviders = [
 
 export function GameForm({ isOpen, onOpenChange, game, onSuccess }: GameFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [casinos, setCasinos] = useState<Casino[]>([]);
+  const [newTag, setNewTag] = useState("");
   const { toast } = useToast();
   
   const form = useForm<GameFormData>({
     resolver: zodResolver(gameFormSchema),
     defaultValues: {
       name: game?.name || "",
+      description: game?.description || "",
       provider: game?.provider || "",
       category: game?.category || "",
       rtp: game?.rtp || 96,
       volatility: game?.volatility || "",
       minBet: game?.minBet || 0.1,
       maxBet: game?.maxBet || 100,
+      paylines: game?.paylines || undefined,
+      maxMultiplier: game?.maxMultiplier || undefined,
+      tags: game?.tags || [],
       demoUrl: game?.demoUrl || "",
       imageUrl: game?.imageUrl || "",
+      availableAt: game?.availableAt || [],
       isActive: game?.isActive ?? true,
       isFeatured: game?.isFeatured ?? false,
     },
   });
+
+  useEffect(() => {
+    const loadCasinos = async () => {
+      try {
+        const response = await fetch('/api/casinos');
+        const data = await response.json();
+        setCasinos(data);
+      } catch (error) {
+        console.error('Error loading casinos:', error);
+      }
+    };
+
+    if (isOpen) {
+      loadCasinos();
+    }
+  }, [isOpen]);
+
+  const addTag = () => {
+    if (newTag.trim()) {
+      const current = form.getValues("tags");
+      form.setValue("tags", [...current, newTag.trim()]);
+      setNewTag("");
+    }
+  };
+
+  const removeTag = (index: number) => {
+    const current = form.getValues("tags");
+    form.setValue("tags", current.filter((_, i) => i !== index));
+  };
+
+  const toggleCasino = (casinoId: string) => {
+    const current = form.getValues("availableAt");
+    const newAvailableAt = current.includes(casinoId)
+      ? current.filter(id => id !== casinoId)
+      : [...current, casinoId];
+    form.setValue("availableAt", newAvailableAt);
+  };
 
   const onSubmit = async (data: GameFormData) => {
     setIsLoading(true);
@@ -126,254 +185,393 @@ export function GameForm({ isOpen, onOpenChange, game, onSuccess }: GameFormProp
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {game ? "Uredi Igru" : "Dodaj Novu Igru"}
           </DialogTitle>
           <DialogDescription>
             {game 
-              ? "Ažurirajte informacije o igri" 
-              : "Dodajte novu igru u bazu podataka"
+              ? "Ažurirajte sve informacije o igri uključujući sliku i povezane kazine" 
+              : "Dodajte novu igru sa svim podacima i povezivanjem sa kazinima"
             }
           </DialogDescription>
         </DialogHeader>
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Naziv Igre</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Book of Dead" {...field} data-testid="input-game-name" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <Tabs defaultValue="basic" className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="basic">Osnovno</TabsTrigger>
+                <TabsTrigger value="details">Detalji</TabsTrigger>
+                <TabsTrigger value="casinos">Kazini</TabsTrigger>
+                <TabsTrigger value="status">Status</TabsTrigger>
+              </TabsList>
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="provider"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Provider</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+              {/* Osnovni podaci */}
+              <TabsContent value="basic" className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Naziv Igre</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Book of Dead" {...field} data-testid="input-game-name" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="provider"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Provider</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger data-testid="select-game-provider">
+                              <SelectValue placeholder="Izaberite providera" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {gameProviders.map((provider) => (
+                              <SelectItem key={provider} value={provider}>
+                                {provider}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Opis Igre</FormLabel>
                       <FormControl>
-                        <SelectTrigger data-testid="select-game-provider">
-                          <SelectValue placeholder="Izaberite providera" />
-                        </SelectTrigger>
+                        <Textarea 
+                          placeholder="Detaljan opis igre..."
+                          className="min-h-[100px]"
+                          {...field} 
+                          data-testid="textarea-game-description"
+                        />
                       </FormControl>
-                      <SelectContent>
-                        {gameProviders.map((provider) => (
-                          <SelectItem key={provider} value={provider}>
-                            {provider}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Kategorija</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Kategorija</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger data-testid="select-game-category">
+                              <SelectValue placeholder="Izaberite kategoriju" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {gameCategories.map((category) => (
+                              <SelectItem key={category.value} value={category.value}>
+                                {category.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="volatility"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Volatilnost</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger data-testid="select-game-volatility">
+                              <SelectValue placeholder="Izaberite volatilnost" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {volatilityLevels.map((level) => (
+                              <SelectItem key={level.value} value={level.value}>
+                                {level.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="imageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Slika Igre</FormLabel>
                       <FormControl>
-                        <SelectTrigger data-testid="select-game-category">
-                          <SelectValue placeholder="Izaberite kategoriju" />
-                        </SelectTrigger>
+                        <div className="flex gap-2">
+                          <Input placeholder="https://example.com/game-image.jpg" {...field} data-testid="input-game-image" />
+                          <Button type="button" variant="outline" size="sm">
+                            <Upload className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </FormControl>
-                      <SelectContent>
-                        {gameCategories.map((category) => (
-                          <SelectItem key={category.value} value={category.value}>
-                            {category.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </TabsContent>
 
-            <div className="grid grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="rtp"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>RTP (%)</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        min="0" 
-                        max="100" 
-                        step="0.01"
-                        placeholder="96.50"
-                        {...field} 
-                        onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                        data-testid="input-game-rtp"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Detalji */}
+              <TabsContent value="details" className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="rtp"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>RTP (%)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            min="0" 
+                            max="100" 
+                            step="0.01"
+                            placeholder="96.50"
+                            {...field} 
+                            onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                            data-testid="input-game-rtp"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <FormField
-                control={form.control}
-                name="volatility"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Volatilnost</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-game-volatility">
-                          <SelectValue placeholder="Izaberite volatilnost" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {volatilityLevels.map((level) => (
-                          <SelectItem key={level.value} value={level.value}>
-                            {level.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  <FormField
+                    control={form.control}
+                    name="demoUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Demo URL</FormLabel>
+                        <FormControl>
+                          <Input placeholder="https://demo.provider.com/game" {...field} data-testid="input-game-demo-url" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-              <FormField
-                control={form.control}
-                name="minBet"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Minimalna Opklada</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        min="0" 
-                        step="0.01"
-                        placeholder="0.10"
-                        {...field} 
-                        onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                        data-testid="input-game-min-bet"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="minBet"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Minimalna Opklada (€)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            min="0" 
+                            step="0.01"
+                            placeholder="0.10"
+                            {...field} 
+                            onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                            data-testid="input-game-min-bet"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-            <FormField
-              control={form.control}
-              name="maxBet"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Maksimalna Opklada</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      min="0"
-                      step="0.01"
-                      placeholder="100.00"
-                      {...field} 
-                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                      data-testid="input-game-max-bet"
+                  <FormField
+                    control={form.control}
+                    name="maxBet"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Maksimalna Opklada (€)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            min="0"
+                            step="0.01"
+                            placeholder="100.00"
+                            {...field} 
+                            onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                            data-testid="input-game-max-bet"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="paylines"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Broj Linija (opciono)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            min="0"
+                            placeholder="25"
+                            {...field} 
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
+                            data-testid="input-game-paylines"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="maxMultiplier"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Maksimalni Multiplikator (opciono)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            min="0"
+                            placeholder="5000"
+                            {...field} 
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
+                            data-testid="input-game-max-multiplier"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Tagovi */}
+                <div className="space-y-3">
+                  <FormLabel className="text-base font-semibold">Tagovi</FormLabel>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Dodaj tag (bonus, free spins...)"
+                      value={newTag}
+                      onChange={(e) => setNewTag(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <Button type="button" onClick={addTag} variant="outline">
+                      Dodaj
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {form.watch("tags").map((tag, index) => (
+                      <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                        {tag}
+                        <X className="h-3 w-3 cursor-pointer" onClick={() => removeTag(index)} />
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </TabsContent>
 
-            <FormField
-              control={form.control}
-              name="demoUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Demo URL (opciono)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://demo.provider.com/game" {...field} data-testid="input-game-demo-url" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="imageUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>URL Slike (opciono)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://example.com/game-image.jpg" {...field} data-testid="input-game-image-url" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex space-x-6">
-              <FormField
-                control={form.control}
-                name="isActive"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                    <div className="space-y-0.5">
-                      <FormLabel>Aktivno</FormLabel>
-                      <div className="text-sm text-muted-foreground">
-                        Da li je igra aktivna
+              {/* Povezani Kazini */}
+              <TabsContent value="casinos" className="space-y-4">
+                <div className="space-y-3">
+                  <FormLabel className="text-base font-semibold">Dostupna u Kazinima</FormLabel>
+                  <div className="grid grid-cols-2 gap-2 max-h-[300px] overflow-y-auto border rounded-lg p-3">
+                    {casinos.map((casino) => (
+                      <div key={casino.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`casino-${casino.id}`}
+                          checked={form.watch("availableAt").includes(casino.id)}
+                          onCheckedChange={() => toggleCasino(casino.id)}
+                        />
+                        <label
+                          htmlFor={`casino-${casino.id}`}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                        >
+                          {casino.name}
+                        </label>
                       </div>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        data-testid="switch-game-active"
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+                    ))}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Izaberite kazine u kojima je ova igra dostupna
+                  </div>
+                </div>
+              </TabsContent>
 
-              <FormField
-                control={form.control}
-                name="isFeatured"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                    <div className="space-y-0.5">
-                      <FormLabel>Istaknuto</FormLabel>
-                      <div className="text-sm text-muted-foreground">
-                        Da li je igra istaknuta
-                      </div>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        data-testid="switch-game-featured"
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
+              {/* Status */}
+              <TabsContent value="status" className="space-y-4">
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="isActive"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Aktivna</FormLabel>
+                          <div className="text-sm text-muted-foreground">
+                            Da li je igra aktivna i dostupna korisnicima
+                          </div>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="isFeatured"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Istaknuto</FormLabel>
+                          <div className="text-sm text-muted-foreground">
+                            Da li se igra prikazuje kao istaknuto na sajtu
+                          </div>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
 
             <DialogFooter>
               <Button
@@ -389,7 +587,7 @@ export function GameForm({ isOpen, onOpenChange, game, onSuccess }: GameFormProp
                 disabled={isLoading}
                 data-testid="button-save-game"
               >
-                {isLoading ? "Čuva..." : game ? "Ažuriraj" : "Kreiraj"}
+                {isLoading ? "Čuvanje..." : game ? "Ažuriraj Igru" : "Kreiraj Igru"}
               </Button>
             </DialogFooter>
           </form>
