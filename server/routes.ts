@@ -130,6 +130,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get casinos that have a specific game
+  app.get("/api/game-casinos/:gameId", async (req, res) => {
+    try {
+      const casinos = await storage.getCasinosByGameId(req.params.gameId);
+      res.json(casinos);
+    } catch (error) {
+      console.error("Error fetching game casinos:", error);
+      res.status(500).json({ message: "Failed to fetch game casinos" });
+    }
+  });
+
   app.get("/api/bonuses/featured", async (req, res) => {
     try {
       const bonuses = await storage.getFeaturedBonuses();

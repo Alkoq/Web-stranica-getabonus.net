@@ -1209,7 +1209,7 @@ export default function Home() {
           setSelectedGame(null);
         }}
         gameName={selectedGame?.name || ""}
-        casinos={allCasinos}
+        gameId={selectedGame?.id || ""}
       />
     </div>
   );

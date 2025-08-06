@@ -2,50 +2,32 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, Shield, ExternalLink } from "lucide-react";
+import { Star, Shield, ExternalLink, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import type { Casino } from "@shared/schema";
 
 interface GameCasinoModalProps {
   isOpen: boolean;
   onClose: () => void;
   gameName: string;
-  casinos: Casino[];
+  gameId: string;
 }
 
-export function GameCasinoModal({ isOpen, onClose, gameName, casinos }: GameCasinoModalProps) {
-  // Mock casinos that have this game - in real app, this would come from API
-  const mockCasinos = [
-    {
-      id: "1",
-      name: "Crypto Palace",
-      safetyIndex: "9.2",
-      userRating: "4.5",
-      logo: "/logos/crypto-palace.png",
-      welcomeBonus: "100% up to $500 + 50 Free Spins",
-      features: ["Instant Play", "Crypto Friendly", "Live Chat"],
-      license: "Curacao eGaming"
-    },
-    {
-      id: "2", 
-      name: "Bitcoin Slots Pro",
-      safetyIndex: "8.8",
-      userRating: "4.3",
-      logo: "/logos/bitcoin-slots.png",
-      welcomeBonus: "150% up to 1 BTC",
-      features: ["No KYC", "Fast Withdrawals", "Mobile Optimized"],
-      license: "Costa Rica Gaming"
-    },
-    {
-      id: "3",
-      name: "Elite Casino",
-      safetyIndex: "9.5",
-      userRating: "4.7",
-      logo: "/logos/elite-casino.png", 
-      welcomeBonus: "200% up to $1000 + 100 Free Spins",
-      features: ["VIP Program", "24/7 Support", "High Limits"],
-      license: "Malta Gaming Authority"
-    }
-  ];
+export function GameCasinoModal({ isOpen, onClose, gameName, gameId }: GameCasinoModalProps) {
+  const [, setLocation] = useLocation();
+  
+  // Fetch real casinos that have this game
+  const { data: casinos = [], isLoading } = useQuery<Casino[]>({
+    queryKey: ['/api/game-casinos', gameId],
+    queryFn: () => fetch(`/api/game-casinos/${gameId}`).then(res => res.json()),
+    enabled: isOpen && !!gameId,
+  });
+
+  const handleViewCasino = (casinoId: string) => {
+    setLocation(`/casino/${casinoId}`);
+    onClose();
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -60,7 +42,17 @@ export function GameCasinoModal({ isOpen, onClose, gameName, casinos }: GameCasi
         </DialogHeader>
 
         <div className="space-y-4">
-          {mockCasinos.map((casino) => (
+          {isLoading ? (
+            <div className="flex justify-center items-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-turquoise" />
+              <span className="ml-2 text-muted-foreground">Loading casinos...</span>
+            </div>
+          ) : casinos.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">No casinos found for this game.</p>
+            </div>
+          ) : (
+            casinos.map((casino) => (
             <Card key={casino.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-6">
                 <div className="flex flex-col md:flex-row gap-4">
@@ -74,15 +66,15 @@ export function GameCasinoModal({ isOpen, onClose, gameName, casinos }: GameCasi
                       <div className="flex items-center gap-2 mb-2">
                         <div className="flex items-center gap-1">
                           <Shield className="h-4 w-4 text-green-600" />
-                          <span className="text-sm font-medium">{casino.safetyIndex}/10</span>
+                          <span className="text-sm font-medium">{casino.safetyRating}/10</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                          <span className="text-sm">{casino.userRating}/5</span>
+                          <span className="text-sm">{(casino.expertRating + casino.userRating) / 2}/10</span>
                         </div>
                       </div>
                       <p className="text-sm text-muted-foreground mb-3">
-                        Licensed by {casino.license}
+                        Licensed by {casino.licenseAuthority}
                       </p>
                     </div>
                   </div>
@@ -91,11 +83,11 @@ export function GameCasinoModal({ isOpen, onClose, gameName, casinos }: GameCasi
                   <div className="flex-1">
                     <div className="bg-orange/10 border border-orange/20 rounded-lg p-4 mb-3">
                       <h4 className="font-semibold text-orange mb-1">Welcome Bonus</h4>
-                      <p className="text-sm">{casino.welcomeBonus}</p>
+                      <p className="text-sm">{casino.welcomeBonusAmount}</p>
                     </div>
                     
                     <div className="flex flex-wrap gap-1 mb-3">
-                      {casino.features.map((feature, index) => (
+                      {casino.features.slice(0, 3).map((feature, index) => (
                         <Badge key={index} variant="secondary" className="text-xs">
                           {feature}
                         </Badge>
@@ -115,6 +107,7 @@ export function GameCasinoModal({ isOpen, onClose, gameName, casinos }: GameCasi
                     <Button 
                       variant="outline" 
                       size="sm"
+                      onClick={() => handleViewCasino(casino.id)}
                       data-testid={`button-review-${casino.id}`}
                     >
                       Read Review
@@ -123,7 +116,8 @@ export function GameCasinoModal({ isOpen, onClose, gameName, casinos }: GameCasi
                 </div>
               </CardContent>
             </Card>
-          ))}
+          ))
+          )}
         </div>
 
         <div className="flex justify-center pt-4">

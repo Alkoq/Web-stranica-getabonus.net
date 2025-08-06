@@ -78,6 +78,9 @@ export interface IStorage {
   // Get games associated with a casino
   getGamesByCasinoId(casinoId: string): Promise<Game[]>;
 
+  // Get casinos associated with a game
+  getCasinosByGameId(gameId: string): Promise<Casino[]>;
+
   // Add helpful vote to a review
   addHelpfulVote(reviewId: string): Promise<Review>;
 
@@ -1217,6 +1220,12 @@ export class MemStorage implements IStorage {
     return allGames.slice(0, 10); // Return first 10 games as popular games
   }
 
+  async getCasinosByGameId(gameId: string): Promise<Casino[]> {
+    // For now, return all active casinos - this would be implemented with actual casino-game relationships
+    const allCasinos = Array.from(this.casinos.values()).filter(casino => casino.isActive);
+    return allCasinos; // Return all casinos as they can have the game
+  }
+
   async getStats() {
     return {
       totalCasinos: this.casinos.size,
@@ -1560,6 +1569,12 @@ export class DatabaseStorage implements IStorage {
   async getGamesByCasinoId(casinoId: string): Promise<Game[]> {
     // For now, return all active games since casino-games relationship isn't fully implemented
     const results = await db.select().from(games).where(eq(games.isActive, true)).limit(10);
+    return results;
+  }
+
+  async getCasinosByGameId(gameId: string): Promise<Casino[]> {
+    // For now, return all active casinos since casino-games relationship isn't fully implemented
+    const results = await db.select().from(casinos).where(eq(casinos.isActive, true));
     return results;
   }
 
