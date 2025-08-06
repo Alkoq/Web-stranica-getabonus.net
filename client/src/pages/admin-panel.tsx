@@ -49,40 +49,16 @@ export default function AdminPanel() {
     },
   });
 
-  // Check authentication
+  // Load user and admins data
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
     const user = localStorage.getItem('adminUser');
-    
-    if (!token || !user) {
-      setLocation('/admin/login');
-      return;
+    if (user) {
+      setCurrentUser(JSON.parse(user));
     }
-
-    setCurrentUser(JSON.parse(user));
-    verifyToken(token);
     loadAdmins();
   }, []);
 
-  const verifyToken = async (token: string) => {
-    try {
-      const response = await fetch('/api/auth/verify', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
 
-      if (!response.ok) {
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('adminUser');
-        setLocation('/admin/login');
-      }
-    } catch (error) {
-      localStorage.removeItem('adminToken');
-      localStorage.removeItem('adminUser');
-      setLocation('/admin/login');
-    }
-  };
 
   const loadAdmins = async () => {
     const token = localStorage.getItem('adminToken');

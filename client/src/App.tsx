@@ -18,6 +18,7 @@ import Blog from "@/pages/blog";
 import Login from "@/pages/login";
 import AdminPanel from "@/pages/admin-panel";
 import AdminLogin from "@/pages/admin-login";
+import { ProtectedAdminRoute } from "@/components/admin/protected-admin-route";
 import CasinoDetail from "@/pages/casino-detail";
 import BonusDetail from "@/pages/bonus-detail";
 import GameDetail from "@/pages/game-detail";
@@ -27,9 +28,18 @@ import NotFound from "@/pages/not-found";
 function Router() {
   return (
     <Switch>
-      {/* Admin routes without header/footer */}
+      {/* Admin login route (unprotected) */}
       <Route path="/admin/login" component={AdminLogin} />
-      <Route path="/admin" component={AdminPanel} />
+      
+      {/* All other admin routes (protected) */}
+      <Route path="/admin*">
+        <ProtectedAdminRoute>
+          <Switch>
+            <Route path="/admin" component={AdminPanel} />
+            <Route path="/admin/*" component={AdminPanel} />
+          </Switch>
+        </ProtectedAdminRoute>
+      </Route>
       
       {/* Regular site routes with header/footer */}
       <Route>
