@@ -29,6 +29,7 @@ Preferred communication style: Simple, everyday language.
 - **ORM**: Drizzle ORM for type-safe database operations and schema management
 - **Schema**: Comprehensive relational design with tables for users, casinos, bonuses, games, casino_games, casino_ratings, reviews, blog posts, newsletter subscribers, and comparisons
 - **Connection**: Connection pooling with @neondatabase/serverless for efficient database access
+- **Data Architecture**: Fully dynamic system - all content loaded from PostgreSQL database with no hardcoded mock data (as of August 2025)
 
 ### Key Features
 - **Casino Management**: Detailed casino profiles with safety ratings, licenses, payment methods, and features
@@ -66,6 +67,15 @@ Preferred communication style: Simple, everyday language.
   - Additional details: minimum deposit, maximum winnings, promotional codes
   - Improved wagering requirements display with clear formatting
   - Better visual hierarchy and information organization
+
+## Recent Changes (August 2025)
+
+### Dynamic Data Implementation
+- **Complete Mock Data Removal**: All hardcoded casino, bonus, and game data removed from storage layer
+- **PostgreSQL Integration**: Full transition to dynamic PostgreSQL-based data loading
+- **Storage Layer Rewrite**: MemStorage class completely rebuilt with async database operations
+- **API Compatibility**: All existing API endpoints maintain compatibility while now using real database queries
+- **Performance**: Database queries optimized with proper error handling and connection pooling
 
 ## External Dependencies
 
