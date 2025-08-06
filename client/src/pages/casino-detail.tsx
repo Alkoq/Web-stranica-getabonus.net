@@ -607,7 +607,8 @@ export default function CasinoDetailPage() {
           <CardContent>
             <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-4">
               {casinoBonuses.length > 0 ? casinoBonuses.map((bonus) => (
-                <Card key={bonus.id} className="flex-shrink-0 w-80 border-turquoise/30 hover:border-turquoise/60 transition-colors cursor-pointer">
+                <Link key={bonus.id} href={`/bonus/${bonus.id}`}>
+                  <Card className="flex-shrink-0 w-80 border-turquoise/30 hover:border-turquoise/60 transition-colors cursor-pointer">
                   <CardContent className="p-6">
                     <div className="space-y-4">
                       <div className="flex items-start justify-between">
@@ -646,7 +647,11 @@ export default function CasinoDetailPage() {
                       <Button 
                         className="w-full btn-neon-turquoise" 
                         size="sm"
-                        onClick={() => window.open(casino?.affiliateUrl || casino?.websiteUrl, '_blank')}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          window.open(casino?.affiliateUrl || casino?.websiteUrl, '_blank');
+                        }}
                       >
                         <ExternalLink className="h-4 w-4 mr-2" />
                         {bonus.code ? 'Claim with Code' : 'Claim Bonus'}
@@ -654,6 +659,7 @@ export default function CasinoDetailPage() {
                     </div>
                   </CardContent>
                 </Card>
+                </Link>
               )) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <Gift className="h-12 w-12 mx-auto mb-4 opacity-50" />
