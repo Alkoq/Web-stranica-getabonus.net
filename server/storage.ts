@@ -1410,22 +1410,17 @@ export class DatabaseStorage implements IStorage {
     return result.rows[0] as { overall_rating: number } || null;
   }
 
-  // Get combined game rating (expert + user average)
+  // Get fixed expert game rating - expert rating should remain constant
   async getCombinedGameRating(gameId: string): Promise<number> {
     const expertReview = await this.getExpertGameReview(gameId);
-    const userAverageRating = await this.getGameUserReviewsAverageRating(gameId);
     
     if (!expertReview) {
-      return userAverageRating; // Samo user rating ako nema expert review
+      // Ako nema expert review, vratiti default expert rating
+      return 8.2;
     }
     
-    if (userAverageRating === 0) {
-      return parseFloat(expertReview.overall_rating.toString()); // Samo expert rating ako nema user reviews
-    }
-    
-    // Kombinovani rating - prosek expert i user ratinga
-    const combinedRating = (parseFloat(expertReview.overall_rating.toString()) + userAverageRating) / 2;
-    return Math.round(combinedRating * 10) / 10;
+    // Vratiti fiksni expert rating - ne mijenja se sa user reviews
+    return parseFloat(expertReview.overall_rating.toString());
   }
 
   async getCasinoSafetyRating(casinoId: string): Promise<number> {

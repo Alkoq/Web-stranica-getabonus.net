@@ -15,14 +15,14 @@ interface GameCardProps {
 export function GameCard({ game, onPlayGame }: GameCardProps) {
   console.log('GameCard rendering for:', game.name);
   
-  // Get combined rating from API (expert + user average)
-  const { data: ratingData } = useQuery<{ combinedRating: number }>({
+  // Get expert rating from API (fixed rating)
+  const { data: ratingData } = useQuery<{ expertRating: number }>({
     queryKey: ['/api/games/rating', game.id],
     queryFn: () => fetch(`/api/games/${game.id}/rating`).then(res => res.json()),
   });
 
   const getCombinedRating = () => {
-    return ratingData?.combinedRating.toFixed(1) || '0.0';
+    return ratingData?.expertRating ? ratingData.expertRating.toFixed(1) : '0.0';
   };
 
   return (

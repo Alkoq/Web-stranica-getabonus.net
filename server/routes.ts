@@ -157,13 +157,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get combined game rating (expert + user average)
+  // Get expert game rating (fixed rating)
   app.get("/api/games/:gameId/rating", async (req, res) => {
     try {
-      const combinedRating = await storage.getCombinedGameRating(req.params.gameId);
-      res.json({ combinedRating });
+      const expertRating = await storage.getCombinedGameRating(req.params.gameId);
+      res.json({ expertRating });
     } catch (error) {
-      console.error("Error fetching combined game rating:", error);
+      console.error("Error fetching expert game rating:", error);
       res.status(500).json({ message: "Failed to fetch game rating" });
     }
   });

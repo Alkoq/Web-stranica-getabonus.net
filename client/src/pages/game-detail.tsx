@@ -48,20 +48,20 @@ export default function GameDetail() {
     enabled: !!gameId,
   });
 
-  // Get combined rating from API (expert + user average)
-  const { data: apiRatingData } = useQuery<{ combinedRating: number }>({
+  // Get expert rating from API (fixed rating)
+  const { data: apiRatingData } = useQuery<{ expertRating: number }>({
     queryKey: ['/api/games/rating', gameId],
     queryFn: () => fetch(`/api/games/${gameId}/rating`).then(res => res.json()),
     enabled: !!gameId,
   });
 
   const getCombinedRating = () => {
-    const combinedRating = apiRatingData?.combinedRating || 0;
+    const expertRating = apiRatingData?.expertRating || 0;
     
     return {
-      rating: combinedRating.toFixed(1),
+      rating: expertRating.toFixed(1),
       count: gameReviews.length,
-      type: gameReviews.length > 0 ? 'combined' : 'expert'
+      type: 'expert' // Uvek expert rating, ne mijenja se
     };
   };
 
