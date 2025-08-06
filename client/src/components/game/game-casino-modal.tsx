@@ -66,15 +66,15 @@ export function GameCasinoModal({ isOpen, onClose, gameName, gameId }: GameCasin
                       <div className="flex items-center gap-2 mb-2">
                         <div className="flex items-center gap-1">
                           <Shield className="h-4 w-4 text-green-600" />
-                          <span className="text-sm font-medium">{casino.safetyRating}/10</span>
+                          <span className="text-sm font-medium">{casino.safetyIndex}/10</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                          <span className="text-sm">{(casino.expertRating + casino.userRating) / 2}/10</span>
+                          <span className="text-sm">{casino.userRating}/10</span>
                         </div>
                       </div>
                       <p className="text-sm text-muted-foreground mb-3">
-                        Licensed by {casino.licenseAuthority}
+                        Licensed by {casino.license || 'Unknown'}
                       </p>
                     </div>
                   </div>
@@ -83,15 +83,15 @@ export function GameCasinoModal({ isOpen, onClose, gameName, gameId }: GameCasin
                   <div className="flex-1">
                     <div className="bg-orange/10 border border-orange/20 rounded-lg p-4 mb-3">
                       <h4 className="font-semibold text-orange mb-1">Welcome Bonus</h4>
-                      <p className="text-sm">{casino.welcomeBonusAmount}</p>
+                      <p className="text-sm">Bonus dostupan</p>
                     </div>
                     
                     <div className="flex flex-wrap gap-1 mb-3">
-                      {casino.features.slice(0, 3).map((feature, index) => (
+                      {casino.features?.slice(0, 3).map((feature, index) => (
                         <Badge key={index} variant="secondary" className="text-xs">
                           {feature}
                         </Badge>
-                      ))}
+                      )) || []}
                     </div>
                   </div>
 
@@ -99,6 +99,7 @@ export function GameCasinoModal({ isOpen, onClose, gameName, gameId }: GameCasin
                   <div className="flex flex-col gap-2 min-w-[120px]">
                     <Button 
                       className="bg-orange hover:bg-orange/90 text-white"
+                      onClick={() => window.open(casino.affiliateUrl || casino.websiteUrl, '_blank')}
                       data-testid={`button-play-at-${casino.id}`}
                     >
                       <ExternalLink className="h-4 w-4 mr-2" />

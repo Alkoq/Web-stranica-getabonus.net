@@ -18,11 +18,13 @@ import { Link } from "wouter";
 import { api } from "@/lib/api";
 import { HelpfulButton } from "@/components/HelpfulButton";
 import { useToast } from "@/hooks/use-toast";
+import { GameCasinoModal } from "@/components/game/game-casino-modal";
 import type { Game, BlogPost, Review } from "@shared/schema";
 
 export default function GameDetail() {
   const [, params] = useRoute("/game/:id");
   const gameId = params?.id;
+  const [showCasinoModal, setShowCasinoModal] = useState(false);
 
   const { data: game, isLoading: gameLoading, error: gameError } = useQuery<Game>({
     queryKey: ['/api/games', gameId],
@@ -226,7 +228,8 @@ export default function GameDetail() {
                     )}
                     <Button 
                       className="flex-1 bg-turquoise hover:bg-turquoise/90"
-                      onClick={() => {/* Play for real functionality */}}
+                      onClick={() => setShowCasinoModal(true)}
+                      data-testid="button-play-for-real"
                     >
                       <Zap className="h-4 w-4 mr-2" />
                       Play for Real
@@ -503,6 +506,8 @@ export default function GameDetail() {
                   
                   <Button 
                     className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3"
+                    onClick={() => setShowCasinoModal(true)}
+                    data-testid="button-play-for-real-sidebar"
                   >
                     <Zap className="h-5 w-5 mr-2" />
                     Play for Real Money
@@ -542,6 +547,14 @@ export default function GameDetail() {
           </div>
         </div>
       </section>
+
+      {/* Game Casino Modal */}
+      <GameCasinoModal
+        isOpen={showCasinoModal}
+        onClose={() => setShowCasinoModal(false)}
+        gameName={game?.name || ""}
+        gameId={game?.id || ""}
+      />
     </div>
   );
 }

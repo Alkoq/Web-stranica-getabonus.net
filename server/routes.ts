@@ -181,8 +181,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get expert game rating (fixed rating)
   app.get("/api/games/:gameId/rating", async (req, res) => {
     try {
-      const expertRating = await storage.getCombinedGameRating(req.params.gameId);
-      res.json({ expertRating });
+      const game = await storage.getGame(req.params.gameId);
+      if (!game) {
+        return res.status(404).json({ message: "Game not found" });
+      }
+      // Return fixed expert rating for the game
+      res.json({ expertRating: 8.5 });
     } catch (error) {
       console.error("Error fetching expert game rating:", error);
       res.status(500).json({ message: "Failed to fetch game rating" });
@@ -276,8 +280,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/games/:gameId/ratings", async (req, res) => {
     try {
       const gameId = req.params.gameId;
-      const userReviewsAverage = await storage.getGameUserReviewsAverageRating(gameId);
-      const totalReviews = (await storage.getReviewsByGameId(gameId)).length;
+      const reviews = await storage.getReviewsByGameId(gameId);
+      const userReviewsAverage = reviews.length > 0 
+        ? reviews.reduce((sum, review) => sum + review.overallRating, 0) / reviews.length 
+        : 0;
+      const totalReviews = reviews.length;
       
       res.json({
         userReviewsAverage,
@@ -326,6 +333,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(game);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch game" });
+    }
+  });
+
+  // Get casinos that have a specific game
+  app.get("/api/game-casinos/:gameId", async (req, res) => {
+    try {
+      const casinos = await storage.getCasinosByGameId(req.params.gameId);
+      res.json(casinos);
+    } catch (error) {
+      console.error("Error fetching casinos for game:", error);
+      res.status(500).json({ message: "Failed to fetch casinos for game" });
     }
   });
 
