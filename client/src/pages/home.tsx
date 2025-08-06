@@ -71,6 +71,12 @@ export default function Home() {
     queryFn: () => api.getGames(),
   });
 
+  // Fetch all bonuses for search
+  const { data: allBonuses = [] } = useQuery<Bonus[]>({
+    queryKey: ['/api/bonuses'],
+    queryFn: () => api.getBonuses(),
+  });
+
   // Get latest casinos (sorting by newest)
   const latestCasinos = [...allCasinos].slice(0, 15);
 
@@ -131,7 +137,7 @@ export default function Home() {
     { label: "Mobile", icon: Users, filter: "features:Mobile" },
   ];
 
-  // Search suggestions by category
+  // Search suggestions by category  
   const searchSuggestions = {
     "Payment Methods": [
       { label: "Bitcoin Casinos", icon: Bitcoin, query: "Bitcoin" },
@@ -179,16 +185,34 @@ export default function Home() {
     }
   };
 
-  // Filter casinos based on search query
+  // Filter all content based on search query
   const searchResults = useMemo(() => {
-    if (!searchQuery || searchQuery.length < 2) return [];
-    const filtered = allCasinos.filter((casino: any) => 
+    if (!searchQuery || searchQuery.length < 2) return { casinos: [], bonuses: [], games: [] };
+    
+    // Filter casinos
+    const filteredCasinos = allCasinos.filter((casino: any) => 
       casino.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      casino.description?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    console.log('Search query:', searchQuery, 'Found casinos:', filtered.length, filtered.map((c: any) => c.name));
-    return filtered.slice(0, 5); // Limit to 5 results
-  }, [allCasinos, searchQuery]);
+      casino.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      casino.features?.some((f: string) => f.toLowerCase().includes(searchQuery.toLowerCase()))
+    ).slice(0, 3);
+
+    // Filter bonuses  
+    const filteredBonuses = allBonuses.filter((bonus: any) => 
+      bonus.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      bonus.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      bonus.type.toLowerCase().includes(searchQuery.toLowerCase())
+    ).slice(0, 3);
+
+    // Filter games
+    const filteredGames = allGames.filter((game: any) => 
+      game.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      game.provider.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      game.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      game.tags?.some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+    ).slice(0, 3);
+
+    return { casinos: filteredCasinos, bonuses: filteredBonuses, games: filteredGames };
+  }, [allCasinos, allBonuses, allGames, searchQuery]);
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
@@ -311,40 +335,99 @@ export default function Home() {
                         />
                         <CommandList className="max-h-[60vh] overflow-y-auto p-2">
                           <CommandEmpty className="py-6 text-center text-muted-foreground">
-                            {searchQuery.length >= 2 ? "No casinos found." : "Type to search casinos..."}
+                            {searchQuery.length >= 2 ? "No results found." : "Type to search casinos, bonuses, games..."}
                           </CommandEmpty>
                           
                           {/* Real search results */}
-                          {searchQuery.length >= 2 && searchResults && searchResults.length > 0 && (
-                            <CommandGroup heading="Casino Results" className="mb-4">
-                              {searchResults.map((casino: any) => (
-                                <CommandItem
-                                  key={casino.id}
-                                  value={casino.name}
-                                  onSelect={() => {
-                                    setLocation(`/casino/${casino.id}`);
-                                    setShowSearchSuggestions(false);
-                                  }}
-                                  className="flex items-center gap-3 cursor-pointer p-4 rounded-md touch-manipulation"
-                                >
-                                  <div className="flex items-center gap-3">
-                                    <img 
-                                      src={casino.logo || '/placeholder-casino.png'} 
-                                      alt={casino.name}
-                                      className="w-8 h-8 rounded object-cover"
-                                    />
-                                    <div>
-                                      <span className="text-base font-medium">{casino.name}</span>
-                                      {casino.safetyIndex && (
-                                        <div className="text-xs text-muted-foreground">
-                                          Safety: {casino.safetyIndex}/10
+                          {searchQuery.length >= 2 && (
+                            <>
+                              {/* Casino Results */}
+                              {searchResults.casinos.length > 0 && (
+                                <CommandGroup heading="Casinos" className="mb-4">
+                                  {searchResults.casinos.map((casino: any) => (
+                                    <CommandItem
+                                      key={casino.id}
+                                      onSelect={() => {
+                                        setLocation(`/casinos/${casino.id}`);
+                                        setShowSearchSuggestions(false);
+                                      }}
+                                      className="flex items-center gap-3 cursor-pointer p-4 rounded-md touch-manipulation"
+                                    >
+                                      <img 
+                                        src={casino.logoUrl || 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=40&h=40&fit=crop&auto=format'} 
+                                        alt={casino.name}
+                                        className="w-8 h-8 rounded-full object-cover"
+                                      />
+                                      <div className="flex-1">
+                                        <div className="font-semibold text-base">{casino.name}</div>
+                                        <div className="text-sm text-muted-foreground line-clamp-1">
+                                          {casino.description}
                                         </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
+                                      </div>
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              )}
+
+                              {/* Bonus Results */}
+                              {searchResults.bonuses.length > 0 && (
+                                <CommandGroup heading="Bonuses" className="mb-4">
+                                  {searchResults.bonuses.map((bonus: any) => (
+                                    <CommandItem
+                                      key={bonus.id}
+                                      onSelect={() => {
+                                        setLocation(`/bonuses/${bonus.id}`);
+                                        setShowSearchSuggestions(false);
+                                      }}
+                                      className="flex items-center gap-3 cursor-pointer p-4 rounded-md touch-manipulation"
+                                    >
+                                      <Gift className="h-8 w-8 text-orange" />
+                                      <div className="flex-1">
+                                        <div className="font-semibold text-base">{bonus.title}</div>
+                                        <div className="text-sm text-muted-foreground line-clamp-1">
+                                          {bonus.type} • {bonus.amount}
+                                        </div>
+                                      </div>
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              )}
+
+                              {/* Game Results */}
+                              {searchResults.games.length > 0 && (
+                                <CommandGroup heading="Games" className="mb-4">
+                                  {searchResults.games.map((game: any) => (
+                                    <CommandItem
+                                      key={game.id}
+                                      onSelect={() => {
+                                        setLocation(`/games/${game.id}`);
+                                        setShowSearchSuggestions(false);
+                                      }}
+                                      className="flex items-center gap-3 cursor-pointer p-4 rounded-md touch-manipulation"
+                                    >
+                                      <img 
+                                        src={game.imageUrl || 'https://images.unsplash.com/photo-1594736797933-d0d9770d1a15?w=40&h=40&fit=crop&auto=format'} 
+                                        alt={game.name}
+                                        className="w-8 h-8 rounded object-cover"
+                                      />
+                                      <div className="flex-1">
+                                        <div className="font-semibold text-base">{game.name}</div>
+                                        <div className="text-sm text-muted-foreground line-clamp-1">
+                                          {game.provider} • {game.type} • RTP {game.rtp}
+                                        </div>
+                                      </div>
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              )}
+
+                              {/* No results */}
+                              {searchResults.casinos.length === 0 && searchResults.bonuses.length === 0 && searchResults.games.length === 0 && (
+                                <CommandEmpty className="py-6 text-center text-muted-foreground">
+                                  No results found for "{searchQuery}"
+                                </CommandEmpty>
+                              )}
+                            </>
                           )}
                           
                           {/* Suggestions only show when no search query or no results */}
@@ -437,40 +520,99 @@ export default function Home() {
                         />
                         <CommandList className="max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-muted">
                           <CommandEmpty className="py-6 text-center text-muted-foreground">
-                            {searchQuery.length >= 2 ? "No casinos found." : "Type to search casinos..."}
+                            {searchQuery.length >= 2 ? "No results found." : "Type to search casinos, bonuses, games..."}
                           </CommandEmpty>
                           
                           {/* Real search results for desktop */}
-                          {searchQuery.length >= 2 && searchResults && searchResults.length > 0 && (
-                            <CommandGroup heading="Casino Results" className="p-2">
-                              {searchResults.map((casino: any) => (
-                                <CommandItem
-                                  key={casino.id}
-                                  value={casino.name}
-                                  onSelect={() => {
-                                    setLocation(`/casino/${casino.id}`);
-                                    setShowSearchSuggestions(false);
-                                  }}
-                                  className="flex items-center gap-3 cursor-pointer p-3 rounded-md hover:bg-accent/50"
-                                >
-                                  <div className="flex items-center gap-3">
-                                    <img 
-                                      src={casino.logo || '/placeholder-casino.png'} 
-                                      alt={casino.name}
-                                      className="w-6 h-6 rounded object-cover"
-                                    />
-                                    <div>
-                                      <span className="text-sm font-medium">{casino.name}</span>
-                                      {casino.safetyIndex && (
-                                        <div className="text-xs text-muted-foreground">
-                                          Safety: {casino.safetyIndex}/10
+                          {searchQuery.length >= 2 && (
+                            <>
+                              {/* Casino Results */}
+                              {searchResults.casinos.length > 0 && (
+                                <CommandGroup heading="Casinos" className="p-2">
+                                  {searchResults.casinos.map((casino: any) => (
+                                    <CommandItem
+                                      key={casino.id}
+                                      onSelect={() => {
+                                        setLocation(`/casinos/${casino.id}`);
+                                        setShowSearchSuggestions(false);
+                                      }}
+                                      className="flex items-center gap-3 cursor-pointer p-3 rounded-md hover:bg-accent/50"
+                                    >
+                                      <img 
+                                        src={casino.logoUrl || 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=40&h=40&fit=crop&auto=format'} 
+                                        alt={casino.name}
+                                        className="w-8 h-8 rounded-full object-cover"
+                                      />
+                                      <div className="flex-1">
+                                        <div className="font-semibold text-sm">{casino.name}</div>
+                                        <div className="text-xs text-muted-foreground line-clamp-1">
+                                          {casino.description}
                                         </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
+                                      </div>
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              )}
+
+                              {/* Bonus Results */}
+                              {searchResults.bonuses.length > 0 && (
+                                <CommandGroup heading="Bonuses" className="p-2">
+                                  {searchResults.bonuses.map((bonus: any) => (
+                                    <CommandItem
+                                      key={bonus.id}
+                                      onSelect={() => {
+                                        setLocation(`/bonuses/${bonus.id}`);
+                                        setShowSearchSuggestions(false);
+                                      }}
+                                      className="flex items-center gap-3 cursor-pointer p-3 rounded-md hover:bg-accent/50"
+                                    >
+                                      <Gift className="h-8 w-8 text-orange" />
+                                      <div className="flex-1">
+                                        <div className="font-semibold text-sm">{bonus.title}</div>
+                                        <div className="text-xs text-muted-foreground line-clamp-1">
+                                          {bonus.type} • {bonus.amount}
+                                        </div>
+                                      </div>
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              )}
+
+                              {/* Game Results */}
+                              {searchResults.games.length > 0 && (
+                                <CommandGroup heading="Games" className="p-2">
+                                  {searchResults.games.map((game: any) => (
+                                    <CommandItem
+                                      key={game.id}
+                                      onSelect={() => {
+                                        setLocation(`/games/${game.id}`);
+                                        setShowSearchSuggestions(false);
+                                      }}
+                                      className="flex items-center gap-3 cursor-pointer p-3 rounded-md hover:bg-accent/50"
+                                    >
+                                      <img 
+                                        src={game.imageUrl || 'https://images.unsplash.com/photo-1594736797933-d0d9770d1a15?w=40&h=40&fit=crop&auto=format'} 
+                                        alt={game.name}
+                                        className="w-8 h-8 rounded object-cover"
+                                      />
+                                      <div className="flex-1">
+                                        <div className="font-semibold text-sm">{game.name}</div>
+                                        <div className="text-xs text-muted-foreground line-clamp-1">
+                                          {game.provider} • {game.type} • RTP {game.rtp}
+                                        </div>
+                                      </div>
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              )}
+
+                              {/* No results */}
+                              {searchResults.casinos.length === 0 && searchResults.bonuses.length === 0 && searchResults.games.length === 0 && (
+                                <CommandEmpty className="py-6 text-center text-muted-foreground">
+                                  No results found for "{searchQuery}"
+                                </CommandEmpty>
+                              )}
+                            </>
                           )}
                           
                           {/* Suggestions only show when no search query or no results */}
