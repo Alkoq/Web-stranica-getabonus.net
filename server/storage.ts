@@ -264,6 +264,31 @@ export class MemStorage implements IStorage {
       updatedAt: new Date(),
     };
 
+    // New casino that has Book of Ra
+    const novomaticCasino: Casino = {
+      id: randomUUID(),
+      name: "Novomatic Casino",
+      description: "Premium casino featuring classic Novomatic slots including Book of Ra, with excellent bonuses and secure gaming.",
+      logoUrl: "https://images.unsplash.com/photo-1606168094550-1795e47ced84?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100&q=80",
+      websiteUrl: "https://novomaticcasino.com",
+      affiliateUrl: "https://novomaticcasino.com/ref/GetABonus",
+      safetyIndex: "9.2",
+      expertRating: 9.0,
+      userRating: "8.8",
+      totalReviews: 1245,
+      establishedYear: 2015,
+      license: "Malta Gaming Authority",
+      paymentMethods: ["Visa", "Mastercard", "Bitcoin", "Skrill", "Neteller"],
+      supportedCurrencies: ["EUR", "USD", "BTC", "ETH"],
+      gameProviders: ["Novomatic", "Pragmatic Play", "NetEnt", "Microgaming"],
+      features: ["Book of Ra Collection", "VIP Program", "Fast Withdrawals", "24/7 Support"],
+      welcomeBonusAmount: "100% up to €500 + 100 Free Spins on Book of Ra",
+      isFeatured: true,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
     const cloudBetCasino: Casino = {
       id: randomUUID(),
       name: "CloudBet",
@@ -272,6 +297,7 @@ export class MemStorage implements IStorage {
       websiteUrl: "https://cloudbet.com",
       affiliateUrl: "https://cloudbet.com/ref/GetABonus",
       safetyIndex: "8.9",
+      expertRating: 8.7,
       userRating: "4.5",
       totalReviews: 1432,
       establishedYear: 2013,
@@ -336,6 +362,7 @@ export class MemStorage implements IStorage {
     this.casinos.set(rollbitCasino.id, rollbitCasino);
     this.casinos.set(bitcasinoCasino.id, bitcasinoCasino);
     this.casinos.set(fortunejackCasino.id, fortunejackCasino);
+    this.casinos.set(novomaticCasino.id, novomaticCasino);
     this.casinos.set(cloudBetCasino.id, cloudBetCasino);
     this.casinos.set(bitStarzCasino.id, bitStarzCasino);
     this.casinos.set(duelbitsCasino.id, duelbitsCasino);
@@ -1221,9 +1248,24 @@ export class MemStorage implements IStorage {
   }
 
   async getCasinosByGameId(gameId: string): Promise<Casino[]> {
-    // For now, return all active casinos - this would be implemented with actual casino-game relationships
+    // Simple implementation: find Book of Ra game and return Novomatic Casino
     const allCasinos = Array.from(this.casinos.values()).filter(casino => casino.isActive);
-    return allCasinos; // Return all casinos as they can have the game
+    const bookOfRaGame = Array.from(this.games.values()).find(game => 
+      game.name.toLowerCase().includes('book of ra') || game.name.toLowerCase().includes('book of dead')
+    );
+    
+    if (bookOfRaGame && gameId === bookOfRaGame.id) {
+      // Return Novomatic Casino for Book of Ra and a couple other casinos
+      const novomaticCasino = allCasinos.find(casino => casino.name.includes('Novomatic'));
+      const otherCasinos = allCasinos.filter(casino => 
+        !casino.name.includes('Novomatic') && casino.isFeatured
+      ).slice(0, 2);
+      
+      return novomaticCasino ? [novomaticCasino, ...otherCasinos] : allCasinos.slice(0, 3);
+    }
+    
+    // For other games, return first 3 casinos
+    return allCasinos.slice(0, 3);
   }
 
   async getStats() {
