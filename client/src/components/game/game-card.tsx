@@ -5,6 +5,7 @@ import { ExternalLink, Play, Gamepad2, TrendingUp, Clock, Star } from "lucide-re
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { tracker } from "@/lib/interaction-tracker";
 import type { Game, Review } from "@shared/schema";
 
 interface GameCardProps {
@@ -26,7 +27,7 @@ export function GameCard({ game, onPlayGame }: GameCardProps) {
   };
 
   return (
-    <Link href={`/game/${game.id}`}>
+    <Link href={`/game/${game.id}`} onClick={() => tracker.trackGameClick(game.id)}>
       <Card 
         className="hover:shadow-lg transition-shadow cursor-pointer group h-full"
         style={{
@@ -134,6 +135,7 @@ export function GameCard({ game, onPlayGame }: GameCardProps) {
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
+                tracker.track('game_demo', game.id, 'game');
                 window.open(game.demoUrl || '#', '_blank');
               }}
               data-testid={`button-demo-${game.id}`}
@@ -147,6 +149,7 @@ export function GameCard({ game, onPlayGame }: GameCardProps) {
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
+                tracker.trackGameModal(game.id);
                 if (onPlayGame) onPlayGame(game);
               }}
               data-testid={`button-play-${game.id}`}

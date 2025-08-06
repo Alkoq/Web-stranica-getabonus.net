@@ -242,7 +242,7 @@ export default function Home() {
                 <div className="text-sm text-blue-200">Games Available</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold">{stats?.totalUsers || 0}+</div>
+                <div className="text-3xl font-bold">{stats?.happyUsers || 0}+</div>
                 <div className="text-sm text-blue-200">Happy Users</div>
               </div>
             </div>

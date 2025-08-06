@@ -4,6 +4,7 @@ import { Star, ExternalLink, Info, Shield } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { tracker } from "@/lib/interaction-tracker";
 import type { Casino, Review, ExpertReview } from "@shared/schema";
 
 interface CasinoCardProps {
@@ -184,14 +185,22 @@ export function CasinoCard({ casino, showDetails = true, variant = "list" }: Cas
 
           {/* Actions */}
           <div className={`flex ${variant === "grid" ? "flex-col" : "flex-col"} space-y-2 ${variant === "list" ? "ml-auto" : ""}`}>
-            <Button asChild className="bg-turquoise hover:bg-turquoise/90">
+            <Button 
+              asChild 
+              className="bg-turquoise hover:bg-turquoise/90"
+              onClick={() => tracker.trackCasinoClick(casino.id)}
+            >
               <a href={casino.affiliateUrl || casino.websiteUrl} target="_blank" rel="noopener noreferrer">
                 🎁 Visit Casino
                 <ExternalLink className="ml-2 h-4 w-4" />
               </a>
             </Button>
             <Link href={`/casino/${casino.id}`}>
-              <Button variant="outline" data-testid="button-casino-details">
+              <Button 
+                variant="outline" 
+                data-testid="button-casino-details"
+                onClick={() => tracker.track('casino_details_view', casino.id, 'casino')}
+              >
                 <Info className="mr-2 h-4 w-4" />
                 Više Informacija
               </Button>

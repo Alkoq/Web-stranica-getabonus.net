@@ -125,6 +125,19 @@ export const newsletterSubscribers = pgTable("newsletter_subscribers", {
   subscribedAt: timestamp("subscribed_at").defaultNow(),
 });
 
+// User interactions tracking
+export const userInteractions = pgTable("user_interactions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  sessionId: text("session_id").notNull(), // Browser session ID
+  interactionType: text("interaction_type").notNull(), // "review", "helpful_vote", "link_click", "casino_visit"
+  targetId: text("target_id"), // ID of casino/bonus/game that was interacted with
+  targetType: text("target_type"), // "casino", "bonus", "game", "blog_post"
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  sessionIdx: index("session_interactions_idx").on(table.sessionId),
+  typeIdx: index("interaction_type_idx").on(table.interactionType),
+}));
+
 export const comparisons = pgTable("comparisons", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id),
@@ -305,6 +318,11 @@ export const insertNewsletterSubscriberSchema = createInsertSchema(newsletterSub
   subscribedAt: true,
 });
 
+export const insertUserInteractionSchema = createInsertSchema(userInteractions).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertHelpfulVoteSchema = createInsertSchema(helpfulVotes).omit({
   id: true,
   createdAt: true,
@@ -352,6 +370,9 @@ export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
 
 export type NewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
 export type InsertNewsletterSubscriber = z.infer<typeof insertNewsletterSubscriberSchema>;
+
+export type UserInteraction = typeof userInteractions.$inferSelect;
+export type InsertUserInteraction = z.infer<typeof insertUserInteractionSchema>;
 
 export type Comparison = typeof comparisons.$inferSelect;
 export type InsertComparison = z.infer<typeof insertComparisonSchema>;

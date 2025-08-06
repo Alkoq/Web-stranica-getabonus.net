@@ -4,6 +4,7 @@ import { ExternalLink, Clock, Gift, Star } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { tracker } from "@/lib/interaction-tracker";
 import type { Bonus } from "@shared/schema";
 
 interface BonusCardProps {
@@ -116,7 +117,7 @@ export function BonusCard({ bonus, casinoName, casinoLogo, affiliateUrl }: Bonus
   };
 
   return (
-    <Link href={`/bonus/${bonus.id}`}>
+    <Link href={`/bonus/${bonus.id}`} onClick={() => tracker.track('bonus_details_view', bonus.id, 'bonus')}>
       <div 
         className="text-white rounded-xl p-6 transition-all duration-300 h-full flex flex-col relative overflow-hidden group cursor-pointer"
       style={{
@@ -217,6 +218,7 @@ export function BonusCard({ bonus, casinoName, casinoLogo, affiliateUrl }: Bonus
           className="bg-white text-current hover:bg-gray-100 transition-colors"
           onClick={(e: React.MouseEvent) => {
             e.stopPropagation();
+            tracker.trackBonusClick(bonus.id);
             window.open(affiliateUrl || '#', '_blank');
           }}
         >

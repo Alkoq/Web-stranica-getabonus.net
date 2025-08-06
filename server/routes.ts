@@ -141,6 +141,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Track user interaction
+  app.post("/api/interactions", async (req, res) => {
+    try {
+      const { sessionId, interactionType, targetId, targetType } = req.body;
+      
+      if (!sessionId || !interactionType) {
+        return res.status(400).json({ message: "sessionId and interactionType are required" });
+      }
+
+      const interaction = await storage.trackInteraction({
+        sessionId,
+        interactionType,
+        targetId,
+        targetType
+      });
+
+      res.json(interaction);
+    } catch (error) {
+      console.error("Error tracking interaction:", error);
+      res.status(500).json({ message: "Failed to track interaction" });
+    }
+  });
+
   app.get("/api/bonuses/featured", async (req, res) => {
     try {
       const bonuses = await storage.getFeaturedBonuses();
