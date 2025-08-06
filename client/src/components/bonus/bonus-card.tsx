@@ -70,11 +70,12 @@ export function BonusCard({ bonus, casinoName, casinoLogo, affiliateUrl }: Bonus
     }
   };
 
-  const formatTimeRemaining = (validUntil: Date | null) => {
+  const formatTimeRemaining = (validUntil: Date | string | null) => {
     if (!validUntil) return null;
     
+    const validUntilDate = typeof validUntil === 'string' ? new Date(validUntil) : validUntil;
     const now = new Date();
-    const timeLeft = validUntil.getTime() - now.getTime();
+    const timeLeft = validUntilDate.getTime() - now.getTime();
     
     if (timeLeft <= 0) return 'Expired';
     
