@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - GetABonus.net</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: #ecf0f1;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .admin-header {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 1rem 2rem;
+            border-bottom: 2px solid #3498db;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .admin-nav {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .admin-nav button {
+            background: rgba(52, 152, 219, 0.2);
+            border: 1px solid #3498db;
+            color: #ecf0f1;
+            padding: 0.5rem 1rem;
+            border-radius: 0.3rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .admin-nav button:hover {
+            background: #3498db;
+        }
+
+        .admin-nav button.active {
+            background: #3498db;
+        }
+
+        /* Main Content */
+        .admin-main {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Login Form */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+        }
+
+        .login-form {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-form h2 {
+            text-align: center;
+            color: #3498db;
+            margin-bottom: 2rem;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #bdc3c7;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+            border-radius: 0.3rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ecf0f1;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .form-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 0.5rem;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 0.3rem;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            margin: 0.25rem;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-success {
+            background: #27ae60;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        /* Tables */
+        .table-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(52, 152, 219, 0.2);
+        }
+
+        th {
+            background: rgba(52, 152, 219, 0.3);
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Section Management */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .section-header h2 {
+            color: #3498db;
+            font-size: 2rem;
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(52, 152, 219, 0.3);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(52, 152, 219, 0.2);
+            border: 1px solid #3498db;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #3498db;
+            display: block;
+        }
+
+        .stat-label {
+            color: #bdc3c7;
+            margin-top: 0.5rem;
+        }
+
+        /* Forms */
+        .form-container {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(52, 152, 219, 0.3);
+            border-radius: 0.5rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .form-container.active {
+            display: block;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 1rem;
+            border-radius: 0.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background: rgba(39, 174, 96, 0.2);
+            border: 1px solid #27ae60;
+            color: #2ecc71;
+        }
+
+        .alert-error {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #3498db;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .admin-nav {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Hidden */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Section -->
+    <div id="login-section">
+        <div class="login-container">
+            <form class="login-form" onsubmit="handleLogin(event)">
+                <h2>Admin Login</h2>
+                <div class="form-group">
+                    <label for="username">Korisničko ime:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Uloguj se</button>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <a href="/" class="btn btn-secondary">← Nazad na sajt</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="hidden">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="admin-logo">GetABonus.net Admin</div>
+            <div class="admin-nav">
+                <button onclick="showSection('dashboard')" class="active">Dashboard</button>
+                <button onclick="showSection('casinos')">Kazina</button>
+                <button onclick="showSection('bonuses')">Bonusi</button>
+                <button onclick="showSection('games')">Igre</button>
+                <button onclick="showSection('news')">Vijesti</button>
+                <button onclick="logout()" class="btn-danger">Logout</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="section active">
+                <div class="section-header">
+                    <h2>Dashboard</h2>
+                    <button onclick="refreshStats()" class="btn">Refresh</button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-number" id="total-casinos">0</span>
+                        <div class="stat-label">Ukupno Kazina</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="total-bonuses">0</span>
+                        <div class="stat-label">Ukupno Bonusa</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="total-games">0</span>
+                        <div class="stat-label">Ukupno Igara</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="total-news">0</span>
+                        <div class="stat-label">Ukupno Vijesti</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Brze Akcije</h3>
+                    <button onclick="showAddCasinoForm()" class="btn btn-success">Dodaj Kazino</button>
+                    <button onclick="showAddBonusForm()" class="btn btn-success">Dodaj Bonus</button>
+                    <button onclick="showAddGameForm()" class="btn btn-success">Dodaj Igru</button>
+                    <button onclick="showAddNewsForm()" class="btn btn-success">Dodaj Vijest</button>
+                    <a href="/" target="_blank" class="btn btn-secondary">Pogledaj Sajt</a>
+                </div>
+            </div>
+
+            <!-- Casinos Section -->
+            <div id="casinos-section" class="section">
+                <div class="section-header">
+                    <h2>Upravljanje Kazinima</h2>
+                    <button onclick="showAddCasinoForm()" class="btn btn-success">+ Dodaj Kazino</button>
+                </div>
+
+                <!-- Add/Edit Casino Form -->
+                <div id="casino-form" class="form-container">
+                    <h3 id="casino-form-title">Dodaj Novi Kazino</h3>
+                    <form onsubmit="saveCasino(event)">
+                        <input type="hidden" id="casino-id" name="id">
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="casino-name">Naziv kazina *</label>
+                                <input type="text" id="casino-name" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="casino-established">Godina osnivanja *</label>
+                                <input type="number" id="casino-established" name="establishedYear" min="1990" max="2024" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row full">
+                            <div class="form-group">
+                                <label for="casino-description">Opis *</label>
+                                <textarea id="casino-description" name="description" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="casino-website">Website URL *</label>
+                                <input type="url" id="casino-website" name="websiteUrl" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="casino-license">Licenca *</label>
+                                <input type="text" id="casino-license" name="license" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="casino-safety">Safety Index (1-10) *</label>
+                                <input type="number" id="casino-safety" name="safetyIndex" min="1" max="10" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="casino-featured">Featured kazino</label>
+                                <input type="checkbox" id="casino-featured" name="featured">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success">Sačuvaj Kazino</button>
+                            <button type="button" onclick="cancelForm('casino')" class="btn btn-secondary">Otkaži</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Casinos List -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Naziv</th>
+                                <th>Godina</th>
+                                <th>Safety Index</th>
+                                <th>Featured</th>
+                                <th>Akcije</th>
+                            </tr>
+                        </thead>
+                        <tbody id="casinos-table">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Bonuses Section -->
+            <div id="bonuses-section" class="section">
+                <div class="section-header">
+                    <h2>Upravljanje Bonusima</h2>
+                    <button onclick="showAddBonusForm()" class="btn btn-success">+ Dodaj Bonus</button>
+                </div>
+
+                <!-- Add/Edit Bonus Form -->
+                <div id="bonus-form" class="form-container">
+                    <h3 id="bonus-form-title">Dodaj Novi Bonus</h3>
+                    <form onsubmit="saveBonus(event)">
+                        <input type="hidden" id="bonus-id" name="id">
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="bonus-title">Naziv bonusa *</label>
+                                <input type="text" id="bonus-title" name="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="bonus-casino">Kazino *</label>
+                                <select id="bonus-casino" name="casinoId" required>
+                                    <option value="">Izaberi kazino</option>
+                                    <!-- Dynamic options -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row full">
+                            <div class="form-group">
+                                <label for="bonus-description">Opis *</label>
+                                <textarea id="bonus-description" name="description" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="bonus-type">Tip bonusa *</label>
+                                <select id="bonus-type" name="type" required>
+                                    <option value="">Izaberi tip</option>
+                                    <option value="Welcome Bonus">Welcome Bonus</option>
+                                    <option value="No Deposit">No Deposit</option>
+                                    <option value="Free Spins">Free Spins</option>
+                                    <option value="Cashback">Cashback</option>
+                                    <option value="Reload">Reload</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="bonus-amount">Iznos *</label>
+                                <input type="text" id="bonus-amount" name="amount" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="bonus-code">Bonus kod</label>
+                                <input type="text" id="bonus-code" name="code">
+                            </div>
+                            <div class="form-group">
+                                <label for="bonus-featured">Featured bonus</label>
+                                <input type="checkbox" id="bonus-featured" name="featured">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success">Sačuvaj Bonus</button>
+                            <button type="button" onclick="cancelForm('bonus')" class="btn btn-secondary">Otkaži</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Bonuses List -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Naziv</th>
+                                <th>Kazino</th>
+                                <th>Tip</th>
+                                <th>Iznos</th>
+                                <th>Featured</th>
+                                <th>Akcije</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bonuses-table">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Games Section -->
+            <div id="games-section" class="section">
+                <div class="section-header">
+                    <h2>Upravljanje Igrama</h2>
+                    <button onclick="showAddGameForm()" class="btn btn-success">+ Dodaj Igru</button>
+                </div>
+
+                <!-- Add/Edit Game Form -->
+                <div id="game-form" class="form-container">
+                    <h3 id="game-form-title">Dodaj Novu Igru</h3>
+                    <form onsubmit="saveGame(event)">
+                        <input type="hidden" id="game-id" name="id">
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="game-name">Naziv igre *</label>
+                                <input type="text" id="game-name" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="game-provider">Provajder *</label>
+                                <input type="text" id="game-provider" name="provider" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row full">
+                            <div class="form-group">
+                                <label for="game-description">Opis *</label>
+                                <textarea id="game-description" name="description" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="game-type">Tip igre *</label>
+                                <select id="game-type" name="type" required>
+                                    <option value="">Izaberi tip</option>
+                                    <option value="Slot">Slot</option>
+                                    <option value="Table Game">Table Game</option>
+                                    <option value="Live Casino">Live Casino</option>
+                                    <option value="Video Poker">Video Poker</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="game-rtp">RTP (%) *</label>
+                                <input type="number" id="game-rtp" name="rtp" min="80" max="99" step="0.01" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="game-volatility">Volatilnost *</label>
+                                <select id="game-volatility" name="volatility" required>
+                                    <option value="">Izaberi volatilnost</option>
+                                    <option value="Low">Niska</option>
+                                    <option value="Medium">Srednja</option>
+                                    <option value="High">Visoka</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="game-demo">Demo URL</label>
+                                <input type="url" id="game-demo" name="demoUrl">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="game-featured">Featured igra</label>
+                                <input type="checkbox" id="game-featured" name="featured">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success">Sačuvaj Igru</button>
+                            <button type="button" onclick="cancelForm('game')" class="btn btn-secondary">Otkaži</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Games List -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Naziv</th>
+                                <th>Provajder</th>
+                                <th>Tip</th>
+                                <th>RTP</th>
+                                <th>Featured</th>
+                                <th>Akcije</th>
+                            </tr>
+                        </thead>
+                        <tbody id="games-table">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- News Section -->
+            <div id="news-section" class="section">
+                <div class="section-header">
+                    <h2>Upravljanje Vijestima</h2>
+                    <button onclick="showAddNewsForm()" class="btn btn-success">+ Dodaj Vijest</button>
+                </div>
+
+                <!-- Add/Edit News Form -->
+                <div id="news-form" class="form-container">
+                    <h3 id="news-form-title">Dodaj Novu Vijest</h3>
+                    <form onsubmit="saveNews(event)">
+                        <input type="hidden" id="news-id" name="id">
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="news-title">Naslov *</label>
+                                <input type="text" id="news-title" name="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="news-category">Kategorija *</label>
+                                <select id="news-category" name="category" required>
+                                    <option value="">Izaberi kategoriju</option>
+                                    <option value="Casino News">Casino News</option>
+                                    <option value="Game Reviews">Game Reviews</option>
+                                    <option value="Industry Updates">Industry Updates</option>
+                                    <option value="Bonuses">Bonuses</option>
+                                    <option value="Guides">Guides</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row full">
+                            <div class="form-group">
+                                <label for="news-excerpt">Kratki opis *</label>
+                                <textarea id="news-excerpt" name="excerpt" required style="height: 60px;"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-row full">
+                            <div class="form-group">
+                                <label for="news-content">Sadržaj *</label>
+                                <textarea id="news-content" name="content" required style="height: 200px;"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="news-featured">Featured vijest</label>
+                                <input type="checkbox" id="news-featured" name="featured">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success">Sačuvaj Vijest</button>
+                            <button type="button" onclick="cancelForm('news')" class="btn btn-secondary">Otkaži</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- News List -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Naslov</th>
+                                <th>Kategorija</th>
+                                <th>Datum</th>
+                                <th>Featured</th>
+                                <th>Akcije</th>
+                            </tr>
+                        </thead>
+                        <tbody id="news-table">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let currentSection = 'dashboard';
+        let editingItem = null;
+
+        // Load data from localStorage
+        function loadData() {
+            const stored = localStorage.getItem('getabonus-data');
+            if (stored) {
+                return JSON.parse(stored);
+            }
+            return {
+                casinos: [],
+                bonuses: [],
+                games: [],
+                news: []
+            };
+        }
+
+        // Save data to localStorage
+        function saveData(data) {
+            localStorage.setItem('getabonus-data', JSON.stringify(data));
+            // Trigger storage event for main site
+            window.dispatchEvent(new StorageEvent('storage', {
+                key: 'getabonus-data',
+                newValue: JSON.stringify(data)
+            }));
+        }
+
+        // Login handling
+        function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Simple authentication (in real app, this would be server-side)
+            if (username === 'admin' && password === 'admin123') {
+                currentUser = { username: username, role: 'admin' };
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('admin-panel').classList.remove('hidden');
+                initializeAdmin();
+            } else {
+                alert('Neispravno korisničko ime ili password!');
+            }
+        }
+
+        // Logout
+        function logout() {
+            currentUser = null;
+            document.getElementById('admin-panel').classList.add('hidden');
+            document.getElementById('login-section').classList.remove('hidden');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        // Initialize admin panel
+        function initializeAdmin() {
+            refreshStats();
+            loadAllData();
+            showSection('dashboard');
+        }
+
+        // Show section
+        function showSection(section) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.admin-nav button').forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected section
+            document.getElementById(section + '-section').classList.add('active');
+            event.target.classList.add('active');
+            
+            currentSection = section;
+            
+            // Load data for section
+            switch(section) {
+                case 'dashboard':
+                    refreshStats();
+                    break;
+                case 'casinos':
+                    loadCasinos();
+                    break;
+                case 'bonuses':
+                    loadBonuses();
+                    loadCasinoOptions();
+                    break;
+                case 'games':
+                    loadGames();
+                    break;
+                case 'news':
+                    loadNews();
+                    break;
+            }
+        }
+
+        // Refresh statistics
+        function refreshStats() {
+            const data = loadData();
+            document.getElementById('total-casinos').textContent = data.casinos.length;
+            document.getElementById('total-bonuses').textContent = data.bonuses.length;
+            document.getElementById('total-games').textContent = data.games.length;
+            document.getElementById('total-news').textContent = data.news.length;
+        }
+
+        // Load all data
+        function loadAllData() {
+            loadCasinos();
+            loadBonuses();
+            loadGames();
+            loadNews();
+            loadCasinoOptions();
+        }
+
+        // Generate unique ID
+        function generateId(prefix) {
+            return prefix + '-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // === CASINO MANAGEMENT ===
+        
+        function showAddCasinoForm() {
+            document.getElementById('casino-form-title').textContent = 'Dodaj Novi Kazino';
+            document.getElementById('casino-form').classList.add('active');
+            document.getElementById('casino-form').scrollIntoView({ behavior: 'smooth' });
+            clearCasinoForm();
+            editingItem = null;
+        }
+
+        function clearCasinoForm() {
+            document.getElementById('casino-id').value = '';
+            document.getElementById('casino-name').value = '';
+            document.getElementById('casino-established').value = '';
+            document.getElementById('casino-description').value = '';
+            document.getElementById('casino-website').value = '';
+            document.getElementById('casino-license').value = '';
+            document.getElementById('casino-safety').value = '';
+            document.getElementById('casino-featured').checked = false;
+        }
+
+        function saveCasino(event) {
+            event.preventDefault();
+            const data = loadData();
+            
+            const casino = {
+                id: document.getElementById('casino-id').value || generateId('casino'),
+                name: document.getElementById('casino-name').value,
+                establishedYear: parseInt(document.getElementById('casino-established').value),
+                description: document.getElementById('casino-description').value,
+                websiteUrl: document.getElementById('casino-website').value,
+                license: document.getElementById('casino-license').value,
+                safetyIndex: parseInt(document.getElementById('casino-safety').value),
+                featured: document.getElementById('casino-featured').checked,
+                createdAt: editingItem ? editingItem.createdAt : new Date().toISOString()
+            };
+
+            if (editingItem) {
+                // Update existing
+                const index = data.casinos.findIndex(c => c.id === casino.id);
+                data.casinos[index] = casino;
+            } else {
+                // Add new
+                data.casinos.push(casino);
+            }
+
+            saveData(data);
+            loadCasinos();
+            loadCasinoOptions();
+            cancelForm('casino');
+            alert(editingItem ? 'Kazino je uspešno ažuriran!' : 'Kazino je uspešno dodat!');
+        }
+
+        function loadCasinos() {
+            const data = loadData();
+            const tbody = document.getElementById('casinos-table');
+            
+            if (data.casinos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nema kazina</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.casinos.map(casino => `
+                <tr>
+                    <td>${casino.name}</td>
+                    <td>${casino.establishedYear}</td>
+                    <td>${casino.safetyIndex}/10</td>
+                    <td>${casino.featured ? '<span style="color: #27ae60;">Da</span>' : 'Ne'}</td>
+                    <td>
+                        <button onclick="editCasino('${casino.id}')" class="btn btn-secondary" style="padding: 0.3rem 0.8rem;">Edit</button>
+                        <button onclick="deleteCasino('${casino.id}')" class="btn btn-danger" style="padding: 0.3rem 0.8rem;">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function editCasino(id) {
+            const data = loadData();
+            const casino = data.casinos.find(c => c.id === id);
+            if (!casino) return;
+
+            editingItem = casino;
+            document.getElementById('casino-form-title').textContent = 'Uredi Kazino';
+            document.getElementById('casino-id').value = casino.id;
+            document.getElementById('casino-name').value = casino.name;
+            document.getElementById('casino-established').value = casino.establishedYear;
+            document.getElementById('casino-description').value = casino.description;
+            document.getElementById('casino-website').value = casino.websiteUrl;
+            document.getElementById('casino-license').value = casino.license;
+            document.getElementById('casino-safety').value = casino.safetyIndex;
+            document.getElementById('casino-featured').checked = casino.featured;
+            
+            document.getElementById('casino-form').classList.add('active');
+            document.getElementById('casino-form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function deleteCasino(id) {
+            if (!confirm('Da li ste sigurni da želite da obrišete ovaj kazino?')) return;
+
+            const data = loadData();
+            data.casinos = data.casinos.filter(c => c.id !== id);
+            // Also remove related bonuses
+            data.bonuses = data.bonuses.filter(b => b.casinoId !== id);
+            
+            saveData(data);
+            loadCasinos();
+            loadBonuses();
+            loadCasinoOptions();
+            refreshStats();
+            alert('Kazino je uspešno obrisan!');
+        }
+
+        // === BONUS MANAGEMENT ===
+
+        function showAddBonusForm() {
+            document.getElementById('bonus-form-title').textContent = 'Dodaj Novi Bonus';
+            document.getElementById('bonus-form').classList.add('active');
+            document.getElementById('bonus-form').scrollIntoView({ behavior: 'smooth' });
+            clearBonusForm();
+            editingItem = null;
+        }
+
+        function clearBonusForm() {
+            document.getElementById('bonus-id').value = '';
+            document.getElementById('bonus-title').value = '';
+            document.getElementById('bonus-casino').value = '';
+            document.getElementById('bonus-description').value = '';
+            document.getElementById('bonus-type').value = '';
+            document.getElementById('bonus-amount').value = '';
+            document.getElementById('bonus-code').value = '';
+            document.getElementById('bonus-featured').checked = false;
+        }
+
+        function saveBonus(event) {
+            event.preventDefault();
+            const data = loadData();
+            
+            const bonus = {
+                id: document.getElementById('bonus-id').value || generateId('bonus'),
+                title: document.getElementById('bonus-title').value,
+                casinoId: document.getElementById('bonus-casino').value,
+                description: document.getElementById('bonus-description').value,
+                type: document.getElementById('bonus-type').value,
+                amount: document.getElementById('bonus-amount').value,
+                code: document.getElementById('bonus-code').value,
+                featured: document.getElementById('bonus-featured').checked,
+                createdAt: editingItem ? editingItem.createdAt : new Date().toISOString()
+            };
+
+            if (editingItem) {
+                const index = data.bonuses.findIndex(b => b.id === bonus.id);
+                data.bonuses[index] = bonus;
+            } else {
+                data.bonuses.push(bonus);
+            }
+
+            saveData(data);
+            loadBonuses();
+            cancelForm('bonus');
+            alert(editingItem ? 'Bonus je uspešno ažuriran!' : 'Bonus je uspešno dodat!');
+        }
+
+        function loadBonuses() {
+            const data = loadData();
+            const tbody = document.getElementById('bonuses-table');
+            
+            if (data.bonuses.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nema bonusa</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.bonuses.map(bonus => {
+                const casino = data.casinos.find(c => c.id === bonus.casinoId);
+                return `
+                    <tr>
+                        <td>${bonus.title}</td>
+                        <td>${casino ? casino.name : 'N/A'}</td>
+                        <td>${bonus.type}</td>
+                        <td>${bonus.amount}</td>
+                        <td>${bonus.featured ? '<span style="color: #27ae60;">Da</span>' : 'Ne'}</td>
+                        <td>
+                            <button onclick="editBonus('${bonus.id}')" class="btn btn-secondary" style="padding: 0.3rem 0.8rem;">Edit</button>
+                            <button onclick="deleteBonus('${bonus.id}')" class="btn btn-danger" style="padding: 0.3rem 0.8rem;">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function editBonus(id) {
+            const data = loadData();
+            const bonus = data.bonuses.find(b => b.id === id);
+            if (!bonus) return;
+
+            editingItem = bonus;
+            document.getElementById('bonus-form-title').textContent = 'Uredi Bonus';
+            document.getElementById('bonus-id').value = bonus.id;
+            document.getElementById('bonus-title').value = bonus.title;
+            document.getElementById('bonus-casino').value = bonus.casinoId;
+            document.getElementById('bonus-description').value = bonus.description;
+            document.getElementById('bonus-type').value = bonus.type;
+            document.getElementById('bonus-amount').value = bonus.amount;
+            document.getElementById('bonus-code').value = bonus.code;
+            document.getElementById('bonus-featured').checked = bonus.featured;
+            
+            document.getElementById('bonus-form').classList.add('active');
+            document.getElementById('bonus-form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function deleteBonus(id) {
+            if (!confirm('Da li ste sigurni da želite da obrišete ovaj bonus?')) return;
+
+            const data = loadData();
+            data.bonuses = data.bonuses.filter(b => b.id !== id);
+            
+            saveData(data);
+            loadBonuses();
+            refreshStats();
+            alert('Bonus je uspešno obrisan!');
+        }
+
+        function loadCasinoOptions() {
+            const data = loadData();
+            const select = document.getElementById('bonus-casino');
+            
+            select.innerHTML = '<option value="">Izaberi kazino</option>' + 
+                data.casinos.map(casino => `<option value="${casino.id}">${casino.name}</option>`).join('');
+        }
+
+        // === GAME MANAGEMENT ===
+
+        function showAddGameForm() {
+            document.getElementById('game-form-title').textContent = 'Dodaj Novu Igru';
+            document.getElementById('game-form').classList.add('active');
+            document.getElementById('game-form').scrollIntoView({ behavior: 'smooth' });
+            clearGameForm();
+            editingItem = null;
+        }
+
+        function clearGameForm() {
+            document.getElementById('game-id').value = '';
+            document.getElementById('game-name').value = '';
+            document.getElementById('game-provider').value = '';
+            document.getElementById('game-description').value = '';
+            document.getElementById('game-type').value = '';
+            document.getElementById('game-rtp').value = '';
+            document.getElementById('game-volatility').value = '';
+            document.getElementById('game-demo').value = '';
+            document.getElementById('game-featured').checked = false;
+        }
+
+        function saveGame(event) {
+            event.preventDefault();
+            const data = loadData();
+            
+            const game = {
+                id: document.getElementById('game-id').value || generateId('game'),
+                name: document.getElementById('game-name').value,
+                provider: document.getElementById('game-provider').value,
+                description: document.getElementById('game-description').value,
+                type: document.getElementById('game-type').value,
+                rtp: parseFloat(document.getElementById('game-rtp').value),
+                volatility: document.getElementById('game-volatility').value,
+                demoUrl: document.getElementById('game-demo').value,
+                featured: document.getElementById('game-featured').checked,
+                createdAt: editingItem ? editingItem.createdAt : new Date().toISOString()
+            };
+
+            if (editingItem) {
+                const index = data.games.findIndex(g => g.id === game.id);
+                data.games[index] = game;
+            } else {
+                data.games.push(game);
+            }
+
+            saveData(data);
+            loadGames();
+            cancelForm('game');
+            alert(editingItem ? 'Igra je uspešno ažurirana!' : 'Igra je uspešno dodana!');
+        }
+
+        function loadGames() {
+            const data = loadData();
+            const tbody = document.getElementById('games-table');
+            
+            if (data.games.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nema igara</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.games.map(game => `
+                <tr>
+                    <td>${game.name}</td>
+                    <td>${game.provider}</td>
+                    <td>${game.type}</td>
+                    <td>${game.rtp}%</td>
+                    <td>${game.featured ? '<span style="color: #27ae60;">Da</span>' : 'Ne'}</td>
+                    <td>
+                        <button onclick="editGame('${game.id}')" class="btn btn-secondary" style="padding: 0.3rem 0.8rem;">Edit</button>
+                        <button onclick="deleteGame('${game.id}')" class="btn btn-danger" style="padding: 0.3rem 0.8rem;">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function editGame(id) {
+            const data = loadData();
+            const game = data.games.find(g => g.id === id);
+            if (!game) return;
+
+            editingItem = game;
+            document.getElementById('game-form-title').textContent = 'Uredi Igru';
+            document.getElementById('game-id').value = game.id;
+            document.getElementById('game-name').value = game.name;
+            document.getElementById('game-provider').value = game.provider;
+            document.getElementById('game-description').value = game.description;
+            document.getElementById('game-type').value = game.type;
+            document.getElementById('game-rtp').value = game.rtp;
+            document.getElementById('game-volatility').value = game.volatility;
+            document.getElementById('game-demo').value = game.demoUrl;
+            document.getElementById('game-featured').checked = game.featured;
+            
+            document.getElementById('game-form').classList.add('active');
+            document.getElementById('game-form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function deleteGame(id) {
+            if (!confirm('Da li ste sigurni da želite da obrišete ovu igru?')) return;
+
+            const data = loadData();
+            data.games = data.games.filter(g => g.id !== id);
+            
+            saveData(data);
+            loadGames();
+            refreshStats();
+            alert('Igra je uspešno obrisana!');
+        }
+
+        // === NEWS MANAGEMENT ===
+
+        function showAddNewsForm() {
+            document.getElementById('news-form-title').textContent = 'Dodaj Novu Vijest';
+            document.getElementById('news-form').classList.add('active');
+            document.getElementById('news-form').scrollIntoView({ behavior: 'smooth' });
+            clearNewsForm();
+            editingItem = null;
+        }
+
+        function clearNewsForm() {
+            document.getElementById('news-id').value = '';
+            document.getElementById('news-title').value = '';
+            document.getElementById('news-category').value = '';
+            document.getElementById('news-excerpt').value = '';
+            document.getElementById('news-content').value = '';
+            document.getElementById('news-featured').checked = false;
+        }
+
+        function saveNews(event) {
+            event.preventDefault();
+            const data = loadData();
+            
+            const news = {
+                id: document.getElementById('news-id').value || generateId('news'),
+                title: document.getElementById('news-title').value,
+                category: document.getElementById('news-category').value,
+                excerpt: document.getElementById('news-excerpt').value,
+                content: document.getElementById('news-content').value,
+                featured: document.getElementById('news-featured').checked,
+                publishedAt: editingItem ? editingItem.publishedAt : new Date().toISOString(),
+                createdAt: editingItem ? editingItem.createdAt : new Date().toISOString()
+            };
+
+            if (editingItem) {
+                const index = data.news.findIndex(n => n.id === news.id);
+                data.news[index] = news;
+            } else {
+                data.news.push(news);
+            }
+
+            saveData(data);
+            loadNews();
+            cancelForm('news');
+            alert(editingItem ? 'Vijest je uspešno ažurirana!' : 'Vijest je uspešno dodana!');
+        }
+
+        function loadNews() {
+            const data = loadData();
+            const tbody = document.getElementById('news-table');
+            
+            if (data.news.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nema vijesti</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.news.map(news => `
+                <tr>
+                    <td>${news.title}</td>
+                    <td>${news.category}</td>
+                    <td>${new Date(news.publishedAt).toLocaleDateString()}</td>
+                    <td>${news.featured ? '<span style="color: #27ae60;">Da</span>' : 'Ne'}</td>
+                    <td>
+                        <button onclick="editNews('${news.id}')" class="btn btn-secondary" style="padding: 0.3rem 0.8rem;">Edit</button>
+                        <button onclick="deleteNews('${news.id}')" class="btn btn-danger" style="padding: 0.3rem 0.8rem;">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function editNews(id) {
+            const data = loadData();
+            const news = data.news.find(n => n.id === id);
+            if (!news) return;
+
+            editingItem = news;
+            document.getElementById('news-form-title').textContent = 'Uredi Vijest';
+            document.getElementById('news-id').value = news.id;
+            document.getElementById('news-title').value = news.title;
+            document.getElementById('news-category').value = news.category;
+            document.getElementById('news-excerpt').value = news.excerpt;
+            document.getElementById('news-content').value = news.content;
+            document.getElementById('news-featured').checked = news.featured;
+            
+            document.getElementById('news-form').classList.add('active');
+            document.getElementById('news-form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function deleteNews(id) {
+            if (!confirm('Da li ste sigurni da želite da obrišete ovu vijest?')) return;
+
+            const data = loadData();
+            data.news = data.news.filter(n => n.id !== id);
+            
+            saveData(data);
+            loadNews();
+            refreshStats();
+            alert('Vijest je uspešno obrisana!');
+        }
+
+        // === FORM UTILITIES ===
+
+        function cancelForm(type) {
+            document.getElementById(type + '-form').classList.remove('active');
+            editingItem = null;
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is already logged in (in real app, use proper session management)
+            // For now, keep them logged out by default
+        });
+    </script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import path from "path";
 import { storage } from "./storage";
 import jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
@@ -9,6 +10,16 @@ import { z } from "zod";
 const JWT_SECRET = process.env.JWT_SECRET || 'getabonus-jwt-secret-key-2024';
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  
+  // Admin panel route
+  app.get('/admin', (req, res) => {
+    res.sendFile(path.join(process.cwd(), 'admin.html'));
+  });
+
+  // Main site route (root)
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(process.cwd(), 'index.html'));
+  });
   
   // Authentication routes
   app.post('/api/auth/login', async (req, res) => {
