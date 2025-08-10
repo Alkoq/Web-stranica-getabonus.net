@@ -25,11 +25,11 @@ Preferred communication style: Simple, everyday language.
 - **Middleware**: Custom logging, JSON parsing, error handling, and development-only Vite integration
 
 ### Data Storage
-- **Database**: PostgreSQL with Neon serverless hosting for scalability
-- **ORM**: Drizzle ORM for type-safe database operations and schema management
-- **Schema**: Comprehensive relational design with tables for users, casinos, bonuses, games, casino_games, casino_ratings, reviews, blog posts, newsletter subscribers, and comparisons
-- **Connection**: Connection pooling with @neondatabase/serverless for efficient database access
-- **Data Architecture**: Fully dynamic system - all content loaded from PostgreSQL database with no hardcoded mock data (as of August 2025)
+- **Storage Backend**: JSON file-based storage system (getabonus-data.json) for complete data persistence
+- **Schema Compatibility**: Maintains full TypeScript type safety and existing data structures
+- **Real-time Updates**: Instant data synchronization across all pages and admin panel
+- **Data Architecture**: Fully dynamic system - all content loaded from JSON storage with no hardcoded mock data
+- **Initial Data**: Pre-populated with sample casinos, bonuses, games, and blog posts for immediate functionality
 
 ### Key Features
 - **Casino Management**: Detailed casino profiles with safety ratings, licenses, payment methods, and features
@@ -89,11 +89,12 @@ Preferred communication style: Simple, everyday language.
 - **Authentication**: Simple admin login system (admin/admin123 for demo)
 
 ### Technical Implementation
-- **No API Dependencies**: System works entirely through direct ID relationships in localStorage
-- **Automatic Page Generation**: Adding content via admin automatically creates individual pages
-- **Responsive Design**: Mobile-friendly design with neon casino theme (turquoise/orange)
-- **Storage Events**: Cross-tab communication for real-time updates between admin and main site
-- **Clean Architecture**: Separated concerns with distinct HTML files for main site and admin panel
+- **JSON Storage Backend**: Complete transition from PostgreSQL to JSON file storage system
+- **Existing UI Preserved**: All existing React pages, components, and routes remain unchanged
+- **Real-time Data Flow**: Admin panel changes immediately reflect across all site pages
+- **Type Safety**: Full TypeScript compatibility maintained with existing schema definitions
+- **Dynamic Content**: All preview cards, detail pages, and listings pull real data from JSON storage
+- **No Mock Data**: Complete removal of placeholder content - everything is dynamically loaded
 
 ## External Dependencies
 

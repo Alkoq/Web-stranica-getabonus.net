@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import path from "path";
-import { storage } from "./storage";
+import { storage } from "./simple-storage";
 import jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
 import { insertNewsletterSubscriberSchema, insertComparisonSchema, insertReviewSchema, insertAdminSchema, insertCasinoSchema, insertBonusSchema, insertGameSchema, insertBlogPostSchema } from "@shared/schema";
