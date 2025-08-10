@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GetABonus.net - Casino Affiliate Platform</title>
+    <meta name="description" content="Otkrijte najbolje online kazina, ekskluzivne bonuse i besplatne vrtnjave. Stručni pregledi i poređenja kazina za sigurno online kockanje.">
+    
+    <!-- Open Graph tags -->
+    <meta property="og:title" content="GetABonus.net - Najbolji Casino Bonusi">
+    <meta property="og:description" content="Ekskluzivni casino bonusi, detaljni pregledi kazina i bezbedni saveti za online kockanje.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://getabonus.net">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        .header {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #16a085;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #16a085;
+            text-shadow: 0 0 10px rgba(22, 160, 133, 0.5);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-menu a:hover {
+            color: #16a085;
+            background: rgba(22, 160, 133, 0.1);
+            box-shadow: 0 0 20px rgba(22, 160, 133, 0.3);
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(45deg, rgba(22, 160, 133, 0.1), rgba(243, 156, 18, 0.1));
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 30px rgba(22, 160, 133, 0.8);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0.9;
+        }
+
+        .cta-button {
+            background: linear-gradient(45deg, #16a085, #f39c12);
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 0.5rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(22, 160, 133, 0.4);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(22, 160, 133, 0.6);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Section Styles */
+        .section {
+            padding: 4rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .section h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #16a085;
+            text-shadow: 0 0 20px rgba(22, 160, 133, 0.5);
+        }
+
+        /* Card Styles */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(22, 160, 133, 0.3);
+            border-radius: 1rem;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: #16a085;
+            box-shadow: 0 10px 30px rgba(22, 160, 133, 0.3);
+        }
+
+        .card h3 {
+            color: #f39c12;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .card p {
+            opacity: 0.9;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .card .rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .stars {
+            color: #f39c12;
+            font-size: 1.2rem;
+        }
+
+        .safety-score {
+            background: linear-gradient(45deg, #16a085, #27ae60);
+            padding: 0.3rem 0.8rem;
+            border-radius: 1rem;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        /* Button Styles */
+        .btn {
+            background: linear-gradient(45deg, #16a085, #f39c12);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 0.5rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(22, 160, 133, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #34495e, #2c3e50);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        /* Admin Styles */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+        }
+
+        .login-form {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 3rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(22, 160, 133, 0.3);
+            backdrop-filter: blur(10px);
+            min-width: 400px;
+        }
+
+        .login-form h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #16a085;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #16a085;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid rgba(22, 160, 133, 0.3);
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #16a085;
+            box-shadow: 0 0 10px rgba(22, 160, 133, 0.3);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        /* Admin Panel Styles */
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem 0;
+            border-bottom: 1px solid rgba(22, 160, 133, 0.3);
+        }
+
+        .admin-user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-nav {
+            display: flex;
+            gap: 1rem;
+            padding: 2rem 0;
+            border-bottom: 1px solid rgba(22, 160, 133, 0.3);
+            margin-bottom: 2rem;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(22, 160, 133, 0.3);
+            padding: 0.8rem 1.5rem;
+            border-radius: 0.5rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn.active,
+        .nav-btn:hover {
+            background: linear-gradient(45deg, #16a085, #f39c12);
+            border-color: #16a085;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .items-table {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 1rem;
+            padding: 1rem;
+            overflow-x: auto;
+        }
+
+        .items-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .items-table th,
+        .items-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(22, 160, 133, 0.2);
+        }
+
+        .items-table th {
+            background: rgba(22, 160, 133, 0.1);
+            color: #16a085;
+            font-weight: 600;
+        }
+
+        .items-table tr:hover {
+            background: rgba(22, 160, 133, 0.1);
+        }
+
+        .btn-small {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.9rem;
+            margin-right: 0.5rem;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 1px solid rgba(22, 160, 133, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(22, 160, 133, 0.3);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #16a085;
+            margin-bottom: 1rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #f39c12;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            background: rgba(231, 76, 60, 0.1);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .admin-nav {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-1 { margin-bottom: 1rem; }
+        .mb-2 { margin-bottom: 2rem; }
+        .mt-1 { margin-top: 1rem; }
+        .mt-2 { margin-top: 2rem; }
+
+        /* Neon Effects */
+        .neon-glow {
+            box-shadow: 0 0 20px rgba(22, 160, 133, 0.5);
+        }
+
+        .neon-text {
+            text-shadow: 0 0 10px rgba(22, 160, 133, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <!-- Admin Panel (Hidden by default) -->
+    <div id="admin-content" style="display: none;"></div>
+
+    <!-- Main Website -->
+    <div id="main-website">
+        <!-- Header -->
+        <header class="header">
+            <div class="nav-container">
+                <div class="logo neon-text">GetABonus.net</div>
+                <nav>
+                    <ul class="nav-menu">
+                        <li><a href="#home">Početna</a></li>
+                        <li><a href="#casinos">Kazina</a></li>
+                        <li><a href="#bonuses">Bonusi</a></li>
+                        <li><a href="#games">Igre</a></li>
+                        <li><a href="#blog">Blog</a></li>
+                        <li><a href="javascript:void(0)" onclick="showAdminLogin()">Admin</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section id="home" class="hero">
+            <div class="container">
+                <h1 class="neon-text">Dobrodošli u Svet Casino Bonusa</h1>
+                <p>Otkrijte najbolje online kazina, ekskluzivne bonuse i bezbedne platforme za vaše kockanje. Naši stručni pregledi vam pomažu da napravite pametne izbore.</p>
+                <a href="#casinos" class="cta-button">Istražite Kazina</a>
+            </div>
+        </section>
+
+        <!-- Featured Casinos -->
+        <section id="casinos" class="section">
+            <div class="container">
+                <h2>Preporučeni Kazina</h2>
+                <div id="featured-casinos" class="cards-grid">
+                    <!-- Casinos will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Bonuses -->
+        <section id="bonuses" class="section">
+            <div class="container">
+                <h2>Ekskluzivni Bonusi</h2>
+                <div id="featured-bonuses" class="cards-grid">
+                    <!-- Bonuses will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Games -->
+        <section id="games" class="section">
+            <div class="container">
+                <h2>Popularne Igre</h2>
+                <div id="featured-games" class="cards-grid">
+                    <!-- Games will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Blog Section -->
+        <section id="blog" class="section">
+            <div class="container">
+                <h2>Blog i Vodiči</h2>
+                <div id="blog-posts" class="cards-grid">
+                    <!-- Blog posts will be loaded here -->
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Include all JavaScript files -->
+    <script src="database-service.js"></script>
+    <script src="auth-service.js"></script>
+    <script src="admin-interface.js"></script>
+
+    <script>
+        // Frontend Application Logic
+        class WebsiteApp {
+            constructor() {
+                this.db = null;
+                this.auth = null;
+                this.init();
+            }
+
+            async init() {
+                // Wait for services to load
+                await this.waitForServices();
+                this.loadContent();
+                this.attachEventListeners();
+            }
+
+            async waitForServices() {
+                return new Promise((resolve) => {
+                    const checkServices = () => {
+                        if (window.db && window.auth) {
+                            this.db = window.db;
+                            this.auth = window.auth;
+                            resolve();
+                        } else {
+                            setTimeout(checkServices, 100);
+                        }
+                    };
+                    checkServices();
+                });
+            }
+
+            loadContent() {
+                this.loadFeaturedCasinos();
+                this.loadFeaturedBonuses();
+                this.loadFeaturedGames();
+                this.loadBlogPosts();
+            }
+
+            loadFeaturedCasinos() {
+                const casinos = this.db.getFeaturedCasinos();
+                const container = document.getElementById('featured-casinos');
+                
+                container.innerHTML = casinos.map(casino => `
+                    <div class="card">
+                        <h3>${casino.name}</h3>
+                        <p>${casino.description}</p>
+                        <div class="rating">
+                            <span class="stars">★★★★★</span>
+                            <span class="safety-score">Safety: ${casino.safetyIndex}/10</span>
+                        </div>
+                        <p><strong>Godina osnivanja:</strong> ${casino.establishedYear}</p>
+                        <p><strong>Licenca:</strong> ${casino.license}</p>
+                        <div style="margin-top: 1rem;">
+                            <a href="${casino.affiliateUrl || casino.websiteUrl}" class="btn" target="_blank" rel="noopener">
+                                Poseti Kazino
+                            </a>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            loadFeaturedBonuses() {
+                const bonuses = this.db.getFeaturedBonuses();
+                const container = document.getElementById('featured-bonuses');
+                
+                container.innerHTML = bonuses.map(bonus => {
+                    const casino = this.db.getCasinoById(bonus.casinoId);
+                    return `
+                        <div class="card">
+                            <h3>${bonus.title}</h3>
+                            <p>${bonus.description}</p>
+                            <div style="margin: 1rem 0;">
+                                <strong>Iznos:</strong> ${bonus.amount}<br>
+                                <strong>Tip:</strong> ${bonus.type}<br>
+                                <strong>Wagering:</strong> ${bonus.wageringRequirement}<br>
+                                <strong>Min. depozit:</strong> ${bonus.minDeposit}
+                                ${bonus.code ? `<br><strong>Kod:</strong> <code>${bonus.code}</code>` : ''}
+                            </div>
+                            <p><strong>Kazino:</strong> ${casino?.name || 'N/A'}</p>
+                            <div style="margin-top: 1rem;">
+                                <a href="${casino?.affiliateUrl || casino?.websiteUrl || '#'}" class="btn" target="_blank" rel="noopener">
+                                    Preuzmi Bonus
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            loadFeaturedGames() {
+                const games = this.db.getAllGames().slice(0, 6); // First 6 games
+                const container = document.getElementById('featured-games');
+                
+                container.innerHTML = games.map(game => `
+                    <div class="card">
+                        <h3>${game.name}</h3>
+                        <p>${game.description}</p>
+                        <div style="margin: 1rem 0;">
+                            <strong>Provajder:</strong> ${game.provider}<br>
+                            <strong>Tip:</strong> ${game.type}<br>
+                            <strong>RTP:</strong> ${game.rtp}%<br>
+                            <strong>Volatilnost:</strong> ${game.volatility}
+                        </div>
+                        <div style="margin-top: 1rem;">
+                            ${game.demoUrl ? 
+                                `<a href="${game.demoUrl}" class="btn" target="_blank" rel="noopener">Demo Igra</a>` : 
+                                '<span class="btn btn-secondary">Demo Nedostupan</span>'
+                            }
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            loadBlogPosts() {
+                const posts = this.db.getAllBlogPosts().slice(0, 6); // First 6 posts
+                const container = document.getElementById('blog-posts');
+                
+                if (posts.length === 0) {
+                    container.innerHTML = `
+                        <div class="card">
+                            <h3>Blog uskoro!</h3>
+                            <p>Radimo na kvalitetnim vodičima i članaka o online kockanju. Uskoro ćete moći da čitate naše stručne savete!</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = posts.map(post => `
+                    <div class="card">
+                        <h3>${post.title}</h3>
+                        <p>${post.excerpt || post.content.substring(0, 150) + '...'}</p>
+                        <div style="margin: 1rem 0;">
+                            <strong>Kategorija:</strong> ${post.category}<br>
+                            <strong>Vreme čitanja:</strong> ${post.readTime || 5} min
+                        </div>
+                        <div style="margin-top: 1rem;">
+                            <a href="javascript:void(0)" onclick="alert('Blog funkcionalnost uskoro!')" class="btn">
+                                Čitaj Više
+                            </a>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            attachEventListeners() {
+                // Smooth scrolling for navigation
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const target = document.querySelector(this.getAttribute('href'));
+                        if (target) {
+                            target.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
+                    });
+                });
+            }
+        }
+
+        // Global functions
+        function showAdminLogin() {
+            document.getElementById('main-website').style.display = 'none';
+            document.getElementById('admin-content').style.display = 'block';
+            
+            // Initialize admin interface if not already done
+            if (window.adminInterface) {
+                window.adminInterface.checkAuth();
+            }
+        }
+
+        function showMainWebsite() {
+            document.getElementById('main-website').style.display = 'block';
+            document.getElementById('admin-content').style.display = 'none';
+        }
+
+        // Initialize the website when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.websiteApp = new WebsiteApp();
+        });
+    </script>
+</body>
+</html>
