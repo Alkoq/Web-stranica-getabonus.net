@@ -26,8 +26,6 @@ import {
 import { randomUUID } from "crypto";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
-import fs from 'fs/promises';
-import path from 'path';
 
 export interface IStorage {
   // Users
@@ -129,82 +127,17 @@ export interface GameFilters {
   search?: string;
 }
 
-// JSON file-based storage for complete dynamic content management
+// PostgreSQL-based dinamičan storage sistem
 export class MemStorage implements IStorage {
-  private dataPath = path.join(process.cwd(), 'getabonus-data.json');
-  
   constructor() {
-    this.initializeData();
-  }
-
-  private async initializeData() {
-    try {
-      await fs.access(this.dataPath);
-    } catch {
-      // File doesn't exist, create it with empty structure
-      const initialData = {
-        users: [],
-        casinos: [],
-        bonuses: [],
-        games: [],
-        reviews: [],
-        expertReviews: [],
-        blogPosts: [],
-        newsletterSubscribers: [],
-        userInteractions: [],
-        comparisons: [],
-        admins: [
-          {
-            id: 'admin-1',
-            username: 'admin',
-            password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password123
-            role: 'owner',
-            createdBy: null,
-            isActive: true,
-            createdAt: new Date(),
-            updatedAt: new Date()
-          }
-        ]
-      };
-      await fs.writeFile(this.dataPath, JSON.stringify(initialData, null, 2));
-    }
-  }
-
-  private async loadData() {
-    try {
-      const data = await fs.readFile(this.dataPath, 'utf-8');
-      return JSON.parse(data);
-    } catch (error) {
-      console.error('Error loading data:', error);
-      return {
-        users: [],
-        casinos: [],
-        bonuses: [],
-        games: [],
-        reviews: [],
-        expertReviews: [],
-        blogPosts: [],
-        newsletterSubscribers: [],
-        userInteractions: [],
-        comparisons: [],
-        admins: []
-      };
-    }
-  }
-
-  private async saveData(data: any) {
-    try {
-      await fs.writeFile(this.dataPath, JSON.stringify(data, null, 2));
-    } catch (error) {
-      console.error('Error saving data:', error);
-    }
+    // Konstruktor je prazan - svi podaci se učitavaju iz PostgreSQL baze
   }
 
   // User methods
   async getUser(id: string): Promise<User | undefined> {
     try {
-      const data = await this.loadData();
-      return data.users.find((user: User) => user.id === id);
+      const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+      return result[0] || undefined;
     } catch (error) {
       console.error('Error getting user:', error);
       return undefined;
@@ -213,8 +146,8 @@ export class MemStorage implements IStorage {
 
   async getUserByUsername(username: string): Promise<User | undefined> {
     try {
-      const data = await this.loadData();
-      return data.users.find((user: User) => user.username === username);
+      const result = await db.select().from(users).where(eq(users.username, username)).limit(1);
+      return result[0] || undefined;
     } catch (error) {
       console.error('Error getting user by username:', error);
       return undefined;
@@ -223,8 +156,8 @@ export class MemStorage implements IStorage {
 
   async getUserByEmail(email: string): Promise<User | undefined> {
     try {
-      const data = await this.loadData();
-      return data.users.find((user: User) => user.email === email);
+      const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+      return result[0] || undefined;
     } catch (error) {
       console.error('Error getting user by email:', error);
       return undefined;
@@ -233,39 +166,30 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     try {
-      const data = await this.loadData();
-      const user: User = {
+      const result = await db.insert(users).values({
         ...insertUser,
         id: randomUUID(),
         createdAt: new Date(),
-      };
-      data.users.push(user);
-      await this.saveData(data);
-      return user;
+      }).returning();
+      return result[0];
     } catch (error) {
       console.error('Error creating user:', error);
       throw error;
     }
   }
 
-  // Casino methods - dynamic from JSON file
+  // Casino methods - dinamički iz PostgreSQL baze
   async getCasinos(filters?: CasinoFilters): Promise<Casino[]> {
     try {
-      const data = await this.loadData();
-      let casinos = data.casinos.filter((casino: Casino) => casino.isActive);
+      let query = db.select().from(casinos).where(eq(casinos.isActive, true));
       
       if (filters?.license) {
-        casinos = casinos.filter((casino: Casino) => casino.license === filters.license);
+        query = query.where(eq(casinos.license, filters.license));
       }
-      if (filters?.search) {
-        const searchLower = filters.search.toLowerCase();
-        casinos = casinos.filter((casino: Casino) => 
-          casino.name.toLowerCase().includes(searchLower) ||
-          casino.description.toLowerCase().includes(searchLower)
-        );
-      }
+      // Dodaj ostale filtere po potrebi
       
-      return casinos.sort((a: Casino, b: Casino) => (b.safetyIndex || 0) - (a.safetyIndex || 0));
+      const result = await query.orderBy(desc(casinos.safetyIndex));
+      return result;
     } catch (error) {
       console.error('Error getting casinos:', error);
       return [];
@@ -274,10 +198,10 @@ export class MemStorage implements IStorage {
 
   async getFeaturedCasinos(): Promise<Casino[]> {
     try {
-      const data = await this.loadData();
-      return data.casinos
-        .filter((casino: Casino) => casino.isActive && casino.isFeatured)
-        .sort((a: Casino, b: Casino) => (b.safetyIndex || 0) - (a.safetyIndex || 0));
+      const result = await db.select().from(casinos)
+        .where(and(eq(casinos.isActive, true), eq(casinos.isFeatured, true)))
+        .orderBy(desc(casinos.safetyIndex));
+      return result;
     } catch (error) {
       console.error('Error getting featured casinos:', error);
       return [];
@@ -286,8 +210,8 @@ export class MemStorage implements IStorage {
 
   async getCasino(id: string): Promise<Casino | undefined> {
     try {
-      const data = await this.loadData();
-      return data.casinos.find((casino: Casino) => casino.id === id);
+      const result = await db.select().from(casinos).where(eq(casinos.id, id)).limit(1);
+      return result[0] || undefined;
     } catch (error) {
       console.error('Error getting casino:', error);
       return undefined;
@@ -296,100 +220,7 @@ export class MemStorage implements IStorage {
 
   async createCasino(casino: InsertCasino): Promise<Casino> {
     try {
-      const data = await this.loadData();
-      const newCasino: Casino = {
-        ...casino,
-        id: randomUUID(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      data.casinos.push(newCasino);
-      await this.saveData(data);
-      return newCasino;
-    } catch (error) {
-      console.error('Error creating casino:', error);
-      throw error;
-    }
-  }
-
-  async updateCasino(id: string, updates: Partial<InsertCasino>): Promise<Casino> {
-    try {
-      const data = await this.loadData();
-      const casinoIndex = data.casinos.findIndex((c: Casino) => c.id === id);
-      if (casinoIndex === -1) {
-        throw new Error('Casino not found');
-      }
-      
-      data.casinos[casinoIndex] = {
-        ...data.casinos[casinoIndex],
-        ...updates,
-        updatedAt: new Date(),
-      };
-      
-      await this.saveData(data);
-      return data.casinos[casinoIndex];
-    } catch (error) {
-      console.error('Error updating casino:', error);
-      throw error;
-    }
-  }
-
-  // Bonus methods
-  async getBonuses(casinoId?: string): Promise<Bonus[]> {
-    try {
-      const data = await this.loadData();
-      let bonuses = data.bonuses.filter((bonus: Bonus) => bonus.isActive);
-      
-      if (casinoId) {
-        bonuses = bonuses.filter((bonus: Bonus) => bonus.casinoId === casinoId);
-      }
-      
-      return bonuses.sort((a: Bonus, b: Bonus) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    } catch (error) {
-      console.error('Error getting bonuses:', error);
-      return [];
-    }
-  }
-
-  async getFeaturedBonuses(): Promise<Bonus[]> {
-    try {
-      const data = await this.loadData();
-      return data.bonuses
-        .filter((bonus: Bonus) => bonus.isActive && bonus.isFeatured)
-        .sort((a: Bonus, b: Bonus) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    } catch (error) {
-      console.error('Error getting featured bonuses:', error);
-      return [];
-    }
-  }
-
-  async getBonus(id: string): Promise<Bonus | undefined> {
-    try {
-      const data = await this.loadData();
-      return data.bonuses.find((bonus: Bonus) => bonus.id === id);
-    } catch (error) {
-      console.error('Error getting bonus:', error);
-      return undefined;
-    }
-  }
-
-  async createBonus(bonus: InsertBonus): Promise<Bonus> {
-    try {
-      const data = await this.loadData();
-      const newBonus: Bonus = {
-        ...bonus,
-        id: randomUUID(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      data.bonuses.push(newBonus);
-      await this.saveData(data);
-      return newBonus;
-    } catch (error) {
-      console.error('Error creating bonus:', error);
-      throw error;
-    }
-  }
+      const result = await db.insert(casinos).values({
         ...casino,
         id: randomUUID(),
         createdAt: new Date(),
