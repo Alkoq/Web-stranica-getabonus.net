@@ -518,6 +518,11 @@ class AdminInterface {
       
       this.hideForms();
       this.switchSection('casinos'); // Refresh the view
+      
+      // Refresh main website if visible
+      if (window.websiteApp && document.getElementById('main-website').style.display !== 'none') {
+        window.websiteApp.refreshContent();
+      }
     } catch (error) {
       alert('Greška pri čuvanju kazina: ' + error.message);
     }
@@ -559,6 +564,11 @@ class AdminInterface {
       }
       
       this.switchSection(this.currentSection); // Refresh the view
+      
+      // Refresh main website if visible
+      if (window.websiteApp && document.getElementById('main-website').style.display !== 'none') {
+        window.websiteApp.refreshContent();
+      }
     } catch (error) {
       alert('Greška pri brisanju: ' + error.message);
     }

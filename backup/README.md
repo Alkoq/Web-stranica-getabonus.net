@@ -37,9 +37,10 @@ npx http-server -p 8000
 
 ### Glavna Stranica
 - **Hero sekcija** sa pozivom na akciju
-- **Preporučeni kazina** - prikazuje featured kazina sa rating-om
+- **Preporučeni kazina** - prikazuje featured kazina sa real-time rating-om
 - **Ekskluzivni bonusi** - lista featured bonusa sa detaljima
 - **Popularne igre** - katalog igara sa RTP i volatilnost
+- **Individualne stranice** - detaljne stranice za svaki kazino, bonus i igru
 - **Blog sekcija** - mesta za članke i vodiče
 
 ### Admin Panel
@@ -50,12 +51,35 @@ npx http-server -p 8000
 - **Blog management** - kreiranje i editovanje postova
 - **Admin korisnici** - samo owner može upravljati (alkox)
 
+### Integracija Admin ↔ Glavna Stranica
+- **Real-time ažuriranje** - promene u admin panelu se odmah reflektuju na glavnoj stranici
+- **Individualne stranice** - kada dodate kazino kroz admin, automatski se kreira njegova detaljna stranica
+- **Preview kartice** - povlače prave informacije sa pojedinačnih stranica (ne mock podatke)
+- **Direktna navigacija** - klikom na karticu odlazite na detaljnu stranicu sa svim informacijama
+- **Back navigacija** - jednostavan povratak na početnu stranicu
+
 ## Admin Pristup
 
 **Korisničko ime:** `alkox`  
 **Password:** `bilo_koji_password` (demo verzija)
 
 Kliknite "Admin" u navigaciji da pristupite admin panelu.
+
+### Navigacija
+- **Početna stranica** - prikaz svih kartica sa sadržajem
+- **Detaljna stranica kazina** - URL: `#casino/ID` (npr. `#casino/casino-001`)
+- **Detaljna stranica bonusa** - URL: `#bonus/ID` (npr. `#bonus/bonus-001`)
+- **Detaljna stranica igre** - URL: `#game/ID` (npr. `#game/game-001`)
+- **Admin panel** - klik na "Admin" u navigaciji
+
+### Test Scenario
+1. Otvorite stranicu
+2. Idite u Admin panel (klik "Admin", login: alkox/bilo_koji_password)
+3. Dodajte novi kazino kroz admin panel
+4. Kliknite "Nazad na početnu" ili odaberite glavnu stranicu
+5. Videćete da se novi kazino pojavio u "Preporučeni Kazina" sekciji
+6. Kliknite na karticu novog kazina - otvoriće se njegova detaljna stranica
+7. Svi podaci na detaljnoj stranici su realni (iz admin panela, ne mock)
 
 ## Podaci
 

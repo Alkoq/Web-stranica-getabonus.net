@@ -464,6 +464,172 @@
             animation: fadeIn 0.6s ease-out;
         }
 
+        /* Casino Page Styles */
+        .casino-page, .bonus-page, .game-page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 1rem;
+            border: 1px solid rgba(22, 160, 133, 0.3);
+        }
+
+        .page-header h1 {
+            color: #16a085;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+        }
+
+        .casino-logo {
+            max-width: 200px;
+            max-height: 100px;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+
+        .game-image {
+            max-width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .page-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .main-content, .sidebar {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(22, 160, 133, 0.3);
+        }
+
+        .rating-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .rating-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+
+        .rating-score {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #f39c12;
+            display: block;
+        }
+
+        .back-button {
+            margin-bottom: 2rem;
+            display: inline-block;
+        }
+
+        .reviews-section {
+            margin-top: 3rem;
+        }
+
+        .review-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(22, 160, 133, 0.2);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .reviewer-name {
+            font-weight: bold;
+            color: #16a085;
+        }
+
+        .review-rating {
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        .info-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(22, 160, 133, 0.1);
+        }
+
+        .info-list li:last-child {
+            border-bottom: none;
+        }
+
+        .rtp-high { color: #27ae60; }
+        .rtp-medium { color: #f39c12; }
+        .rtp-low { color: #e74c3c; }
+
+        .casino-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .casino-info, .bonus-details, .game-info {
+            margin: 1rem 0;
+            line-height: 1.6;
+        }
+
+        .casino-actions, .bonus-actions, .game-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .casino-link a {
+            color: #16a085;
+            text-decoration: none;
+        }
+
+        .casino-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive for detail pages */
+        @media (max-width: 768px) {
+            .page-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .casino-actions, .bonus-actions, .game-actions {
+                flex-direction: column;
+            }
+            
+            .rating-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         /* Utility Classes */
         .hidden {
             display: none;
@@ -572,6 +738,7 @@
             constructor() {
                 this.db = null;
                 this.auth = null;
+                this.currentPage = 'home';
                 this.init();
             }
 
@@ -580,6 +747,7 @@
                 await this.waitForServices();
                 this.loadContent();
                 this.attachEventListeners();
+                this.setupRouting();
             }
 
             async waitForServices() {
@@ -597,6 +765,31 @@
                 });
             }
 
+            setupRouting() {
+                // Handle URL hash changes for navigation
+                window.addEventListener('hashchange', () => {
+                    this.handleRoute();
+                });
+                
+                // Handle initial load
+                this.handleRoute();
+            }
+
+            handleRoute() {
+                const hash = window.location.hash.slice(1);
+                const [page, id] = hash.split('/');
+                
+                if (page === 'casino' && id) {
+                    this.showCasinoPage(id);
+                } else if (page === 'bonus' && id) {
+                    this.showBonusPage(id);
+                } else if (page === 'game' && id) {
+                    this.showGamePage(id);
+                } else {
+                    this.showMainWebsite();
+                }
+            }
+
             loadContent() {
                 this.loadFeaturedCasinos();
                 this.loadFeaturedBonuses();
@@ -604,49 +797,94 @@
                 this.loadBlogPosts();
             }
 
+            refreshContent() {
+                // Method to refresh content after admin changes
+                this.loadContent();
+            }
+
             loadFeaturedCasinos() {
                 const casinos = this.db.getFeaturedCasinos();
                 const container = document.getElementById('featured-casinos');
                 
-                container.innerHTML = casinos.map(casino => `
-                    <div class="card">
-                        <h3>${casino.name}</h3>
-                        <p>${casino.description}</p>
-                        <div class="rating">
-                            <span class="stars">★★★★★</span>
-                            <span class="safety-score">Safety: ${casino.safetyIndex}/10</span>
+                if (casinos.length === 0) {
+                    container.innerHTML = '<div class="card"><h3>Nema kazina</h3><p>Dodajte kazina preko admin panela.</p></div>';
+                    return;
+                }
+                
+                container.innerHTML = casinos.map(casino => {
+                    const expertReview = this.db.getExpertReviewByCasinoId(casino.id);
+                    const userReviews = this.db.getReviewsByCasinoId(casino.id);
+                    const averageUserRating = userReviews.length > 0 
+                        ? (userReviews.reduce((sum, review) => sum + (review.overallRating || review.rating || 0), 0) / userReviews.length).toFixed(1)
+                        : 'N/A';
+                    
+                    return `
+                        <div class="card" onclick="window.location.hash='casino/${casino.id}'">
+                            <div class="casino-header">
+                                ${casino.logoUrl ? `<img src="${casino.logoUrl}" alt="${casino.name}" class="casino-logo">` : ''}
+                                <h3>${casino.name}</h3>
+                            </div>
+                            <p>${casino.description}</p>
+                            <div class="rating">
+                                <span class="stars">★★★★★</span>
+                                <span class="safety-score">Safety: ${casino.safetyIndex}/10</span>
+                            </div>
+                            <div class="casino-info">
+                                <p><strong>Godina:</strong> ${casino.establishedYear}</p>
+                                <p><strong>Expert Rating:</strong> ${expertReview ? expertReview.overallRating + '/10' : 'N/A'}</p>
+                                <p><strong>User Rating:</strong> ${averageUserRating}/10 (${userReviews.length} reviews)</p>
+                                <p><strong>Bonusi:</strong> ${this.db.getBonusesByCasinoId(casino.id).length}</p>
+                            </div>
+                            <div class="casino-actions">
+                                <a href="#casino/${casino.id}" class="btn btn-secondary" onclick="event.stopPropagation()">
+                                    Detaljnije
+                                </a>
+                                <a href="${casino.affiliateUrl || casino.websiteUrl}" class="btn" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+                                    Poseti Kazino
+                                </a>
+                            </div>
                         </div>
-                        <p><strong>Godina osnivanja:</strong> ${casino.establishedYear}</p>
-                        <p><strong>Licenca:</strong> ${casino.license}</p>
-                        <div style="margin-top: 1rem;">
-                            <a href="${casino.affiliateUrl || casino.websiteUrl}" class="btn" target="_blank" rel="noopener">
-                                Poseti Kazino
-                            </a>
-                        </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             }
 
             loadFeaturedBonuses() {
                 const bonuses = this.db.getFeaturedBonuses();
                 const container = document.getElementById('featured-bonuses');
                 
+                if (bonuses.length === 0) {
+                    container.innerHTML = '<div class="card"><h3>Nema bonusa</h3><p>Dodajte bonuse preko admin panela.</p></div>';
+                    return;
+                }
+                
                 container.innerHTML = bonuses.map(bonus => {
                     const casino = this.db.getCasinoById(bonus.casinoId);
+                    const bonusReviews = this.db.getReviewsByBonusId(bonus.id);
+                    const averageRating = bonusReviews.length > 0 
+                        ? (bonusReviews.reduce((sum, review) => sum + (review.overallRating || review.rating || 0), 0) / bonusReviews.length).toFixed(1)
+                        : 'N/A';
+                    
                     return `
-                        <div class="card">
+                        <div class="card" onclick="window.location.hash='bonus/${bonus.id}'">
                             <h3>${bonus.title}</h3>
                             <p>${bonus.description}</p>
-                            <div style="margin: 1rem 0;">
+                            <div class="bonus-details">
                                 <strong>Iznos:</strong> ${bonus.amount}<br>
                                 <strong>Tip:</strong> ${bonus.type}<br>
                                 <strong>Wagering:</strong> ${bonus.wageringRequirement}<br>
                                 <strong>Min. depozit:</strong> ${bonus.minDeposit}
                                 ${bonus.code ? `<br><strong>Kod:</strong> <code>${bonus.code}</code>` : ''}
+                                <br><strong>Rating:</strong> ${averageRating}/10 (${bonusReviews.length} reviews)
                             </div>
-                            <p><strong>Kazino:</strong> ${casino?.name || 'N/A'}</p>
-                            <div style="margin-top: 1rem;">
-                                <a href="${casino?.affiliateUrl || casino?.websiteUrl || '#'}" class="btn" target="_blank" rel="noopener">
+                            <div class="casino-link">
+                                <strong>Kazino:</strong> 
+                                <a href="#casino/${casino?.id}" onclick="event.stopPropagation()">${casino?.name || 'N/A'}</a>
+                            </div>
+                            <div class="bonus-actions">
+                                <a href="#bonus/${bonus.id}" class="btn btn-secondary" onclick="event.stopPropagation()">
+                                    Detaljnije
+                                </a>
+                                <a href="${casino?.affiliateUrl || casino?.websiteUrl || '#'}" class="btn" target="_blank" rel="noopener" onclick="event.stopPropagation()">
                                     Preuzmi Bonus
                                 </a>
                             </div>
@@ -659,24 +897,43 @@
                 const games = this.db.getAllGames().slice(0, 6); // First 6 games
                 const container = document.getElementById('featured-games');
                 
-                container.innerHTML = games.map(game => `
-                    <div class="card">
-                        <h3>${game.name}</h3>
-                        <p>${game.description}</p>
-                        <div style="margin: 1rem 0;">
-                            <strong>Provajder:</strong> ${game.provider}<br>
-                            <strong>Tip:</strong> ${game.type}<br>
-                            <strong>RTP:</strong> ${game.rtp}%<br>
-                            <strong>Volatilnost:</strong> ${game.volatility}
+                if (games.length === 0) {
+                    container.innerHTML = '<div class="card"><h3>Nema igara</h3><p>Dodajte igre preko admin panela.</p></div>';
+                    return;
+                }
+                
+                container.innerHTML = games.map(game => {
+                    const gameReviews = this.db.getReviewsByGameId(game.id);
+                    const averageRating = gameReviews.length > 0 
+                        ? (gameReviews.reduce((sum, review) => sum + (review.overallRating || review.rating || 0), 0) / gameReviews.length).toFixed(1)
+                        : 'N/A';
+                    
+                    const rtpClass = game.rtp >= 97 ? 'rtp-high' : game.rtp >= 95 ? 'rtp-medium' : 'rtp-low';
+                    
+                    return `
+                        <div class="card" onclick="window.location.hash='game/${game.id}'">
+                            ${game.imageUrl ? `<img src="${game.imageUrl}" alt="${game.name}" class="game-image">` : ''}
+                            <h3>${game.name}</h3>
+                            <p>${game.description}</p>
+                            <div class="game-info">
+                                <strong>Provajder:</strong> ${game.provider}<br>
+                                <strong>Tip:</strong> ${game.type}<br>
+                                <strong>RTP:</strong> <span class="${rtpClass}">${game.rtp}%</span><br>
+                                <strong>Volatilnost:</strong> ${game.volatility}<br>
+                                <strong>Rating:</strong> ${averageRating}/10 (${gameReviews.length} reviews)
+                            </div>
+                            <div class="game-actions">
+                                <a href="#game/${game.id}" class="btn btn-secondary" onclick="event.stopPropagation()">
+                                    Detaljnije
+                                </a>
+                                ${game.demoUrl ? 
+                                    `<a href="${game.demoUrl}" class="btn" target="_blank" rel="noopener" onclick="event.stopPropagation()">Demo Igra</a>` : 
+                                    '<span class="btn btn-secondary">Demo Nedostupan</span>'
+                                }
+                            </div>
                         </div>
-                        <div style="margin-top: 1rem;">
-                            ${game.demoUrl ? 
-                                `<a href="${game.demoUrl}" class="btn" target="_blank" rel="noopener">Demo Igra</a>` : 
-                                '<span class="btn btn-secondary">Demo Nedostupan</span>'
-                            }
-                        </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             }
 
             loadBlogPosts() {
@@ -710,10 +967,357 @@
                 `).join('');
             }
 
+            showCasinoPage(casinoId) {
+                const casino = this.db.getCasinoById(casinoId);
+                if (!casino) {
+                    document.body.innerHTML = '<div class="container"><h1>Kazino nije pronađen</h1><a href="#" class="btn">Nazad na početnu</a></div>';
+                    return;
+                }
+
+                const expertReview = this.db.getExpertReviewByCasinoId(casinoId);
+                const userReviews = this.db.getReviewsByCasinoId(casinoId);
+                const bonuses = this.db.getBonusesByCasinoId(casinoId);
+
+                document.body.innerHTML = `
+                    <div class="casino-page">
+                        <a href="javascript:goHome()" class="btn back-button">← Nazad na početnu</a>
+                        
+                        <div class="page-header">
+                            ${casino.logoUrl ? `<img src="${casino.logoUrl}" alt="${casino.name}" class="casino-logo">` : ''}
+                            <h1>${casino.name}</h1>
+                            <p>${casino.description}</p>
+                            <div class="rating">
+                                <span class="safety-score">Safety Index: ${casino.safetyIndex}/10</span>
+                            </div>
+                        </div>
+
+                        <div class="page-content">
+                            <div class="main-content">
+                                <h2>O Kazinu</h2>
+                                <ul class="info-list">
+                                    <li><strong>Godina osnivanja:</strong> ${casino.establishedYear}</li>
+                                    <li><strong>Licenca:</strong> ${casino.license}</li>
+                                    <li><strong>Website:</strong> <a href="${casino.websiteUrl}" target="_blank">${casino.websiteUrl}</a></li>
+                                    <li><strong>Payment metode:</strong> ${casino.paymentMethods?.join(', ') || 'N/A'}</li>
+                                    <li><strong>Valute:</strong> ${casino.supportedCurrencies?.join(', ') || 'N/A'}</li>
+                                    <li><strong>Game provajderi:</strong> ${casino.gameProviders?.join(', ') || 'N/A'}</li>
+                                    <li><strong>Funkcionalnosti:</strong> ${casino.features?.join(', ') || 'N/A'}</li>
+                                </ul>
+
+                                ${expertReview ? `
+                                    <h2>Expert Review</h2>
+                                    <div class="rating-grid">
+                                        <div class="rating-item">
+                                            <span class="rating-score">${expertReview.bonusesRating}/10</span>
+                                            <div>Bonusi</div>
+                                        </div>
+                                        <div class="rating-item">
+                                            <span class="rating-score">${expertReview.designRating}/10</span>
+                                            <div>Dizajn</div>
+                                        </div>
+                                        <div class="rating-item">
+                                            <span class="rating-score">${expertReview.payoutsRating}/10</span>
+                                            <div>Isplate</div>
+                                        </div>
+                                        <div class="rating-item">
+                                            <span class="rating-score">${expertReview.customerSupportRating}/10</span>
+                                            <div>Podrška</div>
+                                        </div>
+                                        <div class="rating-item">
+                                            <span class="rating-score">${expertReview.gameSelectionRating}/10</span>
+                                            <div>Igre</div>
+                                        </div>
+                                        <div class="rating-item">
+                                            <span class="rating-score">${expertReview.mobileExperienceRating}/10</span>
+                                            <div>Mobilno</div>
+                                        </div>
+                                    </div>
+                                    <p><strong>Expert Mišljenje:</strong> ${expertReview.summary}</p>
+                                ` : ''}
+
+                                <h2>Dostupni Bonusi (${bonuses.length})</h2>
+                                ${bonuses.length > 0 ? bonuses.map(bonus => `
+                                    <div class="review-card">
+                                        <h3>${bonus.title}</h3>
+                                        <p>${bonus.description}</p>
+                                        <p><strong>Iznos:</strong> ${bonus.amount}</p>
+                                        <p><strong>Tip:</strong> ${bonus.type}</p>
+                                        <p><strong>Wagering:</strong> ${bonus.wageringRequirement}</p>
+                                        ${bonus.code ? `<p><strong>Kod:</strong> <code>${bonus.code}</code></p>` : ''}
+                                        <a href="#bonus/${bonus.id}" class="btn btn-secondary">Detaljnije o bonusu</a>
+                                    </div>
+                                `).join('') : '<p>Nema dostupnih bonusa.</p>'}
+                            </div>
+
+                            <div class="sidebar">
+                                <h3>Brza Akcija</h3>
+                                <a href="${casino.affiliateUrl || casino.websiteUrl}" class="btn" target="_blank" rel="noopener">
+                                    Poseti ${casino.name}
+                                </a>
+                                
+                                <h3 style="margin-top: 2rem;">Statistike</h3>
+                                <ul class="info-list">
+                                    <li><strong>User Reviews:</strong> ${userReviews.length}</li>
+                                    <li><strong>Bonusi:</strong> ${bonuses.length}</li>
+                                    <li><strong>Featured:</strong> ${casino.isFeatured ? 'Da' : 'Ne'}</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        ${userReviews.length > 0 ? `
+                            <div class="reviews-section">
+                                <h2>User Reviews (${userReviews.length})</h2>
+                                ${userReviews.map(review => `
+                                    <div class="review-card">
+                                        <div class="review-header">
+                                            <span class="reviewer-name">${review.userName || 'Anoniman'}</span>
+                                            <span class="review-rating">${review.overallRating || review.rating}/10</span>
+                                        </div>
+                                        <h4>${review.title}</h4>
+                                        <p>${review.content}</p>
+                                        <small>Objavljeno: ${new Date(review.createdAt).toLocaleDateString()}</small>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            showBonusPage(bonusId) {
+                const bonus = this.db.getBonusById(bonusId);
+                if (!bonus) {
+                    document.body.innerHTML = '<div class="container"><h1>Bonus nije pronađen</h1><a href="#" class="btn">Nazad na početnu</a></div>';
+                    return;
+                }
+
+                const casino = this.db.getCasinoById(bonus.casinoId);
+                const reviews = this.db.getReviewsByBonusId(bonusId);
+
+                document.body.innerHTML = `
+                    <div class="bonus-page">
+                        <a href="javascript:goHome()" class="btn back-button">← Nazad na početnu</a>
+                        
+                        <div class="page-header">
+                            <h1>${bonus.title}</h1>
+                            <p>${bonus.description}</p>
+                            <p><strong>Kazino:</strong> <a href="#casino/${casino?.id}">${casino?.name || 'N/A'}</a></p>
+                        </div>
+
+                        <div class="page-content">
+                            <div class="main-content">
+                                <h2>Detalji Bonusa</h2>
+                                <ul class="info-list">
+                                    <li><strong>Tip bonusa:</strong> ${bonus.type}</li>
+                                    <li><strong>Iznos:</strong> ${bonus.amount}</li>
+                                    <li><strong>Wagering requirement:</strong> ${bonus.wageringRequirement}</li>
+                                    <li><strong>Minimum depozit:</strong> ${bonus.minDeposit}</li>
+                                    <li><strong>Maksimum dobitak:</strong> ${bonus.maxWin || 'Neograničeno'}</li>
+                                    ${bonus.code ? `<li><strong>Bonus kod:</strong> <code>${bonus.code}</code></li>` : ''}
+                                    ${bonus.validUntil ? `<li><strong>Važi do:</strong> ${new Date(bonus.validUntil).toLocaleDateString()}</li>` : ''}
+                                </ul>
+
+                                ${bonus.terms ? `
+                                    <h3>Uslovi korišćenja</h3>
+                                    <p>${bonus.terms}</p>
+                                ` : ''}
+                            </div>
+
+                            <div class="sidebar">
+                                <h3>Preuzmi Bonus</h3>
+                                <a href="${casino?.affiliateUrl || casino?.websiteUrl || '#'}" class="btn" target="_blank" rel="noopener">
+                                    Idi na ${casino?.name || 'Kazino'}
+                                </a>
+                                
+                                <h3 style="margin-top: 2rem;">Informacije</h3>
+                                <ul class="info-list">
+                                    <li><strong>Status:</strong> ${bonus.isActive ? 'Aktivan' : 'Neaktivan'}</li>
+                                    <li><strong>Featured:</strong> ${bonus.isFeatured ? 'Da' : 'Ne'}</li>
+                                    <li><strong>Reviews:</strong> ${reviews.length}</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        ${reviews.length > 0 ? `
+                            <div class="reviews-section">
+                                <h2>Reviews (${reviews.length})</h2>
+                                ${reviews.map(review => `
+                                    <div class="review-card">
+                                        <div class="review-header">
+                                            <span class="reviewer-name">${review.userName || 'Anoniman'}</span>
+                                            <span class="review-rating">${review.overallRating || review.rating}/10</span>
+                                        </div>
+                                        <h4>${review.title}</h4>
+                                        <p>${review.content}</p>
+                                        <small>Objavljeno: ${new Date(review.createdAt).toLocaleDateString()}</small>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            showGamePage(gameId) {
+                const game = this.db.getGameById(gameId);
+                if (!game) {
+                    document.body.innerHTML = '<div class="container"><h1>Igra nije pronađena</h1><a href="#" class="btn">Nazad na početnu</a></div>';
+                    return;
+                }
+
+                const reviews = this.db.getReviewsByGameId(gameId);
+                const rtpClass = game.rtp >= 97 ? 'rtp-high' : game.rtp >= 95 ? 'rtp-medium' : 'rtp-low';
+
+                document.body.innerHTML = `
+                    <div class="game-page">
+                        <a href="javascript:goHome()" class="btn back-button">← Nazad na početnu</a>
+                        
+                        <div class="page-header">
+                            ${game.imageUrl ? `<img src="${game.imageUrl}" alt="${game.name}" class="game-image">` : ''}
+                            <h1>${game.name}</h1>
+                            <p>${game.description}</p>
+                            <p><strong>Provajder:</strong> ${game.provider}</p>
+                        </div>
+
+                        <div class="page-content">
+                            <div class="main-content">
+                                <h2>Informacije o Igri</h2>
+                                <ul class="info-list">
+                                    <li><strong>Tip igre:</strong> ${game.type}</li>
+                                    <li><strong>Provajder:</strong> ${game.provider}</li>
+                                    <li><strong>RTP:</strong> <span class="${rtpClass}">${game.rtp}%</span></li>
+                                    <li><strong>Volatilnost:</strong> ${game.volatility}</li>
+                                    <li><strong>Min bet:</strong> ${game.minBet || 'N/A'}</li>
+                                    <li><strong>Max bet:</strong> ${game.maxBet || 'N/A'}</li>
+                                    ${game.tags ? `<li><strong>Tagovi:</strong> ${game.tags.join(', ')}</li>` : ''}
+                                </ul>
+
+                                <h3>Opis igre</h3>
+                                <p>${game.description || 'Nema dostupnog opisa.'}</p>
+                            </div>
+
+                            <div class="sidebar">
+                                <h3>Igraj Sada</h3>
+                                ${game.demoUrl ? 
+                                    `<a href="${game.demoUrl}" class="btn" target="_blank" rel="noopener">Demo Verzija</a>` : 
+                                    '<p>Demo verzija nije dostupna.</p>'
+                                }
+                                
+                                <h3 style="margin-top: 2rem;">Statistike</h3>
+                                <ul class="info-list">
+                                    <li><strong>Reviews:</strong> ${reviews.length}</li>
+                                    <li><strong>Status:</strong> ${game.isActive ? 'Aktivan' : 'Neaktivan'}</li>
+                                    ${reviews.length > 0 ? `<li><strong>Avg Rating:</strong> ${(reviews.reduce((sum, r) => sum + (r.overallRating || r.rating || 0), 0) / reviews.length).toFixed(1)}/10</li>` : ''}
+                                </ul>
+                            </div>
+                        </div>
+
+                        ${reviews.length > 0 ? `
+                            <div class="reviews-section">
+                                <h2>Player Reviews (${reviews.length})</h2>
+                                ${reviews.map(review => `
+                                    <div class="review-card">
+                                        <div class="review-header">
+                                            <span class="reviewer-name">${review.userName || 'Anoniman'}</span>
+                                            <span class="review-rating">${review.overallRating || review.rating}/10</span>
+                                        </div>
+                                        <h4>${review.title}</h4>
+                                        <p>${review.content}</p>
+                                        <small>Objavljeno: ${new Date(review.createdAt).toLocaleDateString()}</small>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            showMainWebsite() {
+                // Restore main website structure
+                document.body.innerHTML = `
+                    <!-- Admin Panel (Hidden by default) -->
+                    <div id="admin-content" style="display: none;"></div>
+
+                    <!-- Main Website -->
+                    <div id="main-website">
+                        <!-- Header -->
+                        <header class="header">
+                            <div class="nav-container">
+                                <div class="logo neon-text">GetABonus.net</div>
+                                <nav>
+                                    <ul class="nav-menu">
+                                        <li><a href="#home">Početna</a></li>
+                                        <li><a href="#casinos">Kazina</a></li>
+                                        <li><a href="#bonuses">Bonusi</a></li>
+                                        <li><a href="#games">Igre</a></li>
+                                        <li><a href="#blog">Blog</a></li>
+                                        <li><a href="javascript:void(0)" onclick="showAdminLogin()">Admin</a></li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </header>
+
+                        <!-- Hero Section -->
+                        <section id="home" class="hero">
+                            <div class="container">
+                                <h1 class="neon-text">Dobrodošli u Svet Casino Bonusa</h1>
+                                <p>Otkrijte najbolje online kazina, ekskluzivne bonuse i bezbedne platforme za vaše kockanje. Naši stručni pregledi vam pomažu da napravite pametne izbore.</p>
+                                <a href="#casinos" class="cta-button">Istražite Kazina</a>
+                            </div>
+                        </section>
+
+                        <!-- Featured Casinos -->
+                        <section id="casinos" class="section">
+                            <div class="container">
+                                <h2>Preporučeni Kazina</h2>
+                                <div id="featured-casinos" class="cards-grid">
+                                    <!-- Casinos will be loaded here -->
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Featured Bonuses -->
+                        <section id="bonuses" class="section">
+                            <div class="container">
+                                <h2>Ekskluzivni Bonusi</h2>
+                                <div id="featured-bonuses" class="cards-grid">
+                                    <!-- Bonuses will be loaded here -->
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Featured Games -->
+                        <section id="games" class="section">
+                            <div class="container">
+                                <h2>Popularne Igre</h2>
+                                <div id="featured-games" class="cards-grid">
+                                    <!-- Games will be loaded here -->
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Blog Section -->
+                        <section id="blog" class="section">
+                            <div class="container">
+                                <h2>Blog i Vodiči</h2>
+                                <div id="blog-posts" class="cards-grid">
+                                    <!-- Blog posts will be loaded here -->
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                `;
+
+                // Reload main website content
+                this.loadContent();
+                this.attachEventListeners();
+            }
+
             attachEventListeners() {
                 // Smooth scrolling for navigation
                 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                     anchor.addEventListener('click', function (e) {
+                        if (this.getAttribute('href').includes('/')) return; // Skip detail page links
                         e.preventDefault();
                         const target = document.querySelector(this.getAttribute('href'));
                         if (target) {
@@ -741,6 +1345,19 @@
         function showMainWebsite() {
             document.getElementById('main-website').style.display = 'block';
             document.getElementById('admin-content').style.display = 'none';
+            
+            // Refresh content when returning to main website
+            if (window.websiteApp) {
+                window.websiteApp.refreshContent();
+            }
+        }
+
+        // Global function to return to home from detail pages
+        function goHome() {
+            window.location.hash = '';
+            if (window.websiteApp) {
+                window.websiteApp.showMainWebsite();
+            }
         }
 
         // Initialize the website when DOM is loaded
