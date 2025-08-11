@@ -12,15 +12,23 @@ class AuthService {
   // Login funkcionalnost
   async login(username, password) {
     try {
+      console.log('Login attempt:', { username, password: password ? '***' : 'empty' });
+      
       const admin = this.db.getAdminByUsername(username);
+      console.log('Admin found:', admin ? 'Yes' : 'No');
       
       if (!admin || !admin.isActive) {
+        console.log('Admin not found or inactive');
         throw new Error('Neispravni podaci za prijavu');
       }
 
-      // U realnoj implementaciji, ovde bi se proverio hash password-a
-      // Za demo, proveravamo samo da li password nije prazan
-      if (!password) {
+      // Demo implementacija - proveravamo username i password 
+      // Za alkox korisnika, omogućujemo login sa bilo kojim password-om
+      if (username === 'alkox' && password) {
+        console.log('alkox login - success');
+        // OK, dozvoljavamo pristup
+      } else if (!password || password.length < 1) {
+        console.log('Password validation failed');
         throw new Error('Neispravni podaci za prijavu');
       }
 

@@ -55,11 +55,16 @@ class AdminInterface {
     const password = document.getElementById('password').value;
     const errorDiv = document.getElementById('login-error');
 
+    console.log('handleLogin called with:', { username, password: password ? '***' : 'empty' });
+    
     const result = await this.auth.login(username, password);
+    console.log('Login result:', result);
     
     if (result.success) {
+      console.log('Login successful, showing admin panel');
       this.showAdminPanel();
     } else {
+      console.log('Login failed:', result.message);
       errorDiv.textContent = result.message;
     }
   }
