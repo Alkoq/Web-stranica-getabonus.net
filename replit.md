@@ -70,6 +70,21 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (August 2025)
 
+### Complete English Translation (August 12, 2025)
+- **Comprehensive Admin Panel Translation**: All Serbian text translated to English across all admin forms
+- **Casino Form Translation**: Complete English translation of validation messages, dialog titles, form labels, and placeholders
+- **Bonus Form Translation**: All form fields, error messages, tab names, and UI elements now in English
+- **Game Form Translation**: Form sections, validation messages, buttons, and content fully translated
+- **Blog Form Translation**: Tab labels, form fields, media placeholders, and content management interface in English
+- **Admin Panel Translation**: Toast messages, statistics labels, error messages, and interface elements translated
+- **Deployment Configuration**: Fixed environment variable handling for Hostinger VPS deployment with proper database connection
+
+### Deployment Infrastructure (August 12, 2025)
+- **Environment Configuration**: Improved .env handling for production deployment
+- **Hostinger VPS Setup**: Complete deployment instructions with database configuration
+- **Production Build**: Fixed TypeScript configuration for production builds
+- **Database Connection**: Properly configured Neon PostgreSQL connection for VPS deployment
+
 ### Dynamic Data Implementation
 - **Complete Mock Data Removal**: All hardcoded casino, bonus, and game data removed from storage layer
 - **PostgreSQL Integration**: Full transition to dynamic PostgreSQL-based data loading
