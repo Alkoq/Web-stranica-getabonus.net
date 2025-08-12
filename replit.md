@@ -70,6 +70,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (August 2025)
 
+### Documentation and Cache Fix (August 12, 2025)
+- **Comprehensive README**: Created detailed project documentation explaining entire codebase structure, file purposes, and development workflow
+- **React Query Cache Fix**: Resolved issue where casino data appeared on user's website due to infinite cache time - changed from `staleTime: Infinity` to 5 minutes
+- **Database Independence Confirmed**: Verified that development and production databases are properly separated and independent
+
+## Recent Changes (August 2025)
+
 ### Complete English Translation (August 12, 2025)
 - **Comprehensive Admin Panel Translation**: All Serbian text translated to English across all admin forms
 - **Casino Form Translation**: Complete English translation of validation messages, dialog titles, form labels, and placeholders
