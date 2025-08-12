@@ -2,17 +2,13 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
-// Load environment variables from .env file in development
-(async () => {
-  if (process.env.NODE_ENV !== 'production') {
-    try {
-      const dotenv = await import('dotenv');
-      dotenv.config();
-    } catch (error) {
-      console.log('dotenv not available in production mode');
-    }
-  }
-})();
+// Load environment variables from .env file
+try {
+  const dotenv = await import('dotenv');
+  dotenv.config();
+} catch (error) {
+  console.log('Environment variables loaded from system');
+}
 
 const app = express();
 app.use(express.json());

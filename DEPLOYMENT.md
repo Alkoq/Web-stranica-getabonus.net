@@ -37,15 +37,27 @@ npm run build
 ```
 
 ### 6. Start the Application
-```bash
-# For production
-NODE_ENV=production npm start
 
-# Or with PM2 (recommended for production)
+**Option 1: Using our startup script (Recommended)**
+```bash
+node start-production.js
+```
+
+**Option 2: Using PM2 (for production servers)**
+```bash
 npm install -g pm2
-pm2 start dist/index.js --name "getabonus"
+pm2 start start-production.js --name "getabonus"
 pm2 startup
 pm2 save
+```
+
+**Option 3: Manual with environment variables**
+```bash
+export DATABASE_URL="postgresql://neondb_owner:npg_T12RZtydDJSp@ep-blue-bird-a2qvkujo-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+export NODE_ENV="production"
+export PORT="3000"
+export SESSION_SECRET="getabonus_crypto_casino_secret_2025_alkox"
+node dist/index.js
 ```
 
 ## Environment Variables
