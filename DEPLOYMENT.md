@@ -23,8 +23,10 @@ SESSION_SECRET=getabonus_crypto_casino_secret_2025_alkox
 ### 3. Install Dependencies
 ```bash
 cd /var/www/getabonus
-npm install
+npm install --production
 ```
+
+**Note**: We use `--production` to install only production dependencies, excluding development packages.
 
 ### 4. Database Setup
 ```bash
