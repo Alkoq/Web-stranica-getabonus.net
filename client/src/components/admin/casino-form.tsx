@@ -35,23 +35,23 @@ const casinoFormSchema = z.object({
   gameProviders: z.array(z.string()).default([]),
   features: z.array(z.string()).default([]),
   
-  // Expert Review ratings (6 categories)
-  bonusesRating: z.number().min(0).max(10),
-  bonusesExplanation: z.string().min(10, "Bonus explanation is required"),
-  designRating: z.number().min(0).max(10),
-  designExplanation: z.string().min(10, "Design explanation is required"),
-  payoutsRating: z.number().min(0).max(10),
-  payoutsExplanation: z.string().min(10, "Payouts explanation is required"),
-  customerSupportRating: z.number().min(0).max(10),
-  customerSupportExplanation: z.string().min(10, "Customer support explanation is required"),
-  gameSelectionRating: z.number().min(0).max(10),
-  gameSelectionExplanation: z.string().min(10, "Game selection explanation is required"),
-  mobileExperienceRating: z.number().min(0).max(10),
-  mobileExperienceExplanation: z.string().min(10, "Mobile experience explanation is required"),
+  // Expert Review ratings (6 categories) - Made optional so basic info can be saved first
+  bonusesRating: z.number().min(0).max(10).optional().default(5),
+  bonusesExplanation: z.string().optional().default(""),
+  designRating: z.number().min(0).max(10).optional().default(5),
+  designExplanation: z.string().optional().default(""),
+  payoutsRating: z.number().min(0).max(10).optional().default(5),
+  payoutsExplanation: z.string().optional().default(""),
+  customerSupportRating: z.number().min(0).max(10).optional().default(5),
+  customerSupportExplanation: z.string().optional().default(""),
+  gameSelectionRating: z.number().min(0).max(10).optional().default(5),
+  gameSelectionExplanation: z.string().optional().default(""),
+  mobileExperienceRating: z.number().min(0).max(10).optional().default(5),
+  mobileExperienceExplanation: z.string().optional().default(""),
   
   // Expert review summary
-  overallRating: z.number().min(0).max(10),
-  expertSummary: z.string().min(20, "Expert review summary is required"),
+  overallRating: z.number().min(0).max(10).optional().default(5),
+  expertSummary: z.string().optional().default(""),
   
   // Status fields
   isActive: z.boolean().default(true),
