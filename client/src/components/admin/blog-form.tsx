@@ -16,14 +16,14 @@ import { Upload, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 const blogFormSchema = z.object({
-  title: z.string().min(5, "Naslov mora imati najmanje 5 karaktera"),
-  slug: z.string().min(3, "Slug mora imati najmanje 3 karaktera"),
-  content: z.string().min(50, "Sadržaj mora imati najmanje 50 karaktera"),
-  excerpt: z.string().min(20, "Izvod mora imati najmanje 20 karaktera"),
-  author: z.string().min(2, "Autor je obavezan"),
-  category: z.string().min(1, "Kategorija je obavezna"),
+  title: z.string().min(5, "Title must have at least 5 characters"),
+  slug: z.string().min(3, "Slug must have at least 3 characters"),
+  content: z.string().min(50, "Content must have at least 50 characters"),
+  excerpt: z.string().min(20, "Excerpt must have at least 20 characters"),
+  author: z.string().min(2, "Author is required"),
+  category: z.string().min(1, "Category is required"),
   tags: z.array(z.string()).default([]),
-  featuredImage: z.string().url("Molimo unesite valjan URL").optional().or(z.literal("")),
+  featuredImage: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
   contentMedia: z.array(z.object({
     type: z.enum(['image', 'youtube']),
     url: z.string(),
@@ -32,7 +32,7 @@ const blogFormSchema = z.object({
     alt: z.string().optional(),
     videoId: z.string().optional(),
   })).default([]),
-  metaDescription: z.string().min(20, "Meta opis mora imati najmanje 20 karaktera"),
+  metaDescription: z.string().min(20, "Meta description must have at least 20 characters"),
   relatedCasinos: z.array(z.string()).default([]), // casino IDs
   relatedGames: z.array(z.string()).default([]), // game IDs
   readingTime: z.number().min(1).optional(),
@@ -62,12 +62,12 @@ interface BlogFormProps {
 }
 
 const blogCategories = [
-  { value: "strategies", label: "Strategije" },
-  { value: "reviews", label: "Recenzije" },
-  { value: "news", label: "Vesti" },
-  { value: "guides", label: "Vodiči" },
-  { value: "tips", label: "Saveti" },
-  { value: "promotions", label: "Promocije" },
+  { value: "strategies", label: "Strategies" },
+  { value: "reviews", label: "Reviews" },
+  { value: "news", label: "News" },
+  { value: "guides", label: "Guides" },
+  { value: "tips", label: "Tips" },
+  { value: "promotions", label: "Promotions" },
 ];
 
 export function BlogForm({ isOpen, onOpenChange, blogPost, onSuccess }: BlogFormProps) {
@@ -187,7 +187,7 @@ export function BlogForm({ isOpen, onOpenChange, blogPost, onSuccess }: BlogForm
     
     // Insert placeholder in content
     const placeholder = newMediaType === 'image' 
-      ? `[SLIKA:${currentMedia.length}]`
+      ? `[IMAGE:${currentMedia.length}]`
       : `[VIDEO:${currentMedia.length}]`;
     
     const currentContent = form.getValues("content");
@@ -211,7 +211,7 @@ export function BlogForm({ isOpen, onOpenChange, blogPost, onSuccess }: BlogForm
     // Remove placeholder from content
     const currentContent = form.getValues("content");
     const placeholder = currentMedia[index].type === 'image' 
-      ? `[SLIKA:${index}]`
+      ? `[IMAGE:${index}]`
       : `[VIDEO:${index}]`;
     
     const newContent = currentContent.replace(new RegExp(`\\n*${placeholder}\\n*`, 'g'), '\n\n');
@@ -257,7 +257,7 @@ export function BlogForm({ isOpen, onOpenChange, blogPost, onSuccess }: BlogForm
 
       if (result.success) {
         toast({
-          title: blogPost ? "Post ažuriran" : "Post kreiran",
+          title: blogPost ? "Post updated" : "Post created",
           description: result.message,
         });
         
@@ -266,15 +266,15 @@ export function BlogForm({ isOpen, onOpenChange, blogPost, onSuccess }: BlogForm
         onSuccess();
       } else {
         toast({
-          title: "Greška",
+          title: "Error",
           description: result.message,
           variant: "destructive",
         });
       }
     } catch (error) {
       toast({
-        title: "Greška",
-        description: "Došlo je do greške prilikom čuvanja blog posta",
+        title: "Error",
+        description: "An error occurred while saving the blog post",
         variant: "destructive",
       });
     } finally {
@@ -287,12 +287,12 @@ export function BlogForm({ isOpen, onOpenChange, blogPost, onSuccess }: BlogForm
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {blogPost ? "Uredi Blog Post" : "Dodaj Novi Blog Post"}
+            {blogPost ? "Edit Blog Post" : "Add New Blog Post"}
           </DialogTitle>
           <DialogDescription>
             {blogPost 
-              ? "Ažurirajte blog post sa svim podacima uključujući sliku i povezane kazine/igre" 
-              : "Dodajte novi blog post sa kompletnim sadržajem i povezivanjem sa kazinima/igrama"
+              ? "Update blog post with all data including image and related casinos/games" 
+              : "Add a new blog post with complete content and casino/game connections"
             }
           </DialogDescription>
         </DialogHeader>
@@ -301,10 +301,10 @@ export function BlogForm({ isOpen, onOpenChange, blogPost, onSuccess }: BlogForm
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <Tabs defaultValue="content" className="w-full">
               <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="content">Sadržaj</TabsTrigger>
+                <TabsTrigger value="content">Content</TabsTrigger>
                 <TabsTrigger value="meta">Meta</TabsTrigger>
-                <TabsTrigger value="media">Medija</TabsTrigger>
-                <TabsTrigger value="relations">Povezano</TabsTrigger>
+                <TabsTrigger value="media">Media</TabsTrigger>
+                <TabsTrigger value="relations">Related</TabsTrigger>
                 <TabsTrigger value="status">Status</TabsTrigger>
               </TabsList>
 
@@ -316,10 +316,10 @@ export function BlogForm({ isOpen, onOpenChange, blogPost, onSuccess }: BlogForm
                     name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Naslov</FormLabel>
+                        <FormLabel>Title</FormLabel>
                         <FormControl>
                           <Input 
-                            placeholder="Kako da pobedite u pokeru" 
+                            placeholder="How to Win at Poker" 
                             {...field}
                             onChange={(e) => {
                               field.onChange(e);
@@ -340,7 +340,7 @@ export function BlogForm({ isOpen, onOpenChange, blogPost, onSuccess }: BlogForm
                       <FormItem>
                         <FormLabel>Slug (URL)</FormLabel>
                         <FormControl>
-                          <Input placeholder="kako-da-pobedite-u-pokeru" {...field} data-testid="input-blog-slug" />
+                          <Input placeholder="how-to-win-at-poker" {...field} data-testid="input-blog-slug" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -353,10 +353,10 @@ export function BlogForm({ isOpen, onOpenChange, blogPost, onSuccess }: BlogForm
                   name="excerpt"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Izvod</FormLabel>
+                      <FormLabel>Excerpt</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Kratak opis blog posta..."
+                          placeholder="Short blog post description..."
                           className="min-h-[80px]"
                           {...field} 
                           data-testid="textarea-blog-excerpt"
@@ -372,10 +372,10 @@ export function BlogForm({ isOpen, onOpenChange, blogPost, onSuccess }: BlogForm
                   name="content"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Sadržaj</FormLabel>
+                      <FormLabel>Content</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Pun sadržaj blog posta..."
+                          placeholder="Full blog post content..."
                           className="min-h-[300px]"
                           {...field} 
                           data-testid="textarea-blog-content"
@@ -392,9 +392,9 @@ export function BlogForm({ isOpen, onOpenChange, blogPost, onSuccess }: BlogForm
                     name="author"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Autor</FormLabel>
+                        <FormLabel>Author</FormLabel>
                         <FormControl>
-                          <Input placeholder="Marko Petrović" {...field} data-testid="input-blog-author" />
+                          <Input placeholder="John Smith" {...field} data-testid="input-blog-author" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -406,11 +406,11 @@ export function BlogForm({ isOpen, onOpenChange, blogPost, onSuccess }: BlogForm
                     name="category"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Kategorija</FormLabel>
+                        <FormLabel>Category</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger data-testid="select-blog-category">
-                              <SelectValue placeholder="Izaberite kategoriju" />
+                              <SelectValue placeholder="Select category" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -435,10 +435,10 @@ export function BlogForm({ isOpen, onOpenChange, blogPost, onSuccess }: BlogForm
                   name="metaDescription"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Meta Opis (SEO)</FormLabel>
+                      <FormLabel>Meta Description (SEO)</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Opis za pretraživače (160 karaktera max)"
+                          placeholder="Description for search engines (160 chars max)"
                           className="min-h-[100px]"
                           maxLength={160}
                           {...field} 

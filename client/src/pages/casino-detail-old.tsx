@@ -55,15 +55,15 @@ export default function CasinoDetailPage() {
         <Link href="/casinos">
           <Button variant="ghost" className="mb-4" data-testid="button-back">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Nazad na Kasina
+            Back to Casinos
           </Button>
         </Link>
         <div className="text-center py-12">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            Casino nije pronađen
+            Casino not found
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Casino s ovim ID-om ne postoji ili nije dostupan.
+            The casino with this ID does not exist or is not available.
           </p>
         </div>
       </div>
@@ -83,7 +83,7 @@ export default function CasinoDetailPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-8">
         <img
-          src={casino.logoUrl}
+          src={casino.logoUrl || ''}
           alt={`${casino.name} logo`}
           className="w-24 h-24 rounded-lg object-cover border-2 border-gray-200 dark:border-gray-700"
           data-testid="img-casino-logo"
@@ -123,8 +123,8 @@ export default function CasinoDetailPage() {
             className="bg-orange hover:bg-orange/90"
             data-testid="button-play-now"
           >
-            <a href={casino.affiliateUrl} target="_blank" rel="noopener noreferrer">
-              Igraj Sada
+            <a href={casino.affiliateUrl || ''} target="_blank" rel="noopener noreferrer">
+              Play Now
               <ExternalLink className="h-4 w-4 ml-2" />
             </a>
           </Button>
@@ -134,7 +134,7 @@ export default function CasinoDetailPage() {
             data-testid="button-visit-website"
           >
             <a href={casino.websiteUrl} target="_blank" rel="noopener noreferrer">
-              Posjeti Website
+              Visit Website
               <ExternalLink className="h-4 w-4 ml-2" />
             </a>
           </Button>
@@ -149,7 +149,7 @@ export default function CasinoDetailPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Award className="h-5 w-5" />
-                Dostupni Bonusi
+                Available Bonuses
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -179,7 +179,7 @@ export default function CasinoDetailPage() {
                       </p>
                       <div className="flex flex-wrap gap-4 text-sm">
                         <span className="font-medium" data-testid="text-bonus-amount">
-                          Iznos: {bonus.amount}
+                          Amount: {bonus.amount}
                         </span>
                         {bonus.wageringRequirement && (
                           <span data-testid="text-bonus-wagering">
@@ -208,7 +208,7 @@ export default function CasinoDetailPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Gamepad2 className="h-5 w-5" />
-                Ključne Funkcionalnosti
+                Key Features
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -253,11 +253,11 @@ export default function CasinoDetailPage() {
           {/* Quick Info */}
           <Card>
             <CardHeader>
-              <CardTitle>Osnovne Informacije</CardTitle>
+              <CardTitle>Basic Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label>Licenca</Label>
+                <Label>License</Label>
                 <p className="font-medium" data-testid="text-license">{casino.license || 'N/A'}</p>
               </div>
               
@@ -283,7 +283,7 @@ export default function CasinoDetailPage() {
               <div>
                 <Label className="flex items-center gap-2">
                   <Users className="h-4 w-4" />
-                  Korisničke Ocjene
+                  User Ratings
                 </Label>
                 <div className="flex items-center gap-2">
                   <div className="flex">
@@ -336,7 +336,7 @@ export default function CasinoDetailPage() {
           {/* Supported Currencies */}
           <Card>
             <CardHeader>
-              <CardTitle>Podržane Valute</CardTitle>
+              <CardTitle>Supported Currencies</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
@@ -356,9 +356,9 @@ export default function CasinoDetailPage() {
           {/* CTA */}
           <Card className="bg-gradient-to-br from-turquoise/10 to-orange/10 border-turquoise/20">
             <CardContent className="p-6 text-center">
-              <h3 className="font-bold text-lg mb-2">Spreman za igru?</h3>
+              <h3 className="font-bold text-lg mb-2">Ready to play?</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Počnite svoju casino avanturu danas!
+                Start your casino adventure today!
               </p>
               <Button 
                 asChild 
@@ -367,7 +367,7 @@ export default function CasinoDetailPage() {
                 data-testid="button-cta-play"
               >
                 <a href={casino.affiliateUrl || casino.websiteUrl} target="_blank" rel="noopener noreferrer">
-                  Igraj u {casino.name}
+                  Play at {casino.name}
                   <ExternalLink className="h-4 w-4 ml-2" />
                 </a>
               </Button>

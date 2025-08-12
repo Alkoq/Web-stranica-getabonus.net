@@ -14,18 +14,18 @@ import { useToast } from "@/hooks/use-toast";
 import { Upload } from "lucide-react";
 
 const bonusFormSchema = z.object({
-  title: z.string().min(3, "Naziv mora imati najmanje 3 karaktera"),
-  description: z.string().min(10, "Opis mora imati najmanje 10 karaktera"),
-  type: z.string().min(1, "Tip bonusa je obavezan"),
-  amount: z.string().min(1, "Iznos bonusa je obavezan"),
-  casinoId: z.string().min(1, "Kazino je obavezan"),
+  title: z.string().min(3, "Title must have at least 3 characters"),
+  description: z.string().min(10, "Description must have at least 10 characters"),
+  type: z.string().min(1, "Bonus type is required"),
+  amount: z.string().min(1, "Bonus amount is required"),
+  casinoId: z.string().min(1, "Casino is required"),
   wageringRequirement: z.string().optional(),
   minDeposit: z.string().optional(),
   maxWin: z.string().optional(),
   validUntil: z.string().optional(),
   terms: z.string().optional(),
   code: z.string().optional(),
-  imageUrl: z.string().url("Molimo unesite valjan URL").optional().or(z.literal("")),
+  imageUrl: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
   isActive: z.boolean().default(true),
   isFeatured: z.boolean().default(false),
 });
@@ -118,7 +118,7 @@ export function BonusForm({ isOpen, onOpenChange, bonus, onSuccess }: BonusFormP
 
       if (result.success) {
         toast({
-          title: bonus ? "Bonus ažuriran" : "Bonus kreiran",
+          title: bonus ? "Bonus updated" : "Bonus created",
           description: result.message,
         });
         
@@ -127,15 +127,15 @@ export function BonusForm({ isOpen, onOpenChange, bonus, onSuccess }: BonusFormP
         onSuccess();
       } else {
         toast({
-          title: "Greška",
+          title: "Error",
           description: result.message,
           variant: "destructive",
         });
       }
     } catch (error) {
       toast({
-        title: "Greška",
-        description: "Došlo je do greške prilikom čuvanja bonusa",
+        title: "Error",
+        description: "An error occurred while saving the bonus",
         variant: "destructive",
       });
     } finally {
@@ -148,12 +148,12 @@ export function BonusForm({ isOpen, onOpenChange, bonus, onSuccess }: BonusFormP
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {bonus ? "Uredi Bonus" : "Dodaj Novi Bonus"}
+            {bonus ? "Edit Bonus" : "Add New Bonus"}
           </DialogTitle>
           <DialogDescription>
             {bonus 
-              ? "Ažurirajte sve informacije o bonusu uključujući sliku i povezani kazino" 
-              : "Dodajte novi bonus sa svim podacima i povezanim kazinom"
+              ? "Update all bonus information including image and related casino" 
+              : "Add a new bonus with all data and related casino"
             }
           </DialogDescription>
         </DialogHeader>
@@ -162,8 +162,8 @@ export function BonusForm({ isOpen, onOpenChange, bonus, onSuccess }: BonusFormP
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <Tabs defaultValue="basic" className="w-full">
               <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="basic">Osnovno</TabsTrigger>
-                <TabsTrigger value="details">Detalji</TabsTrigger>
+                <TabsTrigger value="basic">Basic</TabsTrigger>
+                <TabsTrigger value="details">Details</TabsTrigger>
                 <TabsTrigger value="status">Status</TabsTrigger>
               </TabsList>
 
@@ -175,7 +175,7 @@ export function BonusForm({ isOpen, onOpenChange, bonus, onSuccess }: BonusFormP
                     name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Naziv Bonusa</FormLabel>
+                        <FormLabel>Bonus Name</FormLabel>
                         <FormControl>
                           <Input placeholder="100% Welcome Bonus" {...field} data-testid="input-bonus-title" />
                         </FormControl>
@@ -189,9 +189,9 @@ export function BonusForm({ isOpen, onOpenChange, bonus, onSuccess }: BonusFormP
                     name="amount"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Iznos</FormLabel>
+                        <FormLabel>Amount</FormLabel>
                         <FormControl>
-                          <Input placeholder="100% do €500" {...field} data-testid="input-bonus-amount" />
+                          <Input placeholder="100% up to €500" {...field} data-testid="input-bonus-amount" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -204,10 +204,10 @@ export function BonusForm({ isOpen, onOpenChange, bonus, onSuccess }: BonusFormP
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Opis</FormLabel>
+                      <FormLabel>Description</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Detaljan opis bonusa..."
+                          placeholder="Detailed bonus description..."
                           className="min-h-[100px]"
                           {...field} 
                           data-testid="textarea-bonus-description"
@@ -224,11 +224,11 @@ export function BonusForm({ isOpen, onOpenChange, bonus, onSuccess }: BonusFormP
                     name="type"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Tip Bonusa</FormLabel>
+                        <FormLabel>Bonus Type</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger data-testid="select-bonus-type">
-                              <SelectValue placeholder="Izaberite tip bonusa" />
+                              <SelectValue placeholder="Select bonus type" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -249,11 +249,11 @@ export function BonusForm({ isOpen, onOpenChange, bonus, onSuccess }: BonusFormP
                     name="casinoId"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Povezani Kazino</FormLabel>
+                        <FormLabel>Related Casino</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger data-testid="select-bonus-casino">
-                              <SelectValue placeholder="Izaberite kazino" />
+                              <SelectValue placeholder="Select casino" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>

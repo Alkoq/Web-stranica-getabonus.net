@@ -59,15 +59,15 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Admin Prijava</CardTitle>
+          <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
           <CardDescription>
-            Prijavite se da pristupite admin panelu
+            Login to access the admin panel
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
-              <Label htmlFor="username">Korisničko ime</Label>
+              <Label htmlFor="username">Username</Label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
@@ -75,7 +75,7 @@ export default function LoginPage() {
                   type="text"
                   value={credentials.username}
                   onChange={(e) => setCredentials({...credentials, username: e.target.value})}
-                  placeholder="Unesite korisničko ime"
+                  placeholder="Enter username"
                   className="pl-10"
                   required
                   data-testid="input-username"
@@ -84,7 +84,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <Label htmlFor="password">Lozinka</Label>
+              <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
@@ -92,7 +92,7 @@ export default function LoginPage() {
                   type="password"
                   value={credentials.password}
                   onChange={(e) => setCredentials({...credentials, password: e.target.value})}
-                  placeholder="Unesite lozinku"
+                  placeholder="Enter password"
                   className="pl-10"
                   required
                   data-testid="input-password"
@@ -106,7 +106,7 @@ export default function LoginPage() {
               disabled={isLoading}
               data-testid="button-login"
             >
-              {isLoading ? "Prijavljivanje..." : "Prijavite se"}
+              {isLoading ? "Logging in..." : "Login"}
             </Button>
           </form>
         </CardContent>

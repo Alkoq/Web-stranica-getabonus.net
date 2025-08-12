@@ -16,19 +16,19 @@ import { Upload, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 const gameFormSchema = z.object({
-  name: z.string().min(2, "Naziv mora imati najmanje 2 karaktera"),
+  name: z.string().min(2, "Name must have at least 2 characters"),
   description: z.string().optional(),
-  provider: z.string().min(2, "Provider je obavezan"),
-  category: z.string().min(1, "Kategorija je obavezna"),
+  provider: z.string().min(2, "Provider is required"),
+  category: z.string().min(1, "Category is required"),
   rtp: z.number().min(0).max(100),
-  volatility: z.string().min(1, "Volatilnost je obavezna"),
+  volatility: z.string().min(1, "Volatility is required"),
   minBet: z.number().min(0),
   maxBet: z.number().min(0),
   paylines: z.number().min(0).optional(),
   maxMultiplier: z.number().min(0).optional(),
   tags: z.array(z.string()).default([]),
-  demoUrl: z.string().url("Molimo unesite valjan URL").optional().or(z.literal("")),
-  imageUrl: z.string().url("Molimo unesite valjan URL").optional().or(z.literal("")),
+  demoUrl: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
+  imageUrl: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
   availableAt: z.array(z.string()).default([]), // casino IDs
   isActive: z.boolean().default(true),
   isFeatured: z.boolean().default(false),
@@ -158,7 +158,7 @@ export function GameForm({ isOpen, onOpenChange, game, onSuccess }: GameFormProp
 
       if (result.success) {
         toast({
-          title: game ? "Igra ažurirana" : "Igra kreirana",
+          title: game ? "Game updated" : "Game created",
           description: result.message,
         });
         
@@ -167,15 +167,15 @@ export function GameForm({ isOpen, onOpenChange, game, onSuccess }: GameFormProp
         onSuccess();
       } else {
         toast({
-          title: "Greška",
+          title: "Error",
           description: result.message,
           variant: "destructive",
         });
       }
     } catch (error) {
       toast({
-        title: "Greška",
-        description: "Došlo je do greške prilikom čuvanja igre",
+        title: "Error",
+        description: "An error occurred while saving the game",
         variant: "destructive",
       });
     } finally {
@@ -188,12 +188,12 @@ export function GameForm({ isOpen, onOpenChange, game, onSuccess }: GameFormProp
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {game ? "Uredi Igru" : "Dodaj Novu Igru"}
+            {game ? "Edit Game" : "Add New Game"}
           </DialogTitle>
           <DialogDescription>
             {game 
-              ? "Ažurirajte sve informacije o igri uključujući sliku i povezane kazine" 
-              : "Dodajte novu igru sa svim podacima i povezivanjem sa kazinima"
+              ? "Update all game information including image and related casinos" 
+              : "Add a new game with all data and casino connections"
             }
           </DialogDescription>
         </DialogHeader>
@@ -202,9 +202,9 @@ export function GameForm({ isOpen, onOpenChange, game, onSuccess }: GameFormProp
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <Tabs defaultValue="basic" className="w-full">
               <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="basic">Osnovno</TabsTrigger>
-                <TabsTrigger value="details">Detalji</TabsTrigger>
-                <TabsTrigger value="casinos">Kazini</TabsTrigger>
+                <TabsTrigger value="basic">Basic</TabsTrigger>
+                <TabsTrigger value="details">Details</TabsTrigger>
+                <TabsTrigger value="casinos">Casinos</TabsTrigger>
                 <TabsTrigger value="status">Status</TabsTrigger>
               </TabsList>
 
@@ -216,7 +216,7 @@ export function GameForm({ isOpen, onOpenChange, game, onSuccess }: GameFormProp
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Naziv Igre</FormLabel>
+                        <FormLabel>Game Name</FormLabel>
                         <FormControl>
                           <Input placeholder="Book of Dead" {...field} data-testid="input-game-name" />
                         </FormControl>
@@ -234,7 +234,7 @@ export function GameForm({ isOpen, onOpenChange, game, onSuccess }: GameFormProp
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger data-testid="select-game-provider">
-                              <SelectValue placeholder="Izaberite providera" />
+                              <SelectValue placeholder="Select provider" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -256,10 +256,10 @@ export function GameForm({ isOpen, onOpenChange, game, onSuccess }: GameFormProp
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Opis Igre</FormLabel>
+                      <FormLabel>Game Description</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Detaljan opis igre..."
+                          placeholder="Detailed game description..."
                           className="min-h-[100px]"
                           {...field} 
                           data-testid="textarea-game-description"

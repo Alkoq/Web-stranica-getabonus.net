@@ -19,8 +19,8 @@ import { GameForm } from "@/components/admin/game-form";
 import { BlogForm } from "@/components/admin/blog-form";
 
 const createAdminSchema = z.object({
-  username: z.string().min(3, "Korisničko ime mora imati najmanje 3 karaktera"),
-  password: z.string().min(6, "Password mora imati najmanje 6 karaktera"),
+  username: z.string().min(3, "Username must have at least 3 characters"),
+  password: z.string().min(6, "Password must have at least 6 characters"),
 });
 
 type CreateAdminForm = z.infer<typeof createAdminSchema>;
@@ -203,11 +203,11 @@ export default function AdminPanel() {
 
   // Form handlers
   const handleOpenCasinoForm = (casino?: Casino) => {
-    console.log('Otvaram casino formu:', casino);
-    console.log('casinoFormOpen pre:', casinoFormOpen);
+    console.log('Opening casino form:', casino);
+    console.log('casinoFormOpen before:', casinoFormOpen);
     setEditingItem(casino);
     setCasinoFormOpen(true);
-    console.log('casinoFormOpen posle: true');
+    console.log('casinoFormOpen after: true');
   };
 
   const handleOpenBonusForm = (bonus?: Bonus) => {
@@ -252,7 +252,7 @@ export default function AdminPanel() {
 
       if (result.success) {
         toast({
-          title: "Uspešno kreiran admin",
+          title: "Admin successfully created",
           description: result.message,
         });
         
@@ -261,15 +261,15 @@ export default function AdminPanel() {
         loadAdmins();
       } else {
         toast({
-          title: "Greška",
+          title: "Error",
           description: result.message,
           variant: "destructive",
         });
       }
     } catch (error) {
       toast({
-        title: "Greška",
-        description: "Došlo je do greške prilikom kreiranja administratora",
+        title: "Error",
+        description: "An error occurred while creating the administrator",
         variant: "destructive",
       });
     } finally {
@@ -292,21 +292,21 @@ export default function AdminPanel() {
 
       if (result.success) {
         toast({
-          title: "Admin obrisan",
+          title: "Admin deleted",
           description: result.message,
         });
         loadAdmins();
       } else {
         toast({
-          title: "Greška",
+          title: "Error",
           description: result.message,
           variant: "destructive",
         });
       }
     } catch (error) {
       toast({
-        title: "Greška",
-        description: "Došlo je do greške prilikom brisanja administratora",
+        title: "Error",
+        description: "An error occurred while deleting the administrator",
         variant: "destructive",
       });
     }
@@ -351,7 +351,7 @@ export default function AdminPanel() {
             </div>
             <Button onClick={logout} variant="outline" size="sm">
               <LogOut className="h-4 w-4 mr-2" />
-              Odjava
+              Logout
             </Button>
           </div>
         </div>
@@ -361,19 +361,19 @@ export default function AdminPanel() {
           <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview" className="flex items-center space-x-2">
               <Shield className="h-4 w-4" />
-              <span>Pregled</span>
+              <span>Overview</span>
             </TabsTrigger>
             <TabsTrigger value="casinos" className="flex items-center space-x-2">
               <Building2 className="h-4 w-4" />
-              <span>Kazina</span>
+              <span>Casinos</span>
             </TabsTrigger>
             <TabsTrigger value="bonuses" className="flex items-center space-x-2">
               <Gift className="h-4 w-4" />
-              <span>Bonusi</span>
+              <span>Bonuses</span>
             </TabsTrigger>
             <TabsTrigger value="games" className="flex items-center space-x-2">
               <Gamepad2 className="h-4 w-4" />
-              <span>Igre</span>
+              <span>Games</span>
             </TabsTrigger>
             <TabsTrigger value="blog" className="flex items-center space-x-2">
               <FileText className="h-4 w-4" />
@@ -382,7 +382,7 @@ export default function AdminPanel() {
             {isOwner && (
               <TabsTrigger value="admins" className="flex items-center space-x-2">
                 <Users className="h-4 w-4" />
-                <span>Admini</span>
+                <span>Admins</span>
               </TabsTrigger>
             )}
           </TabsList>
@@ -391,28 +391,28 @@ export default function AdminPanel() {
           <TabsContent value="overview">
             <Card>
               <CardHeader>
-                <CardTitle>Statistike Sajta</CardTitle>
+                <CardTitle>Site Statistics</CardTitle>
                 <CardDescription>
-                  Pregled osnovnih statistika GetABonus.net platforme
+                  Overview of basic GetABonus.net platform statistics
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-turquoise">{casinos.length}</div>
-                    <div className="text-sm text-gray-500">Kazina</div>
+                    <div className="text-sm text-gray-500">Casinos</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-turquoise">{bonuses.length}</div>
-                    <div className="text-sm text-gray-500">Bonusi</div>
+                    <div className="text-sm text-gray-500">Bonuses</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-turquoise">{games.length}</div>
-                    <div className="text-sm text-gray-500">Igre</div>
+                    <div className="text-sm text-gray-500">Games</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-turquoise">{blogPosts.length}</div>
-                    <div className="text-sm text-gray-500">Blog Postovi</div>
+                    <div className="text-sm text-gray-500">Blog Posts</div>
                   </div>
                 </div>
               </CardContent>
@@ -425,9 +425,9 @@ export default function AdminPanel() {
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <div>
-                    <CardTitle>Upravljanje Kasinima</CardTitle>
+                    <CardTitle>Casino Management</CardTitle>
                     <CardDescription>
-                      Dodajte, uređujte ili uklanjajte kazina
+                      Add, edit or remove casinos
                     </CardDescription>
                   </div>
                   <Button 
@@ -436,7 +436,7 @@ export default function AdminPanel() {
                     data-testid="button-add-casino"
                   >
                     <Plus className="h-4 w-4 mr-2" />
-                    Dodaj Kazino
+                    Add Casino
                   </Button>
                 </div>
               </CardHeader>
@@ -444,12 +444,12 @@ export default function AdminPanel() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Naziv</TableHead>
+                      <TableHead>Name</TableHead>
                       <TableHead>URL</TableHead>
-                      <TableHead>Godina</TableHead>
+                      <TableHead>Year</TableHead>
                       <TableHead>Trust Score</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead>Akcije</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -466,7 +466,7 @@ export default function AdminPanel() {
                         </TableCell>
                         <TableCell>
                           <Badge variant={casino.isActive ? "default" : "secondary"}>
-                            {casino.isActive ? "Aktivno" : "Neaktivno"}
+                            {casino.isActive ? "Active" : "Inactive"}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -498,9 +498,9 @@ export default function AdminPanel() {
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <div>
-                    <CardTitle>Upravljanje Bonusima</CardTitle>
+                    <CardTitle>Bonus Management</CardTitle>
                     <CardDescription>
-                      Dodajte, uređujte ili uklanjajte bonuse
+                      Add, edit or remove bonuses
                     </CardDescription>
                   </div>
                   <Button 
@@ -509,7 +509,7 @@ export default function AdminPanel() {
                     data-testid="button-add-bonus"
                   >
                     <Plus className="h-4 w-4 mr-2" />
-                    Dodaj Bonus
+                    Add Bonus
                   </Button>
                 </div>
               </CardHeader>
@@ -534,7 +534,7 @@ export default function AdminPanel() {
                         <TableCell>{bonus.casino?.name || 'N/A'}</TableCell>
                         <TableCell>
                           <Badge variant={bonus.isActive ? "default" : "secondary"}>
-                            {bonus.isActive ? "Aktivno" : "Neaktivno"}
+                            {bonus.isActive ? "Active" : "Inactive"}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -566,9 +566,9 @@ export default function AdminPanel() {
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <div>
-                    <CardTitle>Upravljanje Igrama</CardTitle>
+                    <CardTitle>Game Management</CardTitle>
                     <CardDescription>
-                      Dodajte, uređujte ili uklanjajte igre
+                      Add, edit or remove games
                     </CardDescription>
                   </div>
                   <Button 
@@ -577,7 +577,7 @@ export default function AdminPanel() {
                     data-testid="button-add-game"
                   >
                     <Plus className="h-4 w-4 mr-2" />
-                    Dodaj Igru
+                    Add Game
                   </Button>
                 </div>
               </CardHeader>
@@ -637,9 +637,9 @@ export default function AdminPanel() {
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <div>
-                    <CardTitle>Upravljanje Blog Postovima</CardTitle>
+                    <CardTitle>Blog Post Management</CardTitle>
                     <CardDescription>
-                      Dodajte, uređujte ili uklanjajte blog postove
+                      Add, edit or remove blog posts
                     </CardDescription>
                   </div>
                   <Button 
@@ -648,7 +648,7 @@ export default function AdminPanel() {
                     data-testid="button-add-blog"
                   >
                     <Plus className="h-4 w-4 mr-2" />
-                    Dodaj Post
+                    Add Post
                   </Button>
                 </div>
               </CardHeader>
@@ -671,7 +671,7 @@ export default function AdminPanel() {
                         <TableCell>{new Date(post.publishedAt).toLocaleDateString('sr-RS')}</TableCell>
                         <TableCell>
                           <Badge variant={post.isPublished ? "default" : "secondary"}>
-                            {post.isPublished ? "Objavljeno" : "Draft"}
+                            {post.isPublished ? "Published" : "Draft"}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -706,10 +706,10 @@ export default function AdminPanel() {
                     <div>
                       <CardTitle className="flex items-center space-x-2">
                         <Users className="h-5 w-5" />
-                        <span>Upravljanje Administratorima</span>
+                        <span>Administrator Management</span>
                       </CardTitle>
                       <CardDescription>
-                        Dodajte, uklonite ili upravljajte administratorima sajta
+                        Add, remove or manage site administrators
                       </CardDescription>
                     </div>
                     
@@ -717,14 +717,14 @@ export default function AdminPanel() {
                       <DialogTrigger asChild>
                         <Button className="bg-turquoise hover:bg-turquoise/90">
                           <UserPlus className="h-4 w-4 mr-2" />
-                          Dodaj Admina
+                          Add Admin
                         </Button>
                       </DialogTrigger>
                       <DialogContent>
                         <DialogHeader>
-                          <DialogTitle>Kreiraj Novog Administratora</DialogTitle>
+                          <DialogTitle>Create New Administrator</DialogTitle>
                           <DialogDescription>
-                            Dodajte novog administratora koji će imati pristup admin panelu
+                            Add a new administrator who will have access to the admin panel
                           </DialogDescription>
                         </DialogHeader>
                         
@@ -735,10 +735,10 @@ export default function AdminPanel() {
                               name="username"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Korisničko ime</FormLabel>
+                                  <FormLabel>Username</FormLabel>
                                   <FormControl>
                                     <Input
-                                      placeholder="Unesite korisničko ime"
+                                      placeholder="Enter username"
                                       {...field}
                                       data-testid="input-new-username"
                                     />
@@ -756,7 +756,7 @@ export default function AdminPanel() {
                                   <FormControl>
                                     <Input
                                       type="password"
-                                      placeholder="Unesite password"
+                                      placeholder="Enter password"
                                       {...field}
                                       data-testid="input-new-password"
                                     />
@@ -771,7 +771,7 @@ export default function AdminPanel() {
                                 variant="outline"
                                 onClick={() => setIsDialogOpen(false)}
                               >
-                                Otkaži
+                                Cancel
                               </Button>
                               <Button
                                 type="submit"
@@ -779,7 +779,7 @@ export default function AdminPanel() {
                                 disabled={isCreatingAdmin}
                                 data-testid="button-create-admin"
                               >
-                                {isCreatingAdmin ? "Kreiranje..." : "Kreiraj Admina"}
+                                {isCreatingAdmin ? "Creating..." : "Create Admin"}
                               </Button>
                             </DialogFooter>
                           </form>
@@ -811,7 +811,7 @@ export default function AdminPanel() {
                               </Badge>
                             </div>
                             <p className="text-sm text-gray-500">
-                              Kreiran: {new Date(admin.createdAt).toLocaleDateString('sr-RS')}
+                              Created: {new Date(admin.createdAt).toLocaleDateString('en-US')}
                             </p>
                           </div>
                         </div>

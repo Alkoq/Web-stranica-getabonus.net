@@ -17,43 +17,43 @@ import { useToast } from "@/hooks/use-toast";
 import { X, Upload, Star } from "lucide-react";
 
 const casinoFormSchema = z.object({
-  // Osnovna polja kazina
-  name: z.string().min(2, "Naziv mora imati najmanje 2 karaktera"),
-  description: z.string().min(10, "Opis mora imati najmanje 10 karaktera"),
-  websiteUrl: z.string().url("Molimo unesite valjan URL"),
-  affiliateUrl: z.string().url("Molimo unesite valjan affiliate URL").optional().or(z.literal("")),
-  logoUrl: z.string().url("Molimo unesite valjan URL za logo").optional().or(z.literal("")),
+  // Basic casino fields
+  name: z.string().min(2, "Name must have at least 2 characters"),
+  description: z.string().min(10, "Description must have at least 10 characters"),
+  websiteUrl: z.string().url("Please enter a valid URL"),
+  affiliateUrl: z.string().url("Please enter a valid affiliate URL").optional().or(z.literal("")),
+  logoUrl: z.string().url("Please enter a valid logo URL").optional().or(z.literal("")),
   
-  // Osnovne informacije
+  // Basic information
   establishedYear: z.number().min(1990).max(new Date().getFullYear()),
-  license: z.string().min(3, "Informacije o licenci su obavezne"),
+  license: z.string().min(3, "License information is required"),
   safetyIndex: z.number().min(0).max(10),
   
-  // Arrays za funkcionalnosti
+  // Arrays for features
   paymentMethods: z.array(z.string()).default([]),
   supportedCurrencies: z.array(z.string()).default([]),
   gameProviders: z.array(z.string()).default([]),
   features: z.array(z.string()).default([]),
   
-  // Expert Review ocene (6 kategorija)
+  // Expert Review ratings (6 categories)
   bonusesRating: z.number().min(0).max(10),
-  bonusesExplanation: z.string().min(10, "Objašnjenje bonusa je obavezno"),
+  bonusesExplanation: z.string().min(10, "Bonus explanation is required"),
   designRating: z.number().min(0).max(10),
-  designExplanation: z.string().min(10, "Objašnjenje dizajna je obavezno"),
+  designExplanation: z.string().min(10, "Design explanation is required"),
   payoutsRating: z.number().min(0).max(10),
-  payoutsExplanation: z.string().min(10, "Objašnjenje isplata je obavezno"),
+  payoutsExplanation: z.string().min(10, "Payouts explanation is required"),
   customerSupportRating: z.number().min(0).max(10),
-  customerSupportExplanation: z.string().min(10, "Objašnjenje podrške je obavezno"),
+  customerSupportExplanation: z.string().min(10, "Customer support explanation is required"),
   gameSelectionRating: z.number().min(0).max(10),
-  gameSelectionExplanation: z.string().min(10, "Objašnjenje igara je obavezno"),
+  gameSelectionExplanation: z.string().min(10, "Game selection explanation is required"),
   mobileExperienceRating: z.number().min(0).max(10),
-  mobileExperienceExplanation: z.string().min(10, "Objašnjenje mobilnog iskustva je obavezno"),
+  mobileExperienceExplanation: z.string().min(10, "Mobile experience explanation is required"),
   
   // Expert review summary
   overallRating: z.number().min(0).max(10),
-  expertSummary: z.string().min(20, "Rezime expert review-a je obavezan"),
+  expertSummary: z.string().min(20, "Expert review summary is required"),
   
-  // Status polja
+  // Status fields
   isActive: z.boolean().default(true),
   isFeatured: z.boolean().default(false),
 });
@@ -212,12 +212,12 @@ export function CasinoForm({ isOpen, onOpenChange, casino, onSuccess }: CasinoFo
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {casino ? "Uredi Kazino" : "Dodaj Novi Kazino"}
+            {casino ? "Edit Casino" : "Add New Casino"}
           </DialogTitle>
           <DialogDescription>
             {casino 
-              ? "Ažurirajte sva polja kazina uključujući expert review ocene" 
-              : "Dodajte novi kazino sa svim podacima uključujući expert review"
+              ? "Update all casino fields including expert review ratings" 
+              : "Add a new casino with all data including expert review"
             }
           </DialogDescription>
         </DialogHeader>
@@ -226,8 +226,8 @@ export function CasinoForm({ isOpen, onOpenChange, casino, onSuccess }: CasinoFo
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <Tabs defaultValue="basic" className="w-full">
               <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="basic">Osnovno</TabsTrigger>
-                <TabsTrigger value="features">Funkcionalnosti</TabsTrigger>
+                <TabsTrigger value="basic">Basic</TabsTrigger>
+                <TabsTrigger value="features">Features</TabsTrigger>
                 <TabsTrigger value="expert">Expert Review</TabsTrigger>
                 <TabsTrigger value="status">Status</TabsTrigger>
               </TabsList>
@@ -240,7 +240,7 @@ export function CasinoForm({ isOpen, onOpenChange, casino, onSuccess }: CasinoFo
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Naziv Kazina</FormLabel>
+                        <FormLabel>Casino Name</FormLabel>
                         <FormControl>
                           <Input placeholder="Stake Casino" {...field} data-testid="input-casino-name" />
                         </FormControl>
@@ -254,7 +254,7 @@ export function CasinoForm({ isOpen, onOpenChange, casino, onSuccess }: CasinoFo
                     name="establishedYear"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Godina Osnivanja</FormLabel>
+                        <FormLabel>Established Year</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
@@ -274,10 +274,10 @@ export function CasinoForm({ isOpen, onOpenChange, casino, onSuccess }: CasinoFo
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Opis</FormLabel>
+                      <FormLabel>Description</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Detaljan opis kazina..."
+                          placeholder="Detailed casino description..."
                           className="min-h-[100px]"
                           {...field} 
                           data-testid="textarea-casino-description"
@@ -308,7 +308,7 @@ export function CasinoForm({ isOpen, onOpenChange, casino, onSuccess }: CasinoFo
                     name="affiliateUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Affiliate URL (opciono)</FormLabel>
+                        <FormLabel>Affiliate URL (optional)</FormLabel>
                         <FormControl>
                           <Input placeholder="https://affiliate.stake.com" {...field} data-testid="input-casino-affiliate" />
                         </FormControl>
