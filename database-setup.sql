@@ -41,20 +41,16 @@ CREATE TABLE IF NOT EXISTS casinos (
 CREATE TABLE IF NOT EXISTS games (
     id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
-    slug TEXT NOT NULL UNIQUE,
     description TEXT,
     provider TEXT NOT NULL,
-    category TEXT NOT NULL,
-    rtp DECIMAL(4,2),
+    type TEXT NOT NULL,
+    rtp DECIMAL(5,2),
     volatility TEXT,
-    max_win TEXT,
-    min_bet TEXT,
-    max_bet TEXT,
-    paylines INTEGER,
-    demo_url TEXT,
+    min_bet DECIMAL(10,2),
+    max_bet DECIMAL(10,2),
     image_url TEXT,
+    demo_url TEXT,
     tags JSONB DEFAULT '[]'::jsonb,
-    is_featured BOOLEAN DEFAULT false,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
@@ -82,10 +78,9 @@ CREATE TABLE IF NOT EXISTS bonuses (
 
 -- Casino Games junction table
 CREATE TABLE IF NOT EXISTS casino_games (
-    id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
     casino_id VARCHAR REFERENCES casinos(id) NOT NULL,
     game_id VARCHAR REFERENCES games(id) NOT NULL,
-    is_featured BOOLEAN DEFAULT false,
+    is_available BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT NOW(),
     UNIQUE(casino_id, game_id)
 );
@@ -148,6 +143,7 @@ CREATE TABLE IF NOT EXISTS blog_posts (
     content TEXT NOT NULL,
     featured_image TEXT,
     content_media JSONB DEFAULT '[]'::jsonb,
+    published_at TIMESTAMP,
     author_id VARCHAR REFERENCES users(id),
     category TEXT NOT NULL,
     tags JSONB DEFAULT '[]'::jsonb,
@@ -164,12 +160,10 @@ CREATE TABLE IF NOT EXISTS blog_posts (
 -- User Interactions table
 CREATE TABLE IF NOT EXISTS user_interactions (
     id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
-    session_id VARCHAR,
-    action TEXT NOT NULL,
-    target_type TEXT NOT NULL,
-    target_id VARCHAR,
-    user_agent TEXT,
-    ip_address TEXT,
+    session_id TEXT NOT NULL,
+    interaction_type TEXT NOT NULL,
+    target_id TEXT,
+    target_type TEXT,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -178,7 +172,7 @@ CREATE TABLE IF NOT EXISTS newsletter_subscribers (
     id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
     email TEXT NOT NULL UNIQUE,
     is_active BOOLEAN DEFAULT true,
-    created_at TIMESTAMP DEFAULT NOW()
+    subscribed_at TIMESTAMP DEFAULT NOW()
 );
 
 -- Admins table
@@ -208,10 +202,8 @@ CREATE TABLE IF NOT EXISTS casino_ratings (
 -- Comparisons table (for casino comparison feature)
 CREATE TABLE IF NOT EXISTS comparisons (
     id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL,
+    user_id VARCHAR REFERENCES users(id),
     casino_ids JSONB NOT NULL,
-    created_by VARCHAR REFERENCES users(id),
-    is_public BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -219,11 +211,8 @@ CREATE TABLE IF NOT EXISTS comparisons (
 CREATE TABLE IF NOT EXISTS helpful_votes (
     id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
     review_id VARCHAR REFERENCES reviews(id) NOT NULL,
-    user_id VARCHAR,
-    session_id VARCHAR,
-    vote_type TEXT CHECK (vote_type IN ('helpful', 'not_helpful')) NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW(),
-    UNIQUE(review_id, COALESCE(user_id, session_id))
+    voter_identifier VARCHAR NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
 -- Indexes for better performance
@@ -231,11 +220,14 @@ CREATE INDEX IF NOT EXISTS idx_casinos_is_active ON casinos(is_active);
 CREATE INDEX IF NOT EXISTS idx_casinos_is_featured ON casinos(is_featured);
 CREATE INDEX IF NOT EXISTS idx_bonuses_casino_id ON bonuses(casino_id);
 CREATE INDEX IF NOT EXISTS idx_bonuses_is_active ON bonuses(is_active);
-CREATE INDEX IF NOT EXISTS idx_games_category ON games(category);
+CREATE INDEX IF NOT EXISTS idx_games_type ON games(type);
 CREATE INDEX IF NOT EXISTS idx_games_provider ON games(provider);
 CREATE INDEX IF NOT EXISTS idx_reviews_casino_id ON reviews(casino_id);
 CREATE INDEX IF NOT EXISTS idx_blog_posts_category ON blog_posts(category);
 CREATE INDEX IF NOT EXISTS idx_blog_posts_is_published ON blog_posts(is_published);
+CREATE INDEX IF NOT EXISTS session_interactions_idx ON user_interactions(session_id);
+CREATE INDEX IF NOT EXISTS interaction_type_idx ON user_interactions(interaction_type);
+CREATE INDEX IF NOT EXISTS unique_review_voter ON helpful_votes(review_id, voter_identifier);
 
 -- Insert default admin user (alkox)
 INSERT INTO admins (username, password, role) 

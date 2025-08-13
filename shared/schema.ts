@@ -196,13 +196,13 @@ export const casinoRatings = pgTable("casino_ratings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Admin users table for admin panel access
+// Admin users table for admin panel access - declare first
 export const admins = pgTable("admins", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   username: varchar("username").unique().notNull(),
   password: varchar("password").notNull(), // This will be hashed
   role: varchar("role").notNull().default("admin"), // 'owner' or 'admin'
-  createdBy: varchar("created_by").references(() => admins.id), // Who created this admin (null for owner)
+  createdBy: varchar("created_by"), // Will be linked later, Who created this admin (null for owner)
   isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -305,8 +305,11 @@ export const adminsRelations = relations(admins, ({ one, many }) => ({
   creator: one(admins, {
     fields: [admins.createdBy],
     references: [admins.id],
+    relationName: "adminCreator"
   }),
-  createdAdmins: many(admins),
+  createdAdmins: many(admins, {
+    relationName: "adminCreator"
+  }),
 }));
 
 // Insert schemas
