@@ -181,14 +181,16 @@ export class MemStorage implements IStorage {
   // Casino methods - dinamički iz PostgreSQL baze
   async getCasinos(filters?: CasinoFilters): Promise<Casino[]> {
     try {
-      let query = db.select().from(casinos).where(eq(casinos.isActive, true));
+      let conditions = [eq(casinos.isActive, true)];
       
       if (filters?.license) {
-        query = query.where(eq(casinos.license, filters.license));
+        conditions.push(eq(casinos.license, filters.license));
       }
       // Dodaj ostale filtere po potrebi
       
-      const result = await query.orderBy(desc(casinos.safetyIndex));
+      const result = await db.select().from(casinos)
+        .where(and(...conditions))
+        .orderBy(desc(casinos.safetyIndex));
       return result;
     } catch (error) {
       console.error('Error getting casinos:', error);
@@ -220,12 +222,7 @@ export class MemStorage implements IStorage {
 
   async createCasino(casino: InsertCasino): Promise<Casino> {
     try {
-      const result = await db.insert(casinos).values({
-        ...casino,
-        id: randomUUID(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }).returning();
+      const result = await db.insert(casinos).values(casino).returning();
       return result[0];
     } catch (error) {
       console.error('Error creating casino:', error);
@@ -235,8 +232,9 @@ export class MemStorage implements IStorage {
 
   async updateCasino(id: string, updates: Partial<InsertCasino>): Promise<Casino> {
     try {
+      const updateData: any = { ...updates, updatedAt: new Date() };
       const result = await db.update(casinos)
-        .set({ ...updates, updatedAt: new Date() })
+        .set(updateData)
         .where(eq(casinos.id, id))
         .returning();
       return result[0];
@@ -249,13 +247,15 @@ export class MemStorage implements IStorage {
   // Bonus methods - dinamički iz PostgreSQL baze
   async getBonuses(casinoId?: string): Promise<Bonus[]> {
     try {
-      let query = db.select().from(bonuses).where(eq(bonuses.isActive, true));
+      let conditions = [eq(bonuses.isActive, true)];
       
       if (casinoId) {
-        query = query.where(eq(bonuses.casinoId, casinoId));
+        conditions.push(eq(bonuses.casinoId, casinoId));
       }
       
-      const result = await query.orderBy(desc(bonuses.createdAt));
+      const result = await db.select().from(bonuses)
+        .where(and(...conditions))
+        .orderBy(desc(bonuses.createdAt));
       return result;
     } catch (error) {
       console.error('Error getting bonuses:', error);
@@ -316,16 +316,18 @@ export class MemStorage implements IStorage {
   // Game methods - dinamički iz PostgreSQL baze
   async getGames(filters?: GameFilters): Promise<Game[]> {
     try {
-      let query = db.select().from(games).where(eq(games.isActive, true));
+      let conditions = [eq(games.isActive, true)];
       
       if (filters?.type) {
-        query = query.where(eq(games.type, filters.type));
+        conditions.push(eq(games.type, filters.type));
       }
       if (filters?.provider) {
-        query = query.where(eq(games.provider, filters.provider));
+        conditions.push(eq(games.provider, filters.provider));
       }
       
-      const result = await query.orderBy(desc(games.createdAt));
+      const result = await db.select().from(games)
+        .where(and(...conditions))
+        .orderBy(desc(games.createdAt));
       return result;
     } catch (error) {
       console.error('Error getting games:', error);
@@ -345,12 +347,7 @@ export class MemStorage implements IStorage {
 
   async createGame(game: InsertGame): Promise<Game> {
     try {
-      const result = await db.insert(games).values({
-        ...game,
-        id: randomUUID(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }).returning();
+      const result = await db.insert(games).values(game).returning();
       return result[0];
     } catch (error) {
       console.error('Error creating game:', error);
@@ -360,8 +357,9 @@ export class MemStorage implements IStorage {
 
   async updateGame(id: string, updates: Partial<InsertGame>): Promise<Game> {
     try {
+      const updateData: any = { ...updates, updatedAt: new Date() };
       const result = await db.update(games)
-        .set({ ...updates, updatedAt: new Date() })
+        .set(updateData)
         .where(eq(games.id, id))
         .returning();
       return result[0];
@@ -420,13 +418,7 @@ export class MemStorage implements IStorage {
 
   async createReview(review: InsertReview): Promise<Review> {
     try {
-      const result = await db.insert(reviews).values({
-        ...review,
-        id: randomUUID(),
-        helpfulVotes: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }).returning();
+      const result = await db.insert(reviews).values(review).returning();
       return result[0];
     } catch (error) {
       console.error('Error creating review:', error);
@@ -527,12 +519,7 @@ export class MemStorage implements IStorage {
 
   async createBlogPost(post: InsertBlogPost): Promise<BlogPost> {
     try {
-      const result = await db.insert(blogPosts).values({
-        ...post,
-        id: randomUUID(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }).returning();
+      const result = await db.insert(blogPosts).values(post).returning();
       return result[0];
     } catch (error) {
       console.error('Error creating blog post:', error);
@@ -542,8 +529,9 @@ export class MemStorage implements IStorage {
 
   async updateBlogPost(id: string, updates: Partial<InsertBlogPost>): Promise<BlogPost> {
     try {
+      const updateData: any = { ...updates, updatedAt: new Date() };
       const result = await db.update(blogPosts)
-        .set({ ...updates, updatedAt: new Date() })
+        .set(updateData)
         .where(eq(blogPosts.id, id))
         .returning();
       return result[0];
@@ -626,11 +614,7 @@ export class MemStorage implements IStorage {
   // Comparison methods
   async createComparison(comparison: InsertComparison): Promise<Comparison> {
     try {
-      const result = await db.insert(comparisons).values({
-        ...comparison,
-        id: randomUUID(),
-        createdAt: new Date(),
-      }).returning();
+      const result = await db.insert(comparisons).values(comparison).returning();
       return result[0];
     } catch (error) {
       console.error('Error creating comparison:', error);
@@ -700,30 +684,30 @@ export class MemStorage implements IStorage {
 
   // Statistics
   async getStats(): Promise<{
-    totalCasinos: string;
-    totalBonuses: string;
-    totalGames: string;
-    happyUsers: string;
+    totalCasinos: number;
+    totalBonuses: number;
+    totalGames: number;
+    totalUsers: number;
   }> {
     try {
       const [casinoCount] = await db.select({ count: sql<number>`count(*)` }).from(casinos).where(eq(casinos.isActive, true));
       const [bonusCount] = await db.select({ count: sql<number>`count(*)` }).from(bonuses).where(eq(bonuses.isActive, true));
       const [gameCount] = await db.select({ count: sql<number>`count(*)` }).from(games).where(eq(games.isActive, true));
-      const happyUsers = await this.getUniqueActiveUsers();
+      const totalUsers = await this.getUniqueActiveUsers();
 
       return {
-        totalCasinos: casinoCount.count.toString(),
-        totalBonuses: bonusCount.count.toString(),
-        totalGames: gameCount.count.toString(),
-        happyUsers: happyUsers.toString(),
+        totalCasinos: casinoCount.count || 0,
+        totalBonuses: bonusCount.count || 0,
+        totalGames: gameCount.count || 0,
+        totalUsers: totalUsers || 0,
       };
     } catch (error) {
       console.error('Error getting stats:', error);
       return {
-        totalCasinos: "0",
-        totalBonuses: "0",
-        totalGames: "0",
-        happyUsers: "0",
+        totalCasinos: 0,
+        totalBonuses: 0,
+        totalGames: 0,
+        totalUsers: 0,
       };
     }
   }
