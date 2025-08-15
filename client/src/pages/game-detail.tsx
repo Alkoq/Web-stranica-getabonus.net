@@ -8,12 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Play, Star, TrendingUp, Users, ExternalLink, Calendar, Clock, MessageCircle, ThumbsUp, Shield, Award, Gamepad2, Zap, Target, BarChart3 } from "lucide-react";
+import { ArrowLeft, Play, Star, TrendingUp, Users, ExternalLink, Calendar, Clock, MessageCircle, ThumbsUp, Shield, Gamepad2, Zap } from "lucide-react";
 import { Link } from "wouter";
 import { api } from "@/lib/api";
 import { HelpfulButton } from "@/components/HelpfulButton";
@@ -50,34 +49,6 @@ export default function GameDetail() {
     enabled: !!gameId,
   });
 
-  // Get expert rating from API (fixed rating)
-  const { data: apiRatingData } = useQuery<{ expertRating: number }>({
-    queryKey: ['/api/games/rating', gameId],
-    queryFn: () => fetch(`/api/games/${gameId}/rating`).then(res => res.json()),
-    enabled: !!gameId,
-  });
-
-  const getCombinedRating = () => {
-    const expertRating = apiRatingData?.expertRating || 0;
-    
-    return {
-      rating: expertRating.toFixed(1),
-      count: gameReviews.length,
-      type: 'expert' // Uvek expert rating, ne mijenja se
-    };
-  };
-
-  const ratingData = getCombinedRating();
-
-  // Game rating criteria (1-10 scale)
-  const gameRatings = {
-    graphics: 8.8, // Visual quality and design
-    gameplay: 8.2, // Mechanics and user experience
-    rtp: 7.5, // Return to player percentage
-    volatility: 8.0, // Risk/reward balance
-    features: 8.6, // Bonus features and special elements
-    overall: parseFloat(ratingData.rating) // Combined expert + user rating
-  };
 
   const relatedBlogPosts = relatedPosts.filter(post => 
     post.title.toLowerCase().includes('game') ||
@@ -239,125 +210,11 @@ export default function GameDetail() {
               </Card>
 
               {/* Detailed Review Tabs */}
-              <Tabs defaultValue="expert-review" className="mb-8">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="expert-review">Expert Review</TabsTrigger>
+              <Tabs defaultValue="user-reviews" className="mb-8">
+                <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="user-reviews">User Reviews</TabsTrigger>
                   <TabsTrigger value="related-articles">Related Articles</TabsTrigger>
                 </TabsList>
-
-                {/* Expert Review Tab */}
-                <TabsContent value="expert-review">
-                  <Card className="bg-card/50 backdrop-blur">
-                    <CardHeader>
-                      <CardTitle className="flex items-center text-turquoise">
-                        <Award className="h-5 w-5 mr-2" />
-                        Expert Game Analysis
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {/* Overall Rating */}
-                      <div className="mb-6">
-                        <div className="flex items-center justify-between mb-2">
-                          <h3 className="text-lg font-semibold">Overall Rating</h3>
-                          <div className="flex items-center">
-                            <Star className="h-5 w-5 text-yellow-500 mr-1" />
-                            <span className="text-2xl font-bold text-yellow-500">
-                              {ratingData.rating}
-                            </span>
-                            <span className="text-muted-foreground">/10</span>
-                          </div>
-                        </div>
-                        <Progress value={parseFloat(ratingData.rating) * 10} className="h-2" />
-                      </div>
-
-                      {/* Detailed Ratings */}
-                      <div className="space-y-4">
-                        <div className="grid md:grid-cols-2 gap-4">
-                          <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center">
-                                <Star className="h-4 w-4 mr-2 text-purple-500" />
-                                <span>Graphics & Design</span>
-                              </div>
-                              <span className="font-semibold">{gameRatings.graphics.toFixed(1)}/10</span>
-                            </div>
-                            <Progress value={gameRatings.graphics * 10} className="h-2" />
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Outstanding visual quality with immersive animations
-                            </p>
-                          </div>
-
-                          <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center">
-                                <Gamepad2 className="h-4 w-4 mr-2 text-blue-500" />
-                                <span>Gameplay</span>
-                              </div>
-                              <span className="font-semibold">{gameRatings.gameplay.toFixed(1)}/10</span>
-                            </div>
-                            <Progress value={gameRatings.gameplay * 10} className="h-2" />
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Smooth mechanics with engaging user interface
-                            </p>
-                          </div>
-
-                          <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center">
-                                <BarChart3 className="h-4 w-4 mr-2 text-green-500" />
-                                <span>RTP Value</span>
-                              </div>
-                              <span className="font-semibold">{gameRatings.rtp.toFixed(1)}/10</span>
-                            </div>
-                            <Progress value={gameRatings.rtp * 10} className="h-2" />
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Fair return to player percentage at {game.rtp}%
-                            </p>
-                          </div>
-
-                          <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center">
-                                <Target className="h-4 w-4 mr-2 text-orange-500" />
-                                <span>Volatility Balance</span>
-                              </div>
-                              <span className="font-semibold">{gameRatings.volatility.toFixed(1)}/10</span>
-                            </div>
-                            <Progress value={gameRatings.volatility * 10} className="h-2" />
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Well-balanced {game.volatility} volatility for diverse players
-                            </p>
-                          </div>
-
-                          <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center">
-                                <Zap className="h-4 w-4 mr-2 text-yellow-500" />
-                                <span>Bonus Features</span>
-                              </div>
-                              <span className="font-semibold">{gameRatings.features.toFixed(1)}/10</span>
-                            </div>
-                            <Progress value={gameRatings.features * 10} className="h-2" />
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Exciting bonus rounds and special game features
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="mt-6 p-4 bg-muted/20 rounded-lg">
-                        <h4 className="font-semibold mb-2">Expert Summary</h4>
-                        <p className="text-muted-foreground">
-                          {game.name} by {game.provider} delivers an excellent gaming experience with {game.rtp}% RTP 
-                          and {game.volatility} volatility. The game features impressive graphics, smooth gameplay, 
-                          and engaging bonus features that keep players entertained. This {game.type} game is suitable 
-                          for both casual and serious players looking for quality entertainment.
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
 
                 {/* User Reviews Tab */}
                 <TabsContent value="user-reviews">
