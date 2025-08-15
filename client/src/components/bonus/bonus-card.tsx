@@ -20,6 +20,12 @@ export function BonusCard({ bonus, casinoName, casinoLogo, affiliateUrl }: Bonus
     queryKey: ['/api/reviews/bonus', bonus.id],
     queryFn: () => fetch(`/api/reviews/bonus/${bonus.id}`).then(res => res.json()),
   });
+
+  // Fetch bonus ratings from API (same as in bonus detail page)
+  const { data: bonusRatings } = useQuery({
+    queryKey: ['/api/bonuses', bonus.id, 'ratings'],
+    queryFn: () => fetch(`/api/bonuses/${bonus.id}/ratings`).then(res => res.json()),
+  });
   const getBonusTypeColor = (type: string) => {
     switch (type.toLowerCase()) {
       case 'no_deposit':
@@ -88,31 +94,15 @@ export function BonusCard({ bonus, casinoName, casinoLogo, affiliateUrl }: Bonus
     return 'Ending soon';
   };
 
-  // Calculate combined rating from static expert rating and user reviews
+  // Calculate user rating from real API data
   const getCombinedRating = () => {
-    // Static expert rating for this bonus (same as in bonus-detail.tsx)
-    const expertRating = 7.9; // Overall expert rating
+    const userAvg = Number(bonusRatings?.userReviewsAverage) || 0;
+    const totalReviews = Number(bonusRatings?.totalReviews) || 0;
     
-    if (bonusReviews.length === 0) {
-      // If no user reviews, show only expert rating
-      return {
-        rating: expertRating.toFixed(1),
-        count: 0,
-        type: 'expert'
-      };
-    }
-
-    // Calculate average user rating
-    const userRatingSum = bonusReviews.reduce((sum: number, review: any) => sum + review.overallRating, 0);
-    const averageUserRating = userRatingSum / bonusReviews.length;
-    
-    // Combined rating: average of expert rating and user reviews average
-    const combinedRating = (expertRating + averageUserRating) / 2;
-
     return {
-      rating: combinedRating.toFixed(1),
-      count: bonusReviews.length,
-      type: 'combined'
+      rating: userAvg.toFixed(1),
+      count: totalReviews,
+      type: totalReviews > 0 ? 'user' : 'no_rating'
     };
   };
 
