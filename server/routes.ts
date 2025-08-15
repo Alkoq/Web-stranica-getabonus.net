@@ -980,7 +980,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         relatedGames: relatedGames || [],
         isPublished: isPublished ?? false,
         isFeatured: isFeatured ?? false,
-        publishedAt
+        publishedAt: publishedAt ? new Date(publishedAt) : null
       };
       
       const validatedData = insertBlogPostSchema.parse(blogData);
@@ -1001,6 +1001,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const blogId = req.params.id;
       const updates = req.body;
       
+      // Convert publishedAt string to Date if present
+      if (updates.publishedAt && typeof updates.publishedAt === 'string') {
+        updates.publishedAt = new Date(updates.publishedAt);
+      }
+      
       const validatedData = insertBlogPostSchema.partial().parse(updates);
       const blogPost = await storage.updateBlogPost(blogId, validatedData);
       
@@ -1012,38 +1017,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         res.status(500).json({ success: false, message: 'Greška servera' });
       }
-    }
-  });
-
-  app.delete('/api/admin/blog/:id', authenticateAdmin, async (req: any, res) => {
-    try {
-      const blogId = req.params.id;
-      const blogPost = await storage.getBlogPost(blogId);
-      
-      if (!blogPost) {
-        return res.status(404).json({ success: false, message: 'Blog post nije pronađen' });
-      }
-      
-      await storage.updateBlogPost(blogId, { isPublished: false });
-      res.json({ success: true, message: 'Blog post je uspešno deaktiviran' });
-    } catch (error) {
-      console.error('Error deleting blog post:', error);
-      res.status(500).json({ success: false, message: 'Greška servera' });
-    }
-  });
-
-  app.put('/api/admin/blog/:id', authenticateAdmin, async (req: any, res) => {
-    try {
-      const blogId = req.params.id;
-      const updates = req.body;
-      
-      const validatedData = insertBlogPostSchema.partial().parse(updates);
-      const blogPost = await storage.updateBlogPost(blogId, validatedData);
-      
-      res.json({ success: true, blogPost });
-    } catch (error) {
-      console.error('Error updating blog post:', error);
-      res.status(500).json({ success: false, message: 'Greška servera' });
     }
   });
 
