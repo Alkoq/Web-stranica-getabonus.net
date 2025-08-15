@@ -9,10 +9,13 @@ import { z } from "zod";
 
 const JWT_SECRET = process.env.JWT_SECRET || 'getabonus-jwt-secret-key-2024';
 
-// Initialize OpenAI
-const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY 
-});
+// Initialize OpenAI only if API key is available
+let openai: OpenAI | null = null;
+if (process.env.OPENAI_API_KEY) {
+  openai = new OpenAI({ 
+    apiKey: process.env.OPENAI_API_KEY 
+  });
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -1057,6 +1060,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!message || typeof message !== 'string') {
         return res.status(400).json({ error: 'Message is required' });
+      }
+
+      // Check if OpenAI is available
+      if (!openai) {
+        return res.status(503).json({ 
+          error: 'AI chatbot is currently unavailable. Please contact support for assistance.' 
+        });
       }
 
       const completion = await openai.chat.completions.create({
