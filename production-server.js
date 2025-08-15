@@ -51,7 +51,7 @@ console.log('🗄️  Database configured:', process.env.DATABASE_URL ? 'Yes' : 
 console.log('🤖 AI Chatbot:', process.env.OPENAI_API_KEY ? 'Enabled' : 'Disabled');
 
 // Now import and start the application
-import('./dist/index.js').catch(error => {
+import('./dist/production.js').catch(error => {
   console.error('❌ Server failed to start:', error.message);
   console.error('🔍 Debug info:', error);
   process.exit(1);
