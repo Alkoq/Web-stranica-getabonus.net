@@ -83,7 +83,7 @@ export const reviews = pgTable("reviews", {
 export const expertReviews = pgTable("expert_reviews", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   casinoId: varchar("casino_id").references(() => casinos.id).notNull(),
-  authorId: varchar("author_id").references(() => users.id).notNull(),
+  authorId: varchar("author_id").references(() => admins.id).notNull(),
   bonusesRating: decimal("bonuses_rating", { precision: 3, scale: 1 }).notNull(),
   bonusesExplanation: text("bonuses_explanation").notNull(),
   designRating: decimal("design_rating", { precision: 3, scale: 1 }).notNull(),
@@ -250,9 +250,9 @@ export const expertReviewsRelations = relations(expertReviews, ({ one }) => ({
     fields: [expertReviews.casinoId],
     references: [casinos.id],
   }),
-  author: one(users, {
+  author: one(admins, {
     fields: [expertReviews.authorId],
-    references: [users.id],
+    references: [admins.id],
   }),
 }));
 
@@ -311,6 +311,7 @@ export const adminsRelations = relations(admins, ({ one, many }) => ({
   createdAdmins: many(admins, {
     relationName: "adminCreator"
   }),
+  expertReviews: many(expertReviews),
 }));
 
 // Insert schemas
