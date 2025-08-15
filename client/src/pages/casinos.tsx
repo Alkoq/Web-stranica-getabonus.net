@@ -36,14 +36,20 @@ export default function Casinos() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Check URL parameters for sorting
+  // Check URL parameters for sorting and search
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const sort = urlParams.get('sort');
+    const search = urlParams.get('search');
+    
     if (sort === 'rating') {
       setSortBy('safetyIndex-desc');
     } else if (sort === 'newest') {
       setSortBy('createdAt-desc');
+    }
+    
+    if (search) {
+      setSearchQuery(search);
     }
   }, []);
 
@@ -205,7 +211,7 @@ export default function Casinos() {
 
     // Country Availability filter
     if (filters.country) {
-      const isAvailable = isCountryAvailable(filters.country, casino.restrictedCountries || []);
+      const isAvailable = isCountryAvailable(casino.restrictedCountries || [], filters.country);
       if (!isAvailable) return false;
     }
 

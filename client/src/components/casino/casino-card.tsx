@@ -83,27 +83,28 @@ export function CasinoCard({ casino, showDetails = true, variant = "list" }: Cas
   };
 
   return (
-    <div 
-      className={`rounded-xl transition-all duration-300 border relative overflow-hidden group ${
-        variant === "grid" ? "h-full" : ""
-      }`}
-      style={{
-        background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6))',
-        border: '2px solid hsl(173, 58%, 39%, 0.3)',
-        boxShadow: '0 0 15px hsl(173, 58%, 39%, 0.2), 0 0 30px hsl(173, 58%, 39%, 0.1)',
-        backdropFilter: 'blur(10px)',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-5px) scale(1.02)';
-        e.currentTarget.style.border = '2px solid hsl(173, 58%, 39%, 0.6)';
-        e.currentTarget.style.boxShadow = '0 0 25px hsl(173, 58%, 39%, 0.4), 0 0 50px hsl(173, 58%, 39%, 0.2)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0) scale(1)';
-        e.currentTarget.style.border = '2px solid hsl(173, 58%, 39%, 0.3)';
-        e.currentTarget.style.boxShadow = '0 0 15px hsl(173, 58%, 39%, 0.2), 0 0 30px hsl(173, 58%, 39%, 0.1)';
-      }}
-    >
+    <Link href={`/casino/${casino.id}`} onClick={() => tracker.track('casino_card_click', casino.id, 'casino')}>
+      <div 
+        className={`rounded-xl transition-all duration-300 border relative overflow-hidden group cursor-pointer ${
+          variant === "grid" ? "h-full" : ""
+        }`}
+        style={{
+          background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6))',
+          border: '2px solid hsl(173, 58%, 39%, 0.3)',
+          boxShadow: '0 0 15px hsl(173, 58%, 39%, 0.2), 0 0 30px hsl(173, 58%, 39%, 0.1)',
+          backdropFilter: 'blur(10px)',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-5px) scale(1.02)';
+          e.currentTarget.style.border = '2px solid hsl(173, 58%, 39%, 0.6)';
+          e.currentTarget.style.boxShadow = '0 0 25px hsl(173, 58%, 39%, 0.4), 0 0 50px hsl(173, 58%, 39%, 0.2)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(0) scale(1)';
+          e.currentTarget.style.border = '2px solid hsl(173, 58%, 39%, 0.3)';
+          e.currentTarget.style.boxShadow = '0 0 15px hsl(173, 58%, 39%, 0.2), 0 0 30px hsl(173, 58%, 39%, 0.1)';
+        }}
+      >
       <div className="p-3 sm:p-6 h-full">
         <div className={`${
           variant === "grid" 
@@ -187,25 +188,29 @@ export function CasinoCard({ casino, showDetails = true, variant = "list" }: Cas
           {/* Actions */}
           <div className={`flex ${variant === "grid" ? "flex-col" : "flex-col"} space-y-2 ${variant === "list" ? "ml-auto" : ""}`}>
             <Button 
-              asChild 
               className="bg-turquoise hover:bg-turquoise/90"
-              onClick={() => tracker.trackCasinoClick(casino.id)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                tracker.trackCasinoClick(casino.id);
+                window.open(casino.affiliateUrl || casino.websiteUrl, '_blank', 'noopener,noreferrer');
+              }}
             >
-              <a href={casino.affiliateUrl || casino.websiteUrl} target="_blank" rel="noopener noreferrer">
-                🎁 Visit Casino
-                <ExternalLink className="ml-2 h-4 w-4" />
-              </a>
+              🎁 Visit Casino
+              <ExternalLink className="ml-2 h-4 w-4" />
             </Button>
-            <Link href={`/casino/${casino.id}`}>
-              <Button 
-                variant="outline" 
-                data-testid="button-casino-details"
-                onClick={() => tracker.track('casino_details_view', casino.id, 'casino')}
-              >
-                <Info className="mr-2 h-4 w-4" />
-                Više Informacija
-              </Button>
-            </Link>
+            <Button 
+              variant="outline" 
+              data-testid="button-casino-details"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                tracker.track('casino_details_view', casino.id, 'casino');
+              }}
+            >
+              <Info className="mr-2 h-4 w-4" />
+              More Information
+            </Button>
           </div>
         </div>
 
@@ -251,5 +256,6 @@ export function CasinoCard({ casino, showDetails = true, variant = "list" }: Cas
         )}
       </div>
     </div>
+    </Link>
   );
 }
