@@ -63,23 +63,39 @@ app.use((req, res, next) => {
     } catch (error) {
       console.warn('Vite setup failed, serving static files instead');
       // Fallback to static serving if vite fails
-      app.use(express.static('client/dist'));
+      app.use(express.static('dist/public'));
       app.get('*', (_req, res) => {
-        res.sendFile('client/dist/index.html', { root: process.cwd() });
+        res.sendFile('dist/public/index.html', { root: process.cwd() });
       });
     }
   } else {
     // Production: serve static files
     const path = await import('path');
     const { fileURLToPath } = await import('url');
-    const __dirname = path.dirname(fileURLToPath(import.meta.url));
-    const distPath = path.join(__dirname, '../client/dist');
+    
+    // Handle different environments for __dirname
+    let __dirname: string;
+    try {
+      if (import.meta.url) {
+        __dirname = path.dirname(fileURLToPath(import.meta.url));
+      } else {
+        // Fallback for compiled environments
+        __dirname = process.cwd();
+      }
+    } catch (error) {
+      // Final fallback
+      __dirname = process.cwd();
+    }
+    
+    const distPath = path.join(__dirname, '../dist/public');
     
     app.use(express.static(distPath));
     
     // Fallback for SPA routing
     app.get('*', (_req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+      if (!req.path.startsWith('/api')) {
+        res.sendFile(path.join(distPath, 'index.html'));
+      }
     });
   }
 
