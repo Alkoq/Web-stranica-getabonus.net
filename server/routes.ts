@@ -874,8 +874,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } = req.body;
       
       const gameData = {
-        name, description, provider, type, rtp, volatility,
-        minBet, maxBet, imageUrl, demoUrl,
+        name, 
+        description, 
+        provider, 
+        type: type || '', // Obavezno polje
+        rtp: rtp ? rtp.toString() : null, // Konvertuj broj u string
+        volatility,
+        minBet: minBet ? minBet.toString() : null, // Konvertuj broj u string
+        maxBet: maxBet ? maxBet.toString() : null, // Konvertuj broj u string
+        imageUrl, 
+        demoUrl,
         tags: tags || [],
         isActive: isActive ?? true
       };
@@ -907,10 +915,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (description !== undefined) gameUpdates.description = description;
       if (provider !== undefined) gameUpdates.provider = provider;
       if (type !== undefined) gameUpdates.type = type;
-      if (rtp !== undefined) gameUpdates.rtp = rtp;
+      if (rtp !== undefined) gameUpdates.rtp = rtp ? rtp.toString() : null; // Konvertuj u string
       if (volatility !== undefined) gameUpdates.volatility = volatility;
-      if (minBet !== undefined) gameUpdates.minBet = minBet;
-      if (maxBet !== undefined) gameUpdates.maxBet = maxBet;
+      if (minBet !== undefined) gameUpdates.minBet = minBet ? minBet.toString() : null; // Konvertuj u string
+      if (maxBet !== undefined) gameUpdates.maxBet = maxBet ? maxBet.toString() : null; // Konvertuj u string
       if (imageUrl !== undefined) gameUpdates.imageUrl = imageUrl;
       if (demoUrl !== undefined) gameUpdates.demoUrl = demoUrl;
       if (tags !== undefined) gameUpdates.tags = tags;
