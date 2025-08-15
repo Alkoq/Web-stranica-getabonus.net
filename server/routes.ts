@@ -683,7 +683,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isActive, isFeatured
       } = req.body;
       
-      const casinoUpdates = {};
+      const casinoUpdates: any = {};
       
       // Dodajemo samo definisana polja
       if (name !== undefined) casinoUpdates.name = name;
@@ -818,7 +818,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         minDeposit, maxWin, validUntil, terms, code, isFeatured, isActive
       } = req.body;
       
-      const bonusUpdates = {};
+      const bonusUpdates: any = {};
       
       if (casinoId !== undefined) bonusUpdates.casinoId = casinoId;
       if (title !== undefined) bonusUpdates.title = title;
@@ -915,7 +915,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         minBet, maxBet, imageUrl, demoUrl, tags, isActive
       } = req.body;
       
-      const gameUpdates = {};
+      const gameUpdates: any = {};
       
       if (name !== undefined) gameUpdates.name = name;
       if (description !== undefined) gameUpdates.description = description;

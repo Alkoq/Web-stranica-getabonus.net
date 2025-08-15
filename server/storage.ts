@@ -223,7 +223,7 @@ export class MemStorage implements IStorage {
 
   async createCasino(casino: InsertCasino): Promise<Casino> {
     try {
-      const result = await db.insert(casinos).values(casino).returning();
+      const result = await db.insert(casinos).values([casino]).returning();
       return result[0];
     } catch (error) {
       console.error('Error creating casino:', error);
@@ -348,7 +348,7 @@ export class MemStorage implements IStorage {
 
   async createGame(game: InsertGame): Promise<Game> {
     try {
-      const result = await db.insert(games).values(game).returning();
+      const result = await db.insert(games).values([game]).returning();
       return result[0];
     } catch (error) {
       console.error('Error creating game:', error);
@@ -419,7 +419,7 @@ export class MemStorage implements IStorage {
 
   async createReview(review: InsertReview): Promise<Review> {
     try {
-      const result = await db.insert(reviews).values(review).returning();
+      const result = await db.insert(reviews).values([review]).returning();
       return result[0];
     } catch (error) {
       console.error('Error creating review:', error);
@@ -533,7 +533,7 @@ export class MemStorage implements IStorage {
 
   async createBlogPost(post: InsertBlogPost): Promise<BlogPost> {
     try {
-      const result = await db.insert(blogPosts).values(post).returning();
+      const result = await db.insert(blogPosts).values([post]).returning();
       return result[0];
     } catch (error) {
       console.error('Error creating blog post:', error);
@@ -628,7 +628,7 @@ export class MemStorage implements IStorage {
   // Comparison methods
   async createComparison(comparison: InsertComparison): Promise<Comparison> {
     try {
-      const result = await db.insert(comparisons).values(comparison).returning();
+      const result = await db.insert(comparisons).values([comparison]).returning();
       return result[0];
     } catch (error) {
       console.error('Error creating comparison:', error);
