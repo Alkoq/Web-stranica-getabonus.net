@@ -531,7 +531,7 @@ export class MemStorage implements IStorage {
     }
   }
 
-  async createBlogPost(post: InsertBlogPost): Promise<BlogPost> {
+  async createBlogPost(post: any): Promise<BlogPost> {
     try {
       const result = await db.insert(blogPosts).values([post]).returning();
       return result[0];
@@ -541,7 +541,7 @@ export class MemStorage implements IStorage {
     }
   }
 
-  async updateBlogPost(id: string, updates: Partial<InsertBlogPost>): Promise<BlogPost> {
+  async updateBlogPost(id: string, updates: any): Promise<BlogPost> {
     try {
       const updateData: any = { ...updates, updatedAt: new Date() };
       const result = await db.update(blogPosts)
