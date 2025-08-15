@@ -868,25 +868,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Game management
   app.post('/api/admin/games', authenticateAdmin, async (req: any, res) => {
     try {
+      console.log('Game creation request body:', req.body);
       const {
         name, description, provider, type, rtp, volatility,
         minBet, maxBet, imageUrl, demoUrl, tags, isActive
       } = req.body;
       
+      // Debug ispis
+      console.log('Extracted values:', { name, description, provider, type, rtp, volatility, minBet, maxBet });
+      
       const gameData = {
-        name, 
-        description, 
-        provider, 
-        type: type || '', // Obavezno polje
-        rtp: rtp ? rtp.toString() : null, // Konvertuj broj u string
-        volatility,
-        minBet: minBet ? minBet.toString() : null, // Konvertuj broj u string
-        maxBet: maxBet ? maxBet.toString() : null, // Konvertuj broj u string
-        imageUrl, 
-        demoUrl,
-        tags: tags || [],
+        name: name || '', 
+        description: description || '', 
+        provider: provider || '', 
+        type: type || 'slot', // Defaultna vrednost umesto praznog stringa
+        rtp: rtp !== undefined && rtp !== null && rtp !== '' ? String(rtp) : null, 
+        volatility: volatility || null,
+        minBet: minBet !== undefined && minBet !== null && minBet !== '' ? String(minBet) : null,
+        maxBet: maxBet !== undefined && maxBet !== null && maxBet !== '' ? String(maxBet) : null,
+        imageUrl: imageUrl || null, 
+        demoUrl: demoUrl || null,
+        tags: Array.isArray(tags) ? tags : [],
         isActive: isActive ?? true
       };
+      
+      console.log('Processed gameData:', gameData);
       
       const validatedData = insertGameSchema.parse(gameData);
       const game = await storage.createGame(validatedData);
