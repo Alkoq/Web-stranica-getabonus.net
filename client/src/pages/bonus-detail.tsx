@@ -61,8 +61,8 @@ export default function BonusDetail() {
   const calculateUserRatings = () => {
     const userAvg = bonusRatings?.userReviewsAverage || 0;
     return {
-      overall: userAvg,
-      count: bonusRatings?.totalReviews || 0
+      overall: Number(userAvg) || 0,
+      count: Number(bonusRatings?.totalReviews) || 0
     };
   };
 
