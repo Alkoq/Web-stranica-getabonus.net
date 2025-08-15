@@ -4,7 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MessageCircle, X, Send, Gamepad2, HelpCircle, Info, Shield } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
-export function AIChatbot() {
+interface AIChatbotProps {
+  externalOpen?: boolean;
+  onExternalOpenChange?: (open: boolean) => void;
+}
+
+export function AIChatbot({ externalOpen = false, onExternalOpenChange }: AIChatbotProps = {}) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
@@ -22,6 +27,15 @@ export function AIChatbot() {
     { icon: Info, text: "Explain wagering requirements", category: "info" },
     { icon: Shield, text: "Responsible gambling tips", category: "safety" }
   ];
+
+  // Handle external open state
+  const actualIsOpen = externalOpen || isOpen;
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (onExternalOpenChange) {
+      onExternalOpenChange(open);
+    }
+  };
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
@@ -103,11 +117,11 @@ export function AIChatbot() {
     }, 100);
   };
 
-  if (!isOpen) {
+  if (!actualIsOpen) {
     return (
       <div className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-50">
         <Button
-          onClick={() => setIsOpen(true)}
+          onClick={() => handleOpenChange(true)}
           className="bg-turquoise hover:bg-turquoise/90 text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 animate-pulse"
           size="lg"
         >
@@ -129,7 +143,7 @@ export function AIChatbot() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setIsOpen(false)}
+              onClick={() => handleOpenChange(false)}
               className="text-white hover:bg-white/20 p-1 sm:p-2 h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0"
               data-testid="button-close-chat"
             >

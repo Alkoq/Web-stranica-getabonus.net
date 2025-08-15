@@ -27,6 +27,8 @@ export default function Home() {
   const [showCasinoModal, setShowCasinoModal] = useState(false);
   const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [showAIChatbot, setShowAIChatbot] = useState(false);
+  const [showBotInfo, setShowBotInfo] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -1175,6 +1177,7 @@ export default function Home() {
                   boxShadow: '0 0 15px hsl(173, 58%, 39%, 0.4)',
                 }}
                 data-testid="button-start-chat"
+                onClick={() => setShowAIChatbot(true)}
               >
                 🚀 Start Chat with AI Bot
               </button>
@@ -1187,6 +1190,7 @@ export default function Home() {
                   backdropFilter: 'blur(10px)',
                 }}
                 data-testid="button-learn-more-bot"
+                onClick={() => setShowBotInfo(true)}
               >
                 📚 Learn More About Our Bot
               </button>
@@ -1196,9 +1200,61 @@ export default function Home() {
 
         {/* AI Chatbot and Newsletter */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <AIChatbot />
+          <AIChatbot 
+            externalOpen={showAIChatbot} 
+            onExternalOpenChange={setShowAIChatbot} 
+          />
           <Newsletter />
         </div>
+
+        {/* Bot Info Dialog */}
+        <Dialog open={showBotInfo} onOpenChange={setShowBotInfo}>
+          <DialogContent className="max-w-2xl">
+            <div className="text-center p-6">
+              <div className="w-20 h-20 mx-auto mb-6">
+                <div className="w-full h-full bg-gradient-to-br from-turquoise to-orange rounded-full flex items-center justify-center shadow-lg">
+                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </div>
+              </div>
+              
+              <h2 className="text-2xl font-bold mb-4 text-turquoise">About Our AI Casino Assistant</h2>
+              
+              <div className="text-left space-y-4 text-gray-600 dark:text-gray-300">
+                <p><strong>🤖 Powered by ChatGPT:</strong> Our AI assistant uses OpenAI's latest GPT-4o model to provide intelligent, helpful responses about online gambling.</p>
+                
+                <p><strong>🎯 Personalized Recommendations:</strong> Get casino suggestions tailored to your preferences, budget, and playing style.</p>
+                
+                <p><strong>💡 Expert Knowledge:</strong> Access comprehensive information about bonuses, wagering requirements, game strategies, and payment methods.</p>
+                
+                <p><strong>🛡️ Responsible Gaming:</strong> Learn about safe gambling practices, setting limits, and recognizing problem gambling signs.</p>
+                
+                <p><strong>⏰ Available 24/7:</strong> Chat anytime you need help choosing casinos, understanding bonuses, or learning about games.</p>
+                
+                <p><strong>🔒 Privacy Focused:</strong> Your conversations are processed securely and we don't store personal gambling information.</p>
+              </div>
+              
+              <div className="mt-6 flex gap-3 justify-center">
+                <Button 
+                  onClick={() => {
+                    setShowBotInfo(false);
+                    setShowAIChatbot(true);
+                  }}
+                  className="bg-turquoise hover:bg-turquoise/90 text-white"
+                >
+                  Start Chatting Now
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowBotInfo(false)}
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Game Casino Modal */}
