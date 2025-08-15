@@ -28,6 +28,7 @@ export const casinos = pgTable("casinos", {
   supportedCurrencies: jsonb("supported_currencies").$type<string[]>().default([]),
   gameProviders: jsonb("game_providers").$type<string[]>().default([]),
   features: jsonb("features").$type<string[]>().default([]),
+  restrictedCountries: jsonb("restricted_countries").$type<string[]>().default([]), // Countries where casino is NOT available
   isFeatured: boolean("is_featured").default(false),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),

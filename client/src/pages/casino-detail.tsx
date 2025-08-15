@@ -27,8 +27,10 @@ import {
   Clock,
   ChevronDown,
   Gift,
-  ThumbsUp
+  ThumbsUp,
+  Globe
 } from "lucide-react";
+import { getCountryName, isCountryAvailable } from "@/lib/countries";
 import { HelpfulButton } from "@/components/HelpfulButton";
 import type { Casino, Bonus, Review, ExpertReview, BlogPost, Game } from "@shared/schema";
 import { api } from "@/lib/api";
@@ -413,6 +415,39 @@ export default function CasinoDetailPage() {
                       {casino.features?.map((feature, index) => (
                         <Badge key={index} variant="outline">{feature}</Badge>
                       ))}
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <h3 className="font-semibold mb-3 text-turquoise flex items-center gap-2">
+                      <Globe className="h-4 w-4" />
+                      Country Availability
+                    </h3>
+                    <div className="space-y-2">
+                      {casino.restrictedCountries && casino.restrictedCountries.length > 0 ? (
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-2">
+                            Available worldwide except in the following countries:
+                          </p>
+                          <div className="flex flex-wrap gap-1 max-h-20 overflow-y-auto">
+                            {casino.restrictedCountries.slice(0, 15).map((countryCode, index) => (
+                              <Badge key={index} variant="destructive" className="text-xs">
+                                {getCountryName(countryCode)}
+                              </Badge>
+                            ))}
+                            {casino.restrictedCountries.length > 15 && (
+                              <Badge variant="destructive" className="text-xs">
+                                +{casino.restrictedCountries.length - 15} more
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 text-green-600 font-medium">
+                          <CheckCircle className="h-4 w-4" />
+                          Available worldwide - No restrictions
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

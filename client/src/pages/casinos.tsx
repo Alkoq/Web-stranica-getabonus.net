@@ -12,6 +12,7 @@ import { CasinoCard } from "@/components/casino/casino-card";
 import { CasinoFiltersComponent } from "@/components/casino/casino-filters";
 import { AIChatbot } from "@/components/ai-chatbot";
 import { api } from "@/lib/api";
+import { isCountryAvailable } from "@/lib/countries";
 import type { Casino } from "@shared/schema";
 import type { CasinoFilters } from "@/types";
 
@@ -200,6 +201,12 @@ export default function Casinos() {
     // Established Year filter
     if (filters.establishedYear && casino.establishedYear && casino.establishedYear < filters.establishedYear) {
       return false;
+    }
+
+    // Country Availability filter
+    if (filters.country) {
+      const isAvailable = isCountryAvailable(filters.country, casino.restrictedCountries || []);
+      if (!isAvailable) return false;
     }
 
     return true;

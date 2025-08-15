@@ -14,7 +14,9 @@ import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { X, Upload, Star } from "lucide-react";
+import { X, Upload, Star, Globe } from "lucide-react";
+import { WORLD_COUNTRIES, COMMONLY_RESTRICTED_COUNTRIES, getCountryName } from "@/lib/countries";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const casinoFormSchema = z.object({
   // Basic casino fields
@@ -34,6 +36,7 @@ const casinoFormSchema = z.object({
   supportedCurrencies: z.array(z.string()).default([]),
   gameProviders: z.array(z.string()).default([]),
   features: z.array(z.string()).default([]),
+  restrictedCountries: z.array(z.string()).default([]),
   
   // Expert Review ratings (6 categories) - Made optional so basic info can be saved first
   bonusesRating: z.number().min(0).max(10).optional().default(5),
@@ -73,6 +76,7 @@ export function CasinoForm({ isOpen, onOpenChange, casino, onSuccess }: CasinoFo
   const [newCurrency, setNewCurrency] = useState("");
   const [newProvider, setNewProvider] = useState("");
   const [newFeature, setNewFeature] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState("");
   const { toast } = useToast();
   
   const form = useForm<CasinoFormData>({
@@ -200,6 +204,26 @@ export function CasinoForm({ isOpen, onOpenChange, casino, onSuccess }: CasinoFo
       form.setValue("features", [...current, newFeature.trim()]);
       setNewFeature("");
     }
+  };
+
+  const addRestrictedCountry = () => {
+    if (selectedCountry) {
+      const current = form.getValues("restrictedCountries");
+      if (!current.includes(selectedCountry)) {
+        form.setValue("restrictedCountries", [...current, selectedCountry]);
+      }
+      setSelectedCountry("");
+    }
+  };
+
+  const addCommonRestrictedCountries = () => {
+    const current = form.getValues("restrictedCountries");
+    const newRestricted = COMMONLY_RESTRICTED_COUNTRIES.filter(code => !current.includes(code));
+    form.setValue("restrictedCountries", [...current, ...newRestricted]);
+  };
+
+  const clearAllRestrictedCountries = () => {
+    form.setValue("restrictedCountries", []);
   };
 
   const removeItem = (field: string, index: number) => {
@@ -470,6 +494,82 @@ export function CasinoForm({ isOpen, onOpenChange, casino, onSuccess }: CasinoFo
                         <X className="h-3 w-3 cursor-pointer" onClick={() => removeItem("features", index)} />
                       </Badge>
                     ))}
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Restricted Countries */}
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold flex items-center gap-2">
+                    <Globe className="h-4 w-4" />
+                    Restricted Countries
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Select countries where this casino is NOT available. By default, casino is available in all countries except the ones listed here.
+                  </p>
+                  
+                  <div className="flex gap-2 flex-wrap">
+                    <Button 
+                      type="button" 
+                      onClick={addCommonRestrictedCountries}
+                      variant="outline"
+                      size="sm"
+                    >
+                      Add Common Restricted
+                    </Button>
+                    <Button 
+                      type="button" 
+                      onClick={clearAllRestrictedCountries}
+                      variant="outline"
+                      size="sm"
+                    >
+                      Clear All
+                    </Button>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select country to restrict" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[200px]">
+                        {WORLD_COUNTRIES.filter(country => 
+                          !form.watch("restrictedCountries").includes(country.code)
+                        ).map((country) => (
+                          <SelectItem key={country.code} value={country.code}>
+                            {country.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button 
+                      type="button" 
+                      onClick={addRestrictedCountry}
+                      variant="outline"
+                      disabled={!selectedCountry}
+                    >
+                      Add
+                    </Button>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto">
+                    {form.watch("restrictedCountries").map((countryCode, index) => (
+                      <Badge key={index} variant="destructive" className="flex items-center gap-1">
+                        {getCountryName(countryCode)}
+                        <X 
+                          className="h-3 w-3 cursor-pointer" 
+                          onClick={() => removeItem("restrictedCountries", index)} 
+                        />
+                      </Badge>
+                    ))}
+                  </div>
+                  
+                  <div className="text-sm text-muted-foreground">
+                    {form.watch("restrictedCountries").length === 0 
+                      ? "Available in all countries worldwide" 
+                      : `Available in ${WORLD_COUNTRIES.length - form.watch("restrictedCountries").length} countries`
+                    }
                   </div>
                 </div>
               </TabsContent>

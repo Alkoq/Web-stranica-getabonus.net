@@ -9,6 +9,7 @@ export interface CasinoFilters {
   bonusType?: string;
   establishedYear?: number;
   search?: string;
+  country?: string; // User's country to check availability
 }
 
 export interface SearchFilters extends CasinoFilters {

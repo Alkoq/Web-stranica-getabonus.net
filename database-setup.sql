@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS casinos (
     supported_currencies JSONB DEFAULT '[]'::jsonb,
     game_providers JSONB DEFAULT '[]'::jsonb,
     features JSONB DEFAULT '[]'::jsonb,
+    restricted_countries JSONB DEFAULT '[]'::jsonb,
     is_featured BOOLEAN DEFAULT false,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT NOW(),

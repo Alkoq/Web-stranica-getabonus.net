@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, ExternalLink, Info, Shield } from "lucide-react";
+import { Star, ExternalLink, Info, Shield, Globe } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { tracker } from "@/lib/interaction-tracker";
+import { getCountryName } from "@/lib/countries";
 import type { Casino, Review, ExpertReview } from "@shared/schema";
 
 interface CasinoCardProps {
@@ -220,6 +221,19 @@ export function CasinoCard({ casino, showDetails = true, variant = "list" }: Cas
               {casino.license && (
                 <Badge variant="outline">
                   Licensed: {casino.license}
+                </Badge>
+              )}
+              
+              {/* Country Availability Badge */}
+              {casino.restrictedCountries && casino.restrictedCountries.length > 0 ? (
+                <Badge variant="destructive" className="text-xs">
+                  <Globe className="h-3 w-3 mr-1" />
+                  Restricted in {casino.restrictedCountries.length} countries
+                </Badge>
+              ) : (
+                <Badge variant="default" className="text-xs bg-green-600">
+                  <Globe className="h-3 w-3 mr-1" />
+                  Available worldwide
                 </Badge>
               )}
             </div>

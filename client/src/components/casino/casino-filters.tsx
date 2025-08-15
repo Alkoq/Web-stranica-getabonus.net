@@ -3,7 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { X, Globe } from "lucide-react";
+import { WORLD_COUNTRIES, isCountryAvailable } from "@/lib/countries";
 import type { CasinoFilters } from "@/types";
 
 interface CasinoFiltersProps {
@@ -124,6 +126,7 @@ export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilter
     if (localFilters.gameProviders?.length) count++;
     if (localFilters.bonusType) count++;
     if (localFilters.establishedYear) count++;
+    if (localFilters.country) count++;
     return count;
   };
 
@@ -398,6 +401,44 @@ export function CasinoFiltersComponent({ filters, onFiltersChange, onClearFilter
             </div>
           </div>
         )}
+
+        {/* Country Availability Filter */}
+        <div>
+          <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+            <Globe className="h-4 w-4" />
+            Country Availability
+          </h4>
+          <p className="text-xs text-muted-foreground mb-3">
+            Select your country to see only casinos that accept players from your location.
+          </p>
+          <Select 
+            value={localFilters.country || ""} 
+            onValueChange={(value) => handleFilterChange('country', value || undefined)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select your country" />
+            </SelectTrigger>
+            <SelectContent className="max-h-[200px]">
+              {WORLD_COUNTRIES.map((country) => {
+                // Count how many casinos are available for this country
+                const availableCasinos = casinos.filter(casino => 
+                  isCountryAvailable(country.code, casino.restrictedCountries || [])
+                ).length;
+
+                return (
+                  <SelectItem key={country.code} value={country.code}>
+                    <div className="flex items-center justify-between w-full">
+                      <span>{country.name}</span>
+                      <Badge variant="secondary" className="text-xs ml-2">
+                        {availableCasinos}
+                      </Badge>
+                    </div>
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* Established Year */}
         {establishedYearOptions.length > 0 && (
