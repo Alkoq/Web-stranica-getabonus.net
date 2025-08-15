@@ -970,6 +970,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         relatedCasinos, relatedGames, isPublished, isFeatured, publishedAt
       } = req.body;
       
+      console.log('Raw publishedAt from frontend:', publishedAt, typeof publishedAt);
+      
       const blogData = {
         title, slug, excerpt, content, featuredImage,
         contentMedia: contentMedia || [],
@@ -982,6 +984,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isFeatured: isFeatured ?? false,
         publishedAt: publishedAt ? new Date(publishedAt) : null
       };
+      
+      console.log('Processed publishedAt:', blogData.publishedAt, typeof blogData.publishedAt);
+      console.log('Full blogData:', JSON.stringify(blogData, null, 2));
       
       const validatedData = insertBlogPostSchema.parse(blogData);
       const blogPost = await storage.createBlogPost(validatedData);
