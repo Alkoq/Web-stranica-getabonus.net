@@ -56,15 +56,6 @@ export default function BonusDetail() {
   const bonus = bonuses.find(b => b.id === bonusId);
   const casino = bonus ? casinos.find(c => c.id === bonus.casinoId) : null;
 
-  // Static expert ratings - these never change
-  const expertRatings = {
-    value: 8.5,
-    terms: 7.8,
-    wagering: 6.2,
-    games: 8.9,
-    cashout: 8.1,
-    overall: 7.9
-  };
 
   // Calculate dynamic user ratings from reviews
   const calculateUserRatings = () => {
@@ -210,125 +201,12 @@ export default function BonusDetail() {
               </Card>
 
               {/* Detailed Review Tabs */}
-              <Tabs defaultValue="expert-review" className="mb-8">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="expert-review">Expert Review</TabsTrigger>
+              <Tabs defaultValue="user-reviews" className="mb-8">
+                <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="user-reviews">User Reviews</TabsTrigger>
                   <TabsTrigger value="related-articles">Related Articles</TabsTrigger>
                 </TabsList>
 
-                {/* Expert Review Tab */}
-                <TabsContent value="expert-review">
-                  <Card className="bg-card/50 backdrop-blur">
-                    <CardHeader>
-                      <CardTitle className="flex items-center text-turquoise">
-                        <Award className="h-5 w-5 mr-2" />
-                        Expert Bonus Analysis
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {/* Overall Rating */}
-                      <div className="mb-6">
-                        <div className="flex items-center justify-between mb-2">
-                          <h3 className="text-lg font-semibold">Overall Rating</h3>
-                          <div className="flex items-center">
-                            <Star className="h-5 w-5 text-yellow-500 mr-1" />
-                            <span className="text-2xl font-bold text-yellow-500">
-                              {expertRatings.overall.toFixed(1)}
-                            </span>
-                            <span className="text-muted-foreground">/10</span>
-                          </div>
-                        </div>
-                        <Progress value={expertRatings.overall * 10} className="h-2" />
-                      </div>
-
-                      {/* Detailed Ratings */}
-                      <div className="space-y-4">
-                        <div className="grid md:grid-cols-2 gap-4">
-                          <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center">
-                                <DollarSign className="h-4 w-4 mr-2 text-green-500" />
-                                <span>Bonus Value</span>
-                              </div>
-                              <span className="font-semibold">{expertRatings.value.toFixed(1)}/10</span>
-                            </div>
-                            <Progress value={expertRatings.value * 10} className="h-2" />
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Excellent bonus amount compared to wagering requirements
-                            </p>
-                          </div>
-
-                          <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center">
-                                <Info className="h-4 w-4 mr-2 text-blue-500" />
-                                <span>Terms Clarity</span>
-                              </div>
-                              <span className="font-semibold">{expertRatings.terms.toFixed(1)}/10</span>
-                            </div>
-                            <Progress value={expertRatings.terms * 10} className="h-2" />
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Terms are mostly clear but could be more detailed
-                            </p>
-                          </div>
-
-                          <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center">
-                                <Percent className="h-4 w-4 mr-2 text-orange-500" />
-                                <span>Wagering Requirements</span>
-                              </div>
-                              <span className="font-semibold">{expertRatings.wagering.toFixed(1)}/10</span>
-                            </div>
-                            <Progress value={expertRatings.wagering * 10} className="h-2" />
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Moderate wagering requirements, could be lower
-                            </p>
-                          </div>
-
-                          <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center">
-                                <Users className="h-4 w-4 mr-2 text-purple-500" />
-                                <span>Game Selection</span>
-                              </div>
-                              <span className="font-semibold">{expertRatings.games.toFixed(1)}/10</span>
-                            </div>
-                            <Progress value={expertRatings.games * 10} className="h-2" />
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Good variety of games available for bonus play
-                            </p>
-                          </div>
-
-                          <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center">
-                                <Clock className="h-4 w-4 mr-2 text-red-500" />
-                                <span>Cashout Speed</span>
-                              </div>
-                              <span className="font-semibold">{expertRatings.cashout.toFixed(1)}/10</span>
-                            </div>
-                            <Progress value={expertRatings.cashout * 10} className="h-2" />
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Reasonable withdrawal limits and processing time
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="mt-6 p-4 bg-muted/20 rounded-lg">
-                        <h4 className="font-semibold mb-2">Expert Summary</h4>
-                        <p className="text-muted-foreground">
-                          This {bonus.type} bonus offers solid value with {bonus.amount} and reasonable terms. 
-                          The wagering requirements are within industry standards, and the game selection is diverse. 
-                          Players should be aware of any time limitations and ensure they understand the withdrawal conditions 
-                          before claiming this bonus.
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
 
                 {/* User Reviews Tab */}
                 <TabsContent value="user-reviews">
