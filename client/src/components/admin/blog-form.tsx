@@ -102,6 +102,49 @@ export function BlogForm({ isOpen, onOpenChange, blogPost, onSuccess }: BlogForm
     },
   });
 
+  // Reset form when blog post data changes
+  useEffect(() => {
+    if (blogPost) {
+      form.reset({
+        title: blogPost.title || "",
+        slug: blogPost.slug || "",
+        content: blogPost.content || "",
+        excerpt: blogPost.excerpt || "",
+        author: blogPost.author || "",
+        category: blogPost.category || "",
+        tags: blogPost.tags || [],
+        featuredImage: blogPost.featuredImage || "",
+        contentMedia: blogPost.contentMedia || [],
+        metaDescription: blogPost.metaDescription || "",
+        relatedCasinos: blogPost.relatedCasinos || [],
+        relatedGames: blogPost.relatedGames || [],
+        readingTime: blogPost.readingTime || undefined,
+        publishedAt: blogPost.publishedAt ? new Date(blogPost.publishedAt).toISOString().split('T')[0] : "",
+        isPublished: blogPost.isPublished ?? false,
+        isFeatured: blogPost.isFeatured ?? false,
+      });
+    } else if (isOpen) {
+      form.reset({
+        title: "",
+        slug: "",
+        content: "",
+        excerpt: "",
+        author: "",
+        category: "",
+        tags: [],
+        featuredImage: "",
+        contentMedia: [],
+        metaDescription: "",
+        relatedCasinos: [],
+        relatedGames: [],
+        readingTime: undefined,
+        publishedAt: "",
+        isPublished: false,
+        isFeatured: false,
+      });
+    }
+  }, [blogPost, isOpen, form]);
+
   useEffect(() => {
     const loadData = async () => {
       try {

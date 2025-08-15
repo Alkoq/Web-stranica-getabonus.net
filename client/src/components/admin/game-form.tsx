@@ -97,6 +97,49 @@ export function GameForm({ isOpen, onOpenChange, game, onSuccess }: GameFormProp
     },
   });
 
+  // Reset form when game data changes
+  useEffect(() => {
+    if (game) {
+      form.reset({
+        name: game.name || "",
+        description: game.description || "",
+        provider: game.provider || "",
+        type: game.type || "",
+        rtp: game.rtp || 96,
+        volatility: game.volatility || "",
+        minBet: game.minBet || 0.1,
+        maxBet: game.maxBet || 100,
+        paylines: game.paylines || undefined,
+        maxMultiplier: game.maxMultiplier || undefined,
+        demoUrl: game.demoUrl || "",
+        imageUrl: game.imageUrl || "",
+        tags: game.tags || [],
+        availableAt: game.availableAt || [],
+        isActive: game.isActive ?? true,
+        isFeatured: game.isFeatured ?? false,
+      });
+    } else if (isOpen) {
+      form.reset({
+        name: "",
+        description: "",
+        provider: "",
+        type: "",
+        rtp: 96,
+        volatility: "",
+        minBet: 0.1,
+        maxBet: 100,
+        paylines: undefined,
+        maxMultiplier: undefined,
+        demoUrl: "",
+        imageUrl: "",
+        tags: [],
+        availableAt: [],
+        isActive: true,
+        isFeatured: false,
+      });
+    }
+  }, [game, isOpen, form]);
+
   useEffect(() => {
     const loadCasinos = async () => {
       try {

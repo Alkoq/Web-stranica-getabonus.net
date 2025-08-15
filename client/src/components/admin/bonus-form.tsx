@@ -78,6 +78,45 @@ export function BonusForm({ isOpen, onOpenChange, bonus, onSuccess }: BonusFormP
     },
   });
 
+  // Reset form when bonus data changes
+  useEffect(() => {
+    if (bonus) {
+      form.reset({
+        title: bonus.title || "",
+        description: bonus.description || "",
+        type: bonus.type || "",
+        amount: bonus.amount || "",
+        casinoId: bonus.casinoId || "",
+        wageringRequirement: bonus.wageringRequirement || "",
+        minDeposit: bonus.minDeposit || "",
+        maxWin: bonus.maxWin || "",
+        validUntil: bonus.validUntil ? new Date(bonus.validUntil).toISOString().split('T')[0] : "",
+        terms: bonus.terms || "",
+        code: bonus.code || "",
+        imageUrl: bonus.imageUrl || "",
+        isActive: bonus.isActive ?? true,
+        isFeatured: bonus.isFeatured ?? false,
+      });
+    } else if (isOpen) {
+      form.reset({
+        title: "",
+        description: "",
+        type: "",
+        amount: "",
+        casinoId: "",
+        wageringRequirement: "",
+        minDeposit: "",
+        maxWin: "",
+        validUntil: "",
+        terms: "",
+        code: "",
+        imageUrl: "",
+        isActive: true,
+        isFeatured: false,
+      });
+    }
+  }, [bonus, isOpen, form]);
+
   useEffect(() => {
     const loadCasinos = async () => {
       try {

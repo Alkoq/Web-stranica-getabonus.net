@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -124,6 +124,75 @@ export function CasinoForm({ isOpen, onOpenChange, casino, onSuccess }: CasinoFo
       isFeatured: casino?.isFeatured ?? false,
     },
   });
+
+  // Reset form when casino data changes
+  useEffect(() => {
+    if (casino) {
+      form.reset({
+        name: casino.name || "",
+        description: casino.description || "",
+        websiteUrl: casino.websiteUrl || "",
+        affiliateUrl: casino.affiliateUrl || "",
+        logoUrl: casino.logoUrl || "",
+        establishedYear: casino.establishedYear || new Date().getFullYear(),
+        license: casino.license || "",
+        safetyIndex: casino.safetyIndex || 5,
+        paymentMethods: casino.paymentMethods || [],
+        supportedCurrencies: casino.supportedCurrencies || [],
+        gameProviders: casino.gameProviders || [],
+        features: casino.features || [],
+        restrictedCountries: casino.restrictedCountries || [],
+        bonusesRating: casino.expertReview?.bonusesRating || 5,
+        bonusesExplanation: casino.expertReview?.bonusesExplanation || "",
+        designRating: casino.expertReview?.designRating || 5,
+        designExplanation: casino.expertReview?.designExplanation || "",
+        payoutsRating: casino.expertReview?.payoutsRating || 5,
+        payoutsExplanation: casino.expertReview?.payoutsExplanation || "",
+        customerSupportRating: casino.expertReview?.customerSupportRating || 5,
+        customerSupportExplanation: casino.expertReview?.customerSupportExplanation || "",
+        gameSelectionRating: casino.expertReview?.gameSelectionRating || 5,
+        gameSelectionExplanation: casino.expertReview?.gameSelectionExplanation || "",
+        mobileExperienceRating: casino.expertReview?.mobileExperienceRating || 5,
+        mobileExperienceExplanation: casino.expertReview?.mobileExperienceExplanation || "",
+        overallRating: casino.expertReview?.overallRating || 5,
+        expertSummary: casino.expertReview?.summary || "",
+        isActive: casino.isActive ?? true,
+        isFeatured: casino.isFeatured ?? false,
+      });
+    } else if (isOpen) {
+      form.reset({
+        name: "",
+        description: "",
+        websiteUrl: "",
+        affiliateUrl: "",
+        logoUrl: "",
+        establishedYear: new Date().getFullYear(),
+        license: "",
+        safetyIndex: 5,
+        paymentMethods: [],
+        supportedCurrencies: [],
+        gameProviders: [],
+        features: [],
+        restrictedCountries: [],
+        bonusesRating: 5,
+        bonusesExplanation: "",
+        designRating: 5,
+        designExplanation: "",
+        payoutsRating: 5,
+        payoutsExplanation: "",
+        customerSupportRating: 5,
+        customerSupportExplanation: "",
+        gameSelectionRating: 5,
+        gameSelectionExplanation: "",
+        mobileExperienceRating: 5,
+        mobileExperienceExplanation: "",
+        overallRating: 5,
+        expertSummary: "",
+        isActive: true,
+        isFeatured: false,
+      });
+    }
+  }, [casino, isOpen, form]);
 
   const onSubmit = async (data: CasinoFormData) => {
     setIsLoading(true);
