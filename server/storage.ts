@@ -59,6 +59,7 @@ export interface IStorage {
   getExpertReviewsByCasino(casinoId: string): Promise<ExpertReview[]>;
   getExpertReview(id: string): Promise<ExpertReview | undefined>;
   createExpertReview(review: InsertExpertReview): Promise<ExpertReview>;
+  updateExpertReview(id: string, updates: Partial<InsertExpertReview>): Promise<ExpertReview>;
 
   // Blog Posts
   getBlogPosts(published?: boolean): Promise<BlogPost[]>;
@@ -476,6 +477,19 @@ export class MemStorage implements IStorage {
       return result[0];
     } catch (error) {
       console.error('Error creating expert review:', error);
+      throw error;
+    }
+  }
+
+  async updateExpertReview(id: string, updates: Partial<InsertExpertReview>): Promise<ExpertReview> {
+    try {
+      const result = await db.update(expertReviews)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(expertReviews.id, id))
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error('Error updating expert review:', error);
       throw error;
     }
   }

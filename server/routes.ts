@@ -623,11 +623,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertCasinoSchema.parse(casinoData);
       const casino = await storage.createCasino(validatedData);
       
-      // TODO: Ako postoji expert review data, kreirati expert review
-      // const { bonusesRating, designRating, ... } = req.body;
-      // if (bonusesRating !== undefined) {
-      //   await storage.createExpertReview({ casinoId: casino.id, ... });
-      // }
+      // Kreiranje expert review-a ako postoje podaci
+      const {
+        bonusesRating, bonusesExplanation,
+        designRating, designExplanation,
+        payoutsRating, payoutsExplanation,
+        customerSupportRating, customerSupportExplanation,
+        gameSelectionRating, gameSelectionExplanation,
+        mobileExperienceRating, mobileExperienceExplanation,
+        overallRating, expertSummary
+      } = req.body;
+      
+      if (bonusesRating !== undefined) {
+        const expertReviewData = {
+          casinoId: casino.id,
+          authorId: req.admin.id, // Koristimo admin ID kao autora
+          bonusesRating: bonusesRating.toString(),
+          bonusesExplanation: bonusesExplanation || '',
+          designRating: designRating?.toString() || '5',
+          designExplanation: designExplanation || '',
+          payoutsRating: payoutsRating?.toString() || '5',
+          payoutsExplanation: payoutsExplanation || '',
+          customerSupportRating: customerSupportRating?.toString() || '5',
+          customerSupportExplanation: customerSupportExplanation || '',
+          gameSelectionRating: gameSelectionRating?.toString() || '5',
+          gameSelectionExplanation: gameSelectionExplanation || '',
+          mobileExperienceRating: mobileExperienceRating?.toString() || '5',
+          mobileExperienceExplanation: mobileExperienceExplanation || '',
+          overallRating: overallRating?.toString() || '5',
+          summary: expertSummary || ''
+        };
+        
+        try {
+          await storage.createExpertReview(expertReviewData);
+        } catch (reviewError) {
+          console.error('Error creating expert review:', reviewError);
+          // Ne prekidamo kreiranje kazina ako expert review ne uspe
+        }
+      }
       
       res.json({ success: true, casino, message: 'Kazino je uspešno kreiran' });
     } catch (error) {
@@ -672,6 +705,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertCasinoSchema.partial().parse(casinoUpdates);
       const casino = await storage.updateCasino(casinoId, validatedData);
       
+      // Ažuriranje expert review-a ako postoje podaci
+      const {
+        bonusesRating, bonusesExplanation,
+        designRating, designExplanation,
+        payoutsRating, payoutsExplanation,
+        customerSupportRating, customerSupportExplanation,
+        gameSelectionRating, gameSelectionExplanation,
+        mobileExperienceRating, mobileExperienceExplanation,
+        overallRating, expertSummary
+      } = req.body;
+      
+      if (bonusesRating !== undefined) {
+        // Proveravamo da li expert review već postoji
+        const existingReviews = await storage.getExpertReviewsByCasino(casinoId);
+        
+        const expertReviewData = {
+          casinoId,
+          authorId: req.admin.id,
+          bonusesRating: bonusesRating.toString(),
+          bonusesExplanation: bonusesExplanation || '',
+          designRating: designRating?.toString() || '5',
+          designExplanation: designExplanation || '',
+          payoutsRating: payoutsRating?.toString() || '5',
+          payoutsExplanation: payoutsExplanation || '',
+          customerSupportRating: customerSupportRating?.toString() || '5',
+          customerSupportExplanation: customerSupportExplanation || '',
+          gameSelectionRating: gameSelectionRating?.toString() || '5',
+          gameSelectionExplanation: gameSelectionExplanation || '',
+          mobileExperienceRating: mobileExperienceRating?.toString() || '5',
+          mobileExperienceExplanation: mobileExperienceExplanation || '',
+          overallRating: overallRating?.toString() || '5',
+          summary: expertSummary || ''
+        };
+        
+        try {
+          if (existingReviews.length > 0) {
+            // Ažuriramo postojeći expert review
+            await storage.updateExpertReview(existingReviews[0].id, expertReviewData);
+          } else {
+            // Kreiramo novi expert review
+            await storage.createExpertReview(expertReviewData);
+          }
+        } catch (reviewError) {
+          console.error('Error updating/creating expert review:', reviewError);
+        }
+      }
+      
       res.json({ success: true, casino, message: 'Kazino je uspešno ažuriran' });
     } catch (error) {
       console.error('Error updating casino:', error);
@@ -710,7 +790,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const bonusData = {
         casinoId, title, description, type, amount, wageringRequirement,
-        minDeposit, maxWin, validUntil, terms, code,
+        minDeposit, maxWin, 
+        validUntil: validUntil ? new Date(validUntil) : null,
+        terms, code,
         isFeatured: isFeatured ?? false,
         isActive: isActive ?? true
       };
@@ -746,7 +828,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (wageringRequirement !== undefined) bonusUpdates.wageringRequirement = wageringRequirement;
       if (minDeposit !== undefined) bonusUpdates.minDeposit = minDeposit;
       if (maxWin !== undefined) bonusUpdates.maxWin = maxWin;
-      if (validUntil !== undefined) bonusUpdates.validUntil = validUntil;
+      if (validUntil !== undefined) bonusUpdates.validUntil = validUntil ? new Date(validUntil) : null;
       if (terms !== undefined) bonusUpdates.terms = terms;
       if (code !== undefined) bonusUpdates.code = code;
       if (isFeatured !== undefined) bonusUpdates.isFeatured = isFeatured;
