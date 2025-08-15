@@ -600,15 +600,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Casino management
   app.post('/api/admin/casinos', authenticateAdmin, async (req: any, res) => {
     try {
-      const validatedData = insertCasinoSchema.parse(req.body);
+      // Izdvajamo samo kazino podatke iz forme
+      const {
+        name, description, websiteUrl, affiliateUrl, logoUrl,
+        establishedYear, license, safetyIndex,
+        paymentMethods, supportedCurrencies, gameProviders, features, restrictedCountries,
+        isActive, isFeatured
+      } = req.body;
+      
+      const casinoData = {
+        name, description, websiteUrl, affiliateUrl, logoUrl,
+        establishedYear, license, safetyIndex: safetyIndex.toString(),
+        paymentMethods: paymentMethods || [], 
+        supportedCurrencies: supportedCurrencies || [], 
+        gameProviders: gameProviders || [], 
+        features: features || [], 
+        restrictedCountries: restrictedCountries || [],
+        isActive: isActive ?? true, 
+        isFeatured: isFeatured ?? false
+      };
+      
+      const validatedData = insertCasinoSchema.parse(casinoData);
       const casino = await storage.createCasino(validatedData);
-      res.json({ success: true, casino });
+      
+      // TODO: Ako postoji expert review data, kreirati expert review
+      // const { bonusesRating, designRating, ... } = req.body;
+      // if (bonusesRating !== undefined) {
+      //   await storage.createExpertReview({ casinoId: casino.id, ... });
+      // }
+      
+      res.json({ success: true, casino, message: 'Kazino je uspešno kreiran' });
     } catch (error) {
       console.error('Error creating casino:', error);
       if (error instanceof z.ZodError) {
-        res.status(400).json({ success: false, message: 'Neispravni podaci', errors: error.errors });
+        res.status(400).json({ success: false, message: 'Neispravni podaci za kazino', errors: error.errors });
       } else {
-        res.status(500).json({ success: false, message: 'Greška servera' });
+        res.status(500).json({ success: false, message: 'Greška servera prilikom kreiranja kazina' });
       }
     }
   });
@@ -616,19 +643,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/admin/casinos/:id', authenticateAdmin, async (req: any, res) => {
     try {
       const casinoId = req.params.id;
-      const updates = req.body;
+      const {
+        name, description, websiteUrl, affiliateUrl, logoUrl,
+        establishedYear, license, safetyIndex,
+        paymentMethods, supportedCurrencies, gameProviders, features, restrictedCountries,
+        isActive, isFeatured
+      } = req.body;
       
-      // Validacija podataka (parcijalna)
-      const validatedData = insertCasinoSchema.partial().parse(updates);
+      const casinoUpdates = {};
+      
+      // Dodajemo samo definisana polja
+      if (name !== undefined) casinoUpdates.name = name;
+      if (description !== undefined) casinoUpdates.description = description;
+      if (websiteUrl !== undefined) casinoUpdates.websiteUrl = websiteUrl;
+      if (affiliateUrl !== undefined) casinoUpdates.affiliateUrl = affiliateUrl;
+      if (logoUrl !== undefined) casinoUpdates.logoUrl = logoUrl;
+      if (establishedYear !== undefined) casinoUpdates.establishedYear = establishedYear;
+      if (license !== undefined) casinoUpdates.license = license;
+      if (safetyIndex !== undefined) casinoUpdates.safetyIndex = safetyIndex.toString();
+      if (paymentMethods !== undefined) casinoUpdates.paymentMethods = paymentMethods;
+      if (supportedCurrencies !== undefined) casinoUpdates.supportedCurrencies = supportedCurrencies;
+      if (gameProviders !== undefined) casinoUpdates.gameProviders = gameProviders;
+      if (features !== undefined) casinoUpdates.features = features;
+      if (restrictedCountries !== undefined) casinoUpdates.restrictedCountries = restrictedCountries;
+      if (isActive !== undefined) casinoUpdates.isActive = isActive;
+      if (isFeatured !== undefined) casinoUpdates.isFeatured = isFeatured;
+      
+      const validatedData = insertCasinoSchema.partial().parse(casinoUpdates);
       const casino = await storage.updateCasino(casinoId, validatedData);
       
-      res.json({ success: true, casino });
+      res.json({ success: true, casino, message: 'Kazino je uspešno ažuriran' });
     } catch (error) {
       console.error('Error updating casino:', error);
       if (error instanceof z.ZodError) {
-        res.status(400).json({ success: false, message: 'Neispravni podaci', errors: error.errors });
+        res.status(400).json({ success: false, message: 'Neispravni podaci za ažuriranje', errors: error.errors });
       } else {
-        res.status(500).json({ success: false, message: 'Greška servera' });
+        res.status(500).json({ success: false, message: 'Greška servera prilikom ažuriranja' });
       }
     }
   });
@@ -653,15 +703,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Bonus management
   app.post('/api/admin/bonuses', authenticateAdmin, async (req: any, res) => {
     try {
-      const validatedData = insertBonusSchema.parse(req.body);
+      const {
+        casinoId, title, description, type, amount, wageringRequirement,
+        minDeposit, maxWin, validUntil, terms, code, isFeatured, isActive
+      } = req.body;
+      
+      const bonusData = {
+        casinoId, title, description, type, amount, wageringRequirement,
+        minDeposit, maxWin, validUntil, terms, code,
+        isFeatured: isFeatured ?? false,
+        isActive: isActive ?? true
+      };
+      
+      const validatedData = insertBonusSchema.parse(bonusData);
       const bonus = await storage.createBonus(validatedData);
-      res.json({ success: true, bonus });
+      res.json({ success: true, bonus, message: 'Bonus je uspešno kreiran' });
     } catch (error) {
       console.error('Error creating bonus:', error);
       if (error instanceof z.ZodError) {
-        res.status(400).json({ success: false, message: 'Neispravni podaci', errors: error.errors });
+        res.status(400).json({ success: false, message: 'Neispravni podaci za bonus', errors: error.errors });
       } else {
-        res.status(500).json({ success: false, message: 'Greška servera' });
+        res.status(500).json({ success: false, message: 'Greška servera prilikom kreiranja bonusa' });
       }
     }
   });
@@ -669,18 +731,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/admin/bonuses/:id', authenticateAdmin, async (req: any, res) => {
     try {
       const bonusId = req.params.id;
-      const updates = req.body;
+      const {
+        casinoId, title, description, type, amount, wageringRequirement,
+        minDeposit, maxWin, validUntil, terms, code, isFeatured, isActive
+      } = req.body;
       
-      const validatedData = insertBonusSchema.partial().parse(updates);
+      const bonusUpdates = {};
+      
+      if (casinoId !== undefined) bonusUpdates.casinoId = casinoId;
+      if (title !== undefined) bonusUpdates.title = title;
+      if (description !== undefined) bonusUpdates.description = description;
+      if (type !== undefined) bonusUpdates.type = type;
+      if (amount !== undefined) bonusUpdates.amount = amount;
+      if (wageringRequirement !== undefined) bonusUpdates.wageringRequirement = wageringRequirement;
+      if (minDeposit !== undefined) bonusUpdates.minDeposit = minDeposit;
+      if (maxWin !== undefined) bonusUpdates.maxWin = maxWin;
+      if (validUntil !== undefined) bonusUpdates.validUntil = validUntil;
+      if (terms !== undefined) bonusUpdates.terms = terms;
+      if (code !== undefined) bonusUpdates.code = code;
+      if (isFeatured !== undefined) bonusUpdates.isFeatured = isFeatured;
+      if (isActive !== undefined) bonusUpdates.isActive = isActive;
+      
+      const validatedData = insertBonusSchema.partial().parse(bonusUpdates);
       const bonus = await storage.updateBonus(bonusId, validatedData);
       
-      res.json({ success: true, bonus });
+      res.json({ success: true, bonus, message: 'Bonus je uspešno ažuriran' });
     } catch (error) {
       console.error('Error updating bonus:', error);
       if (error instanceof z.ZodError) {
-        res.status(400).json({ success: false, message: 'Neispravni podaci', errors: error.errors });
+        res.status(400).json({ success: false, message: 'Neispravni podaci za ažuriranje bonusa', errors: error.errors });
       } else {
-        res.status(500).json({ success: false, message: 'Greška servera' });
+        res.status(500).json({ success: false, message: 'Greška servera prilikom ažuriranja bonusa' });
       }
     }
   });
@@ -705,15 +786,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Game management
   app.post('/api/admin/games', authenticateAdmin, async (req: any, res) => {
     try {
-      const validatedData = insertGameSchema.parse(req.body);
+      const {
+        name, description, provider, type, rtp, volatility,
+        minBet, maxBet, imageUrl, demoUrl, tags, isActive
+      } = req.body;
+      
+      const gameData = {
+        name, description, provider, type, rtp, volatility,
+        minBet, maxBet, imageUrl, demoUrl,
+        tags: tags || [],
+        isActive: isActive ?? true
+      };
+      
+      const validatedData = insertGameSchema.parse(gameData);
       const game = await storage.createGame(validatedData);
-      res.json({ success: true, game });
+      res.json({ success: true, game, message: 'Igra je uspešno kreirana' });
     } catch (error) {
       console.error('Error creating game:', error);
       if (error instanceof z.ZodError) {
-        res.status(400).json({ success: false, message: 'Neispravni podaci', errors: error.errors });
+        res.status(400).json({ success: false, message: 'Neispravni podaci za igru', errors: error.errors });
       } else {
-        res.status(500).json({ success: false, message: 'Greška servera' });
+        res.status(500).json({ success: false, message: 'Greška servera prilikom kreiranja igre' });
       }
     }
   });
@@ -721,18 +814,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/admin/games/:id', authenticateAdmin, async (req: any, res) => {
     try {
       const gameId = req.params.id;
-      const updates = req.body;
+      const {
+        name, description, provider, type, rtp, volatility,
+        minBet, maxBet, imageUrl, demoUrl, tags, isActive
+      } = req.body;
       
-      const validatedData = insertGameSchema.partial().parse(updates);
+      const gameUpdates = {};
+      
+      if (name !== undefined) gameUpdates.name = name;
+      if (description !== undefined) gameUpdates.description = description;
+      if (provider !== undefined) gameUpdates.provider = provider;
+      if (type !== undefined) gameUpdates.type = type;
+      if (rtp !== undefined) gameUpdates.rtp = rtp;
+      if (volatility !== undefined) gameUpdates.volatility = volatility;
+      if (minBet !== undefined) gameUpdates.minBet = minBet;
+      if (maxBet !== undefined) gameUpdates.maxBet = maxBet;
+      if (imageUrl !== undefined) gameUpdates.imageUrl = imageUrl;
+      if (demoUrl !== undefined) gameUpdates.demoUrl = demoUrl;
+      if (tags !== undefined) gameUpdates.tags = tags;
+      if (isActive !== undefined) gameUpdates.isActive = isActive;
+      
+      const validatedData = insertGameSchema.partial().parse(gameUpdates);
       const game = await storage.updateGame(gameId, validatedData);
       
-      res.json({ success: true, game });
+      res.json({ success: true, game, message: 'Igra je uspešno ažurirana' });
     } catch (error) {
       console.error('Error updating game:', error);
       if (error instanceof z.ZodError) {
-        res.status(400).json({ success: false, message: 'Neispravni podaci', errors: error.errors });
+        res.status(400).json({ success: false, message: 'Neispravni podaci za ažuriranje igre', errors: error.errors });
       } else {
-        res.status(500).json({ success: false, message: 'Greška servera' });
+        res.status(500).json({ success: false, message: 'Greška servera prilikom ažuriranja igre' });
       }
     }
   });
@@ -757,15 +868,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Blog management
   app.post('/api/admin/blog', authenticateAdmin, async (req: any, res) => {
     try {
-      const validatedData = insertBlogPostSchema.parse(req.body);
+      const {
+        title, slug, excerpt, content, featuredImage, contentMedia,
+        authorId, category, tags, readTime, metaDescription,
+        relatedCasinos, relatedGames, isPublished, isFeatured, publishedAt
+      } = req.body;
+      
+      const blogData = {
+        title, slug, excerpt, content, featuredImage,
+        contentMedia: contentMedia || [],
+        authorId, category,
+        tags: tags || [],
+        readTime, metaDescription,
+        relatedCasinos: relatedCasinos || [],
+        relatedGames: relatedGames || [],
+        isPublished: isPublished ?? false,
+        isFeatured: isFeatured ?? false,
+        publishedAt
+      };
+      
+      const validatedData = insertBlogPostSchema.parse(blogData);
       const blogPost = await storage.createBlogPost(validatedData);
-      res.json({ success: true, blogPost });
+      res.json({ success: true, blogPost, message: 'Blog post je uspešno kreiran' });
     } catch (error) {
       console.error('Error creating blog post:', error);
       if (error instanceof z.ZodError) {
-        res.status(400).json({ success: false, message: 'Neispravni podaci', errors: error.errors });
+        res.status(400).json({ success: false, message: 'Neispravni podaci za blog post', errors: error.errors });
       } else {
-        res.status(500).json({ success: false, message: 'Greška servera' });
+        res.status(500).json({ success: false, message: 'Greška servera prilikom kreiranja blog posta' });
       }
     }
   });
