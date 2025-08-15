@@ -99,6 +99,7 @@ export function CasinoForm({ isOpen, onOpenChange, casino, onSuccess }: CasinoFo
       supportedCurrencies: casino?.supportedCurrencies || [],
       gameProviders: casino?.gameProviders || [],
       features: casino?.features || [],
+      restrictedCountries: casino?.restrictedCountries || [],
       
       // Expert Review ocene (uzmi iz expertReview objekta ako postoji)
       bonusesRating: casino?.expertReview?.bonusesRating || 5,
@@ -208,7 +209,7 @@ export function CasinoForm({ isOpen, onOpenChange, casino, onSuccess }: CasinoFo
 
   const addRestrictedCountry = () => {
     if (selectedCountry) {
-      const current = form.getValues("restrictedCountries");
+      const current = form.getValues("restrictedCountries") || [];
       if (!current.includes(selectedCountry)) {
         form.setValue("restrictedCountries", [...current, selectedCountry]);
       }
@@ -217,7 +218,7 @@ export function CasinoForm({ isOpen, onOpenChange, casino, onSuccess }: CasinoFo
   };
 
   const addCommonRestrictedCountries = () => {
-    const current = form.getValues("restrictedCountries");
+    const current = form.getValues("restrictedCountries") || [];
     const newRestricted = COMMONLY_RESTRICTED_COUNTRIES.filter(code => !current.includes(code));
     form.setValue("restrictedCountries", [...current, ...newRestricted]);
   };
@@ -535,7 +536,7 @@ export function CasinoForm({ isOpen, onOpenChange, casino, onSuccess }: CasinoFo
                       </SelectTrigger>
                       <SelectContent className="max-h-[200px]">
                         {WORLD_COUNTRIES.filter(country => 
-                          !form.watch("restrictedCountries").includes(country.code)
+                          !(form.watch("restrictedCountries") || []).includes(country.code)
                         ).map((country) => (
                           <SelectItem key={country.code} value={country.code}>
                             {country.name}
@@ -554,7 +555,7 @@ export function CasinoForm({ isOpen, onOpenChange, casino, onSuccess }: CasinoFo
                   </div>
                   
                   <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto">
-                    {form.watch("restrictedCountries").map((countryCode, index) => (
+                    {(form.watch("restrictedCountries") || []).map((countryCode, index) => (
                       <Badge key={index} variant="destructive" className="flex items-center gap-1">
                         {getCountryName(countryCode)}
                         <X 
@@ -566,9 +567,9 @@ export function CasinoForm({ isOpen, onOpenChange, casino, onSuccess }: CasinoFo
                   </div>
                   
                   <div className="text-sm text-muted-foreground">
-                    {form.watch("restrictedCountries").length === 0 
+                    {(form.watch("restrictedCountries") || []).length === 0 
                       ? "Available in all countries worldwide" 
-                      : `Available in ${WORLD_COUNTRIES.length - form.watch("restrictedCountries").length} countries`
+                      : `Available in ${WORLD_COUNTRIES.length - (form.watch("restrictedCountries") || []).length} countries`
                     }
                   </div>
                 </div>
