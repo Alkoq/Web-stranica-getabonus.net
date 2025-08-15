@@ -57,8 +57,17 @@ app.use((req, res, next) => {
   // Setup development or production mode
   if (process.env.NODE_ENV === "development") {
     // Dynamic import for vite functions only in development
-    const { setupVite } = await import('./vite');
-    await setupVite(app, server);
+    try {
+      const { setupVite } = await import('./vite.js');
+      await setupVite(app, server);
+    } catch (error) {
+      console.warn('Vite setup failed, serving static files instead');
+      // Fallback to static serving if vite fails
+      app.use(express.static('client/dist'));
+      app.get('*', (_req, res) => {
+        res.sendFile('client/dist/index.html', { root: process.cwd() });
+      });
+    }
   } else {
     // Production: serve static files
     const path = await import('path');
