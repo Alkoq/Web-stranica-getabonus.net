@@ -14,16 +14,20 @@ interface GameCardProps {
 }
 
 export function GameCard({ game, onPlayGame }: GameCardProps) {
-  console.log('GameCard rendering for:', game.name);
   
-  // Get expert rating from API (fixed rating)
-  const { data: ratingData } = useQuery<{ expertRating: number }>({
-    queryKey: ['/api/games/rating', game.id],
-    queryFn: () => fetch(`/api/games/${game.id}/rating`).then(res => res.json()),
+  // Get user reviews for this game
+  const { data: gameReviews = [] } = useQuery<Review[]>({
+    queryKey: ['/api/reviews/game', game.id],
+    queryFn: () => fetch(`/api/reviews/game/${game.id}`).then(res => res.json()),
   });
 
-  const getCombinedRating = () => {
-    return ratingData?.expertRating ? ratingData.expertRating.toFixed(1) : '0.0';
+  const getUserRating = () => {
+    if (gameReviews.length === 0) {
+      return '0.0';
+    }
+    const totalRating = gameReviews.reduce((sum, review) => sum + review.overallRating, 0);
+    const average = totalRating / gameReviews.length;
+    return average.toFixed(1);
   };
 
   return (
@@ -61,7 +65,7 @@ export function GameCard({ game, onPlayGame }: GameCardProps) {
             <div className="absolute top-2 left-2" style={{zIndex: 10}}>
               <div className="flex items-center bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full px-2 py-1 shadow-lg">
                 <Star className="h-3 w-3 text-white fill-current mr-1" />
-                <span className="text-xs font-bold">{getCombinedRating()}</span>
+                <span className="text-xs font-bold">{getUserRating()}</span>
               </div>
             </div>
             <div className="absolute bottom-2 left-2">
