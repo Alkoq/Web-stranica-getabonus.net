@@ -348,13 +348,6 @@ export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-}).extend({
-  publishedAt: z.union([z.string(), z.date(), z.null()]).optional().transform((val) => {
-    if (!val || val === null) return null;
-    if (val instanceof Date) return val;
-    if (typeof val === 'string') return new Date(val);
-    return null;
-  }),
 });
 
 export const insertNewsletterSubscriberSchema = createInsertSchema(newsletterSubscribers).omit({

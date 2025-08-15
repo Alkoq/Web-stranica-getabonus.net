@@ -983,6 +983,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         publishedAt
       };
       
+      // Convert publishedAt string to Date before validation
+      if (blogData.publishedAt && typeof blogData.publishedAt === 'string') {
+        blogData.publishedAt = new Date(blogData.publishedAt);
+      }
+      
       const validatedData = insertBlogPostSchema.parse(blogData);
       const blogPost = await storage.createBlogPost(validatedData);
       res.json({ success: true, blogPost, message: 'Blog post je uspešno kreiran' });
