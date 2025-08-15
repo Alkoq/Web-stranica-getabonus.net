@@ -19,7 +19,7 @@ const gameFormSchema = z.object({
   name: z.string().min(2, "Name must have at least 2 characters"),
   description: z.string().optional(),
   provider: z.string().min(2, "Provider is required"),
-  category: z.string().min(1, "Category is required"),
+  type: z.string().min(1, "Game type is required"),
   rtp: z.number().min(0).max(100),
   volatility: z.string().min(1, "Volatility is required"),
   minBet: z.number().min(0),
@@ -49,7 +49,7 @@ interface GameFormProps {
 }
 
 const gameCategories = [
-  { value: "slots", label: "Slots" },
+  { value: "slot", label: "Slots" },
   { value: "table", label: "Table Games" },
   { value: "live", label: "Live Casino" },
   { value: "jackpot", label: "Jackpot" },
@@ -81,7 +81,7 @@ export function GameForm({ isOpen, onOpenChange, game, onSuccess }: GameFormProp
       name: game?.name || "",
       description: game?.description || "",
       provider: game?.provider || "",
-      category: game?.category || "",
+      type: game?.type || "",
       rtp: game?.rtp || 96,
       volatility: game?.volatility || "",
       minBet: game?.minBet || 0.1,
@@ -273,14 +273,14 @@ export function GameForm({ isOpen, onOpenChange, game, onSuccess }: GameFormProp
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name="category"
+                    name="type"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Kategorija</FormLabel>
+                        <FormLabel>Game Type</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger data-testid="select-game-category">
-                              <SelectValue placeholder="Izaberite kategoriju" />
+                            <SelectTrigger data-testid="select-game-type">
+                              <SelectValue placeholder="Select game type" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -301,11 +301,11 @@ export function GameForm({ isOpen, onOpenChange, game, onSuccess }: GameFormProp
                     name="volatility"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Volatilnost</FormLabel>
+                        <FormLabel>Volatility</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger data-testid="select-game-volatility">
-                              <SelectValue placeholder="Izaberite volatilnost" />
+                              <SelectValue placeholder="Select volatility" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>

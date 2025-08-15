@@ -870,18 +870,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('Game creation request body:', req.body);
       const {
-        name, description, provider, type, rtp, volatility,
+        name, description, provider, type, category, rtp, volatility,
         minBet, maxBet, imageUrl, demoUrl, tags, isActive
       } = req.body;
       
       // Debug ispis
-      console.log('Extracted values:', { name, description, provider, type, rtp, volatility, minBet, maxBet });
+      console.log('Extracted values:', { name, description, provider, type, category, rtp, volatility, minBet, maxBet });
       
       const gameData = {
         name: name || '', 
         description: description || '', 
         provider: provider || '', 
-        type: type || 'slot', // Defaultna vrednost umesto praznog stringa
+        type: type || category || 'slot', // Use type first, then category as fallback, then default
         rtp: rtp !== undefined && rtp !== null && rtp !== '' ? String(rtp) : null, 
         volatility: volatility || null,
         minBet: minBet !== undefined && minBet !== null && minBet !== '' ? String(minBet) : null,
@@ -896,13 +896,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const validatedData = insertGameSchema.parse(gameData);
       const game = await storage.createGame(validatedData);
-      res.json({ success: true, game, message: 'Igra je uspešno kreirana' });
+      res.json({ success: true, game, message: 'Game created successfully' });
     } catch (error) {
       console.error('Error creating game:', error);
       if (error instanceof z.ZodError) {
-        res.status(400).json({ success: false, message: 'Neispravni podaci za igru', errors: error.errors });
+        res.status(400).json({ success: false, message: 'Invalid game data', errors: error.errors });
       } else {
-        res.status(500).json({ success: false, message: 'Greška servera prilikom kreiranja igre' });
+        res.status(500).json({ success: false, message: 'Server error while creating game' });
       }
     }
   });
