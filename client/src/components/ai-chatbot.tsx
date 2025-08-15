@@ -10,7 +10,7 @@ export function AIChatbot() {
     {
       id: 1,
       type: 'bot',
-      content: "Hello! I'm your AI Casino Assistant. I can help you with casino recommendations, game strategies, bonus information, and responsible gambling advice. What would you like to know?",
+      content: "Hello! I'm your AI assistant powered by ChatGPT. I can help you with casino recommendations, bonus explanations, game strategies, payment methods, and responsible gambling guidance. Ask me anything about online casinos!",
       timestamp: new Date()
     }
   ]);
@@ -23,55 +23,84 @@ export function AIChatbot() {
     { icon: Shield, text: "Responsible gambling tips", category: "safety" }
   ];
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
 
+    const userMessage = inputMessage;
     const newMessage = {
       id: messages.length + 1,
       type: 'user',
-      content: inputMessage,
+      content: userMessage,
       timestamp: new Date()
     };
 
     setMessages([...messages, newMessage]);
     setInputMessage('');
 
-    // Simulate AI response
-    setTimeout(() => {
+    // Add typing indicator
+    const typingMessage = {
+      id: messages.length + 2,
+      type: 'bot',
+      content: 'Typing...',
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, typingMessage]);
+
+    try {
+      // Call OpenAI API
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: userMessage }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to get response');
+      }
+
+      // Replace typing indicator with actual response
       const aiResponse = {
         id: messages.length + 2,
         type: 'bot',
-        content: generateAIResponse(inputMessage),
+        content: data.response,
         timestamp: new Date()
       };
-      setMessages(prev => [...prev, aiResponse]);
-    }, 1000);
+      
+      setMessages(prev => {
+        const withoutTyping = prev.slice(0, -1); // Remove typing indicator
+        return [...withoutTyping, aiResponse];
+      });
+
+    } catch (error) {
+      console.error('Chat API Error:', error);
+      
+      // Replace typing indicator with error message
+      const errorResponse = {
+        id: messages.length + 2,
+        type: 'bot',
+        content: "Sorry, I'm having trouble connecting right now. Please try again later.",
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => {
+        const withoutTyping = prev.slice(0, -1); // Remove typing indicator
+        return [...withoutTyping, errorResponse];
+      });
+    }
   };
 
-  const generateAIResponse = (message: string) => {
-    const lowerMessage = message.toLowerCase();
-    
-    if (lowerMessage.includes('crypto') || lowerMessage.includes('bitcoin')) {
-      return "Based on our data, the top crypto casinos are Stake, Roobet, and BC.Game. Stake offers excellent provably fair games and VIP rewards, while Roobet is known for original games and streaming community. BC.Game accepts 60+ cryptocurrencies. Would you like detailed information about any of these?";
-    }
-    
-    if (lowerMessage.includes('blackjack')) {
-      return "Blackjack basic strategy involves: Always hit on 11 or less, stand on 17 or more, double down on 10-11 when dealer shows 2-9, split Aces and 8s, never split 10s or 5s. The house edge can be as low as 0.5% with perfect basic strategy. Would you like more specific strategy charts?";
-    }
-    
-    if (lowerMessage.includes('wagering') || lowerMessage.includes('requirement')) {
-      return "Wagering requirements specify how many times you must bet your bonus before withdrawing. For example, a $100 bonus with 35x wagering means you need to bet $3,500 total. Lower requirements (20x or less) are better. Some games contribute differently - slots usually 100%, table games often 10-20%.";
-    }
-    
-    if (lowerMessage.includes('responsible') || lowerMessage.includes('limit')) {
-      return "Responsible gambling tips: Set time and money limits before playing, never chase losses, take regular breaks, only gamble with money you can afford to lose, and use casino tools like deposit limits and self-exclusion if needed. If gambling becomes a problem, seek help from organizations like BeGambleAware.";
-    }
-    
-    return "I'm here to help with casino recommendations, game strategies, bonus explanations, and responsible gambling advice. Could you be more specific about what you'd like to know? I have extensive knowledge about casino safety ratings, payment methods, and game rules.";
-  };
 
   const handleQuickQuestion = (question: string) => {
     setInputMessage(question);
+    // Auto-send the quick question
+    setTimeout(() => {
+      const event = new KeyboardEvent('keydown', { key: 'Enter' });
+      handleSendMessage();
+    }, 100);
   };
 
   if (!isOpen) {

@@ -3,10 +3,16 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
+import OpenAI from 'openai';
 import { insertNewsletterSubscriberSchema, insertComparisonSchema, insertReviewSchema, insertAdminSchema, insertCasinoSchema, insertBonusSchema, insertGameSchema, insertBlogPostSchema } from "@shared/schema";
 import { z } from "zod";
 
 const JWT_SECRET = process.env.JWT_SECRET || 'getabonus-jwt-secret-key-2024';
+
+// Initialize OpenAI
+const openai = new OpenAI({ 
+  apiKey: process.env.OPENAI_API_KEY 
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -1041,6 +1047,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error deleting blog post:', error);
       res.status(500).json({ success: false, message: 'Greška servera' });
+    }
+  });
+
+  // AI Chatbot endpoint
+  app.post('/api/chat', async (req, res) => {
+    try {
+      const { message } = req.body;
+      
+      if (!message || typeof message !== 'string') {
+        return res.status(400).json({ error: 'Message is required' });
+      }
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        messages: [
+          {
+            role: "system",
+            content: `You are an AI assistant for GetABonus.net, a casino affiliate website. You help users with:
+            
+            1. Casino recommendations and reviews
+            2. Bonus explanations and advice
+            3. Game strategies and rules
+            4. Responsible gambling guidance
+            5. Payment methods and security
+            
+            Be helpful, knowledgeable about online gambling, and always promote responsible gambling. Keep responses concise but informative. If asked about specific casinos or bonuses, recommend users check the latest information on the website.`
+          },
+          {
+            role: "user", 
+            content: message
+          }
+        ],
+        max_tokens: 300,
+        temperature: 0.7,
+      });
+
+      const aiResponse = completion.choices[0]?.message?.content || "Sorry, I couldn't process your request right now.";
+      
+      res.json({ 
+        response: aiResponse,
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      console.error('OpenAI API Error:', error);
+      res.status(500).json({ 
+        error: 'Sorry, I\'m having trouble connecting right now. Please try again later.' 
+      });
     }
   });
 
